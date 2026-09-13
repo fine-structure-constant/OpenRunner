@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,7 +57,7 @@ public class PerfectExitUtil {
                 activity.finish();
             }
         }
-        new Handler().postDelayed(new Runnable() { // from class: y.h
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() { // from class: y.h
             @Override // java.lang.Runnable
             public final void run() {
                 System.exit(0);

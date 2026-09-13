@@ -6,19 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
 import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import cn.edu.pku.pkurunner.BuildConfig;
 import cn.edu.pku.pkurunner.Data;
 import cn.edu.pku.pkurunner.GuidePage.IntroActivity;
@@ -46,13 +44,30 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import org.xutils.common.util.LogUtil;
 
-public class SettingsActivity extends PreferenceActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     /* renamed from: a, reason: collision with root package name */
     private ProgressDialog f7051a;
 
     /* renamed from: b, reason: collision with root package name */
     private int f7052b = 0;
+
+    private SettingsFragment f7053c;
+
+    public static class SettingsFragment extends PreferenceFragmentCompat {
+        @Override // androidx.preference.PreferenceFragmentCompat
+        public void onCreatePreferences(Bundle bundle, String str) {
+            setPreferencesFromResource(R.xml.app_settings, str);
+        }
+    }
+
+    private Preference findPreference(CharSequence charSequence) {
+        SettingsFragment settingsFragment = this.f7053c;
+        if (settingsFragment == null) {
+            return null;
+        }
+        return settingsFragment.findPreference(charSequence);
+    }
 
     /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void U(Preference preference, Pair pair) {
@@ -492,31 +507,27 @@ public class SettingsActivity extends PreferenceActivity {
         setTheme(dark ? R.style.BaseTheme_Dark : R.style.BaseTheme_Light);
     }
 
-    @Override // android.preference.PreferenceActivity, android.app.Activity
+    @Override // androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
     protected void onCreate(Bundle bundle) {
         applySettingsTheme();
         super.onCreate(bundle);
-        addPreferencesFromResource(R.xml.app_settings);
-        f0();
-        C();
-        g0();
-        B();
-        i0();
-        k0();
-    }
-
-    @Override // android.app.Activity
-    protected void onPostCreate(@Nullable Bundle bundle) {
-        super.onPostCreate(bundle);
-        LinearLayout linearLayout = (LinearLayout) findViewById(android.R.id.list).getParent().getParent().getParent();
-        Toolbar toolbar = (Toolbar) LayoutInflater.from(this).inflate(R.layout.view_settings_toolbar, (ViewGroup) linearLayout, false);
-        linearLayout.addView(toolbar, 0);
+        setContentView(R.layout.activity_settings);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.p_settings_toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.Settings.t
             @Override // android.view.View.OnClickListener
             public final void onClick(View view) {
                 SettingsActivity.this.c0(view);
             }
         });
+        this.f7053c = new SettingsFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.f_settings_container, this.f7053c).commit();
+        getSupportFragmentManager().executePendingTransactions();
+        f0();
+        C();
+        g0();
+        B();
+        i0();
+        k0();
     }
 
     @Override // android.app.Activity

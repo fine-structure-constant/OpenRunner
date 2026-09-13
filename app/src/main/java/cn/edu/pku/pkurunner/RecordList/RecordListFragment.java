@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -19,6 +20,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -93,6 +98,36 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
 
     /* renamed from: p, reason: collision with root package name */
     private SharedPreferences f7034p;
+
+    private final ActivityResultLauncher<Uri> f7036r = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+        @Override // androidx.activity.result.ActivityResultCallback
+        public void onActivityResult(Boolean bool) {
+            if (RecordListFragment.this.f7032n != null) {
+                RecordListFragment.this.f7032n.onNext(bool);
+                RecordListFragment.this.f7032n = null;
+            }
+        }
+    });
+
+    private final ActivityResultLauncher<Intent> f7037s = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override // androidx.activity.result.ActivityResultCallback
+        public void onActivityResult(ActivityResult activityResult) {
+            if (RecordListFragment.this.f7033o == null) {
+                return;
+            }
+            if (activityResult.getResultCode() == -1 && activityResult.getData() != null) {
+                Bundle extras = activityResult.getData().getExtras();
+                if (IaaaWrapper.RESULT_CANCEL.equals(extras.getString(IaaaWrapper.EXTRA_iAAA_RESULT))) {
+                    RecordListFragment.this.f7033o.onError(new Throwable(getString(R.string.f_record_error_login_cancelled)));
+                } else {
+                    RecordListFragment.this.f7033o.onNext(new Pair(extras.getString(IaaaWrapper.EXTRA_iAAA_UID), extras.getString(IaaaWrapper.EXTRA_iAAA_TOKEN)));
+                }
+            } else {
+                RecordListFragment.this.f7033o.onError(new Throwable(getString(R.string.f_record_error_login_fail)));
+            }
+            RecordListFragment.this.f7033o = null;
+        }
+    });
 
     static class AppBarStateChangeWrapper implements AppBarLayout.OnOffsetChangedListener {
 
@@ -191,7 +226,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void A(ObservableEmitter observableEmitter) {
         this.f7033o = observableEmitter;
-        IaaaWrapper.LaunchIaaaLogin(this);
+        this.f7037s.launch(IaaaWrapper.createIaaaIntent(getActivity()));
     }
 
     /* JADX INFO: Access modifiers changed from: private */
@@ -321,8 +356,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         if (intent.resolveActivity(getMainActivity().getPackageManager()) == null) {
             makeToast(R.string.f_record_error_start_camera, 0, new Object[0]);
         } else if (file != null) {
-            intent.putExtra("output", FileProvider.getUriForFile(getContext(), "cn.edu.pku.openrunner.fileprovider", file));
-            startActivityForResult(intent, 1001);
+            this.f7036r.launch(FileProvider.getUriForFile(getContext(), "cn.edu.pku.openrunner.fileprovider", file));
         }
     }
 
@@ -363,29 +397,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
     public void makeSnackBar(@StringRes int i2, int i3, Object... objArr) {
         Snackbar.make(this.f7022d, getString(i2, objArr), i3).show();
-    }
-
-    @Override // androidx.fragment.app.Fragment
-    public void onActivityResult(int i2, int i3, Intent intent) {
-        if (i2 == 602) {
-            this.f7032n.onNext(Boolean.valueOf(i3 == -1));
-            this.f7032n = null;
-        } else {
-            if (i2 != 1651) {
-                return;
-            }
-            if (i3 == -1) {
-                Bundle extras = intent.getExtras();
-                if (IaaaWrapper.RESULT_CANCEL.equals(extras.getString(IaaaWrapper.EXTRA_iAAA_RESULT))) {
-                    this.f7033o.onError(new Throwable(getString(R.string.f_record_error_login_cancelled)));
-                } else {
-                    this.f7033o.onNext(new Pair(extras.getString(IaaaWrapper.EXTRA_iAAA_UID), extras.getString(IaaaWrapper.EXTRA_iAAA_TOKEN)));
-                }
-            } else {
-                this.f7033o.onError(new Throwable(getString(R.string.f_record_error_login_fail)));
-            }
-            this.f7033o = null;
-        }
     }
 
     @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View

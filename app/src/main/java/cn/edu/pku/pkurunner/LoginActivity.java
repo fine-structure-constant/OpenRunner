@@ -10,6 +10,10 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import cn.edu.pku.pkurunner.Exception.ServerException;
 import cn.edu.pku.pkurunner.Model.User;
@@ -32,6 +36,30 @@ public class LoginActivity extends AppCompatActivity {
 
     /* renamed from: b, reason: collision with root package name */
     private ProgressDialog f6865b;
+
+    private final ActivityResultLauncher<Intent> f6866c = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override // androidx.activity.result.ActivityResultCallback
+        public void onActivityResult(ActivityResult activityResult) {
+            IaaaWrapper.HandleIaaaResult(LoginActivity.this, activityResult).observeOn(AndroidSchedulers.mainThread()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.n0
+                @Override // io.reactivex.functions.Function
+                public final Object apply(Object obj) {
+                    ObservableSource z2;
+                    z2 = LoginActivity.this.z((Pair) obj);
+                    return z2;
+                }
+            }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.o0
+                @Override // io.reactivex.functions.Consumer
+                public final void accept(Object obj) {
+                    LoginActivity.this.A((Boolean) obj);
+                }
+            }, new Consumer() { // from class: cn.edu.pku.pkurunner.p0
+                @Override // io.reactivex.functions.Consumer
+                public final void accept(Object obj) {
+                    LoginActivity.this.B((Throwable) obj);
+                }
+            });
+        }
+    });
 
     @Override // androidx.activity.ComponentActivity, android.app.Activity
     public void onBackPressed() {
@@ -148,7 +176,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void C(View view) {
-        IaaaWrapper.LaunchIaaaLogin(this);
+        this.f6866c.launch(IaaaWrapper.createIaaaIntent(this));
     }
 
     /* JADX INFO: Access modifiers changed from: private */
@@ -240,29 +268,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override // io.reactivex.functions.Consumer
             public final void accept(Object obj) {
                 LoginActivity.this.O((Boolean) obj);
-            }
-        });
-    }
-
-    @Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, android.app.Activity
-    public void onActivityResult(int i2, int i3, Intent intent) {
-        super.onActivityResult(i2, i3, intent);
-        IaaaWrapper.HandleIaaaResult(this, i2, i3, intent).observeOn(AndroidSchedulers.mainThread()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.n0
-            @Override // io.reactivex.functions.Function
-            public final Object apply(Object obj) {
-                ObservableSource z2;
-                z2 = LoginActivity.this.z((Pair) obj);
-                return z2;
-            }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.o0
-            @Override // io.reactivex.functions.Consumer
-            public final void accept(Object obj) {
-                LoginActivity.this.A((Boolean) obj);
-            }
-        }, new Consumer() { // from class: cn.edu.pku.pkurunner.p0
-            @Override // io.reactivex.functions.Consumer
-            public final void accept(Object obj) {
-                LoginActivity.this.B((Throwable) obj);
             }
         });
     }

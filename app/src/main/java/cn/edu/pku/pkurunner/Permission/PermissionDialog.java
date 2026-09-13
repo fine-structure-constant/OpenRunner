@@ -9,16 +9,33 @@ import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import cn.edu.pku.pkurunner.Permission.PermissionDialog;
 import cn.edu.pku.pkurunner.R;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class PermissionDialog extends DialogFragment {
 
     /* renamed from: t, reason: collision with root package name */
     private View f6990t;
+
+    private ActivityResultLauncher<String[]> f6991u;
+
+    @Override // androidx.fragment.app.Fragment
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        this.f6991u = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+            @Override // androidx.activity.result.ActivityResultCallback
+            public void onActivityResult(Map<String, Boolean> map) {
+                dismissAllowingStateLoss();
+            }
+        });
+    }
 
     /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void s(DialogInterface dialogInterface, int i2) {
@@ -93,7 +110,7 @@ public class PermissionDialog extends DialogFragment {
 
     /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void r(ArrayList arrayList, DialogInterface dialogInterface, int i2) {
-        requestPermissions((String[]) arrayList.toArray(new String[arrayList.size()]), 101);
+        this.f6991u.launch((String[]) arrayList.toArray(new String[arrayList.size()]));
     }
 
     private void t(TextView textView, int i2, Boolean bool) {

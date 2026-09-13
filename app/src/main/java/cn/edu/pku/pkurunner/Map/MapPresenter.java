@@ -7,8 +7,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.GpsSatellite;
-import android.location.GpsStatus;
 import android.location.Location;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -421,8 +419,8 @@ public class MapPresenter implements MapContract.Presenter {
         this.f6939k = true;
         GPSManager.h(new GPSManager.GPSStatusListener() { // from class: r.p
             @Override // cn.edu.pku.pkurunner.Map.GPSManager.GPSStatusListener
-            public final void onStatusUpdate(GpsStatus gpsStatus) {
-                MapPresenter.this.H(gpsStatus);
+            public final void onStatusUpdate(int i2, int i3, double d2) {
+                MapPresenter.this.H(i2, i3, d2);
             }
         }, "presenter-status");
         this.f6935g.toggleGPSAssistantIndication(true);
@@ -557,6 +555,7 @@ public class MapPresenter implements MapContract.Presenter {
     }
 
     private void K() {
+        this.f6935g.setLocatingPointEnabled(true);
         GPSManager.g(new GPSManager.GPSLocationListener() { // from class: r.t
             @Override // cn.edu.pku.pkurunner.Map.GPSManager.GPSLocationListener
             public final void onLocationUpdate(Location location) {
@@ -565,11 +564,10 @@ public class MapPresenter implements MapContract.Presenter {
         }, "presenter-location");
         GPSManager.h(new GPSManager.GPSStatusListener() { // from class: r.u
             @Override // cn.edu.pku.pkurunner.Map.GPSManager.GPSStatusListener
-            public final void onStatusUpdate(GpsStatus gpsStatus) {
-                MapPresenter.this.I(gpsStatus);
+            public final void onStatusUpdate(int i2, int i3, double d2) {
+                MapPresenter.this.I(i2, i3, d2);
             }
         }, "presenter-location");
-        this.f6935g.setLocatingPointEnabled(true);
     }
 
     private void L() {
@@ -799,27 +797,12 @@ public class MapPresenter implements MapContract.Presenter {
     }
 
     /* JADX INFO: Access modifiers changed from: private */
-    public void H(GpsStatus gpsStatus) {
-        double d2 = 0.0d;
-        int i2 = 0;
-        int i3 = 0;
-        for (GpsSatellite gpsSatellite : gpsStatus.getSatellites()) {
-            d2 += Math.pow(2.0d, gpsSatellite.getSnr() / 10.0d);
-            if (gpsSatellite.usedInFix()) {
-                i2++;
-            }
-            i3++;
-        }
+    public void H(int i2, int i3, double d2) {
         this.f6935g.setAssistantText(R.string.p_map_gps_info, d2 / 80.0d, Integer.valueOf(i2), Integer.valueOf(i3), Double.valueOf(d2));
     }
 
     /* JADX INFO: Access modifiers changed from: private */
-    public void I(GpsStatus gpsStatus) {
-        Iterator<GpsSatellite> it = gpsStatus.getSatellites().iterator();
-        double d2 = 0.0d;
-        while (it.hasNext()) {
-            d2 += Math.pow(2.0d, it.next().getSnr() / 10.0d);
-        }
+    public void I(int i2, int i3, double d2) {
         if (d2 < 80.0d) {
             this.f6935g.notifyGPSInfo();
             this.f6935g.setAssistantText(R.string.p_map_gps_weak, d2 / 80.0d, new Object[0]);

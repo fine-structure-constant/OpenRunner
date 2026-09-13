@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path name="photos" path="Android/data/cn.edu.pku.pkurunner/files/Pictures/photo/" />
+    <external-files-path name="photos" path="Pictures/photo/" />
 </paths>
