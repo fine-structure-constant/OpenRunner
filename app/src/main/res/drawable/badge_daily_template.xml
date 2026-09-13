@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="1920.0dip" android:width="1920.0dip" android:viewportWidth="1920.0" android:viewportHeight="1920.0"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <clip-path android:pathData="M1649.29,563.58 L959.85,165.18 L959.85,165 L959.69,165.09 L959.53,165 L959.53,165.18 L270.1,563.58 L270.42,1358.66 L959.53,1755.82 L959.53,1756 L959.69,1755.91 L959.85,1756 L959.85,1755.82 L1648.97,1358.66 L1649.29,563.58 Z" />
+        <path android:name="bg_down" android:fillColor="#ff660000" android:pathData="M0,1359 L1920,1359 L1920,1920 L0,1920 L0,1359 Z" />
+        <path android:name="bg_up" android:fillColor="#ff315b49" android:pathData="M0,0 L1920,0 L1920,1359 L0,1359 L0,0 Z" />
+        <path android:name="box" android:pathData="M466,466 L1454,466 L1454,1454 L466,1454 Z" />
+        <path android:name="body" android:fillColor="#ffef8137" android:pathData="M1021.34,637.59 A82.33,82.33,0,1,0,939,555.26 A82.57,82.57,0,0,0,1021.34,637.59 Z M873.14,1209.81 L914.3,1028.68 L1000.75,1111.01 L1000.75,1358.01 L1083.09,1358.01 L1083.09,1049.26 L996.64,966.93 L1021.34,843.43 C1074.85,905.18,1157.19,946.34,1247.75,946.34 L1247.75,864 C1169.54,864,1103.67,822.83,1070.75,765.2 L1029.58,699.33 C1013.11,674.63,988.41,658.17,959.58,658.17 C947.23,658.17,938.99,662.28,926.64,662.28 L712.59,752.86 L712.59,946.34 L794.92,946.34 L794.92,806.34 L869,777.56 L803.15,1111 L601.44,1069.83 L585,1152.18 Z" />
+        <path android:name="ground" android:pathData="M384,1359 L1543,1359" android:strokeColor="#ffb20909" android:strokeWidth="20.0" android:strokeMiterLimit="10.0" />
+    </group>
+    <path android:fillColor="#ffffffff" android:pathData="M959.84,215.17 L959.84,215 L959.69,215.09 L959.54,215 L959.54,215.17 L313.44,588.53 L313.74,1333.64 L959.54,1705.83 L959.54,1706 L959.69,1705.91 L959.84,1706 L959.84,1705.83 L1605.64,1333.64 L1605.94,588.53 Z M1580.52,1319.12 L959.84,1676.83 L959.84,1677 L959.69,1676.92 L959.55,1677 L959.55,1676.83 L338.87,1319.12 L338.58,603 L959.58,244.17 L959.58,244 L959.72,244.08 L959.87,244 L959.87,244.17 L1580.8,603 Z" android:strokeWidth="1.0" android:strokeAlpha="0.72" android:fillAlpha="0.72" android:fillType="evenOdd" />
+</vector>

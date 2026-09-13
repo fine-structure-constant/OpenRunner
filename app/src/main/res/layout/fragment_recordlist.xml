@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/f_recordlist_swipeRefreshLayout" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <androidx.recyclerview.widget.RecyclerView android:id="@id/f_recordlist_recyclerview" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+        <ImageView android:layout_gravity="center_horizontal" android:id="@id/f_recordlist_img" android:visibility="gone" android:layout_width="96.0dip" android:layout_height="96.0dip" android:layout_marginTop="96.0dip" android:src="@drawable/ic_inbox" />
+        <TextView android:textSize="20.0sp" android:layout_gravity="center_horizontal" android:id="@id/f_recordlist_txt_notice" android:padding="20.0dip" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/f_list_no_data_notice" />
+        <TextView android:textSize="20.0sp" android:layout_gravity="center_horizontal" android:id="@id/f_recordlist_txt_loading" android:padding="20.0dip" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/f_list_loading" />
+    </LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

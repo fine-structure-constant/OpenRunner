@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@id/a_main_permission_management" android:orderInCategory="1000" android:title="@string/m_auth_manage" app:showAsAction="never" />
+    <item android:id="@id/a_main_clear_preferences" android:visible="@bool/DEBUG" android:orderInCategory="1001" android:title="@string/m_main_clear" app:showAsAction="never" />
+</menu>

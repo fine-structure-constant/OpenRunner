@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@id/f_m_map_checkbox_location_auto_on" android:visible="true" android:title="@string/m_keep_locating" android:checkable="true" app:showAsAction="never" />
+    <item android:id="@id/f_m_map_checkbox_gps_status_on" android:visible="true" android:title="@string/m_monitor_gps" android:checkable="true" app:showAsAction="never" />
+    <item android:id="@id/f_m_map_return" android:visible="@bool/DEBUG" android:orderInCategory="102" android:title="@string/m_map_return" app:showAsAction="never" />
+</menu>

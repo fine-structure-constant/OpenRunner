@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/v_badge_img" android:layout_width="fill_parent" android:layout_height="fill_parent" android:src="@drawable/badge_daily_template" />
+    <TextView android:textSize="6.0sp" android:textStyle="bold" android:textColor="@color/white" android:id="@id/v_badge_txt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:alpha="0.87" android:translationX="200.0dip" android:translationY="450.0dip" />
+</FrameLayout>

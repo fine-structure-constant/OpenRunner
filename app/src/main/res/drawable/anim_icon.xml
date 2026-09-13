@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector android:drawable="@drawable/anim_icon__0"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt">
+    <target android:name="bg_2" android:animation="@drawable/anim_icon__1" />
+    <target android:name="bg_outline" android:animation="@drawable/anim_icon__2" />
+    <target android:name="right" android:animation="@drawable/anim_icon__3" />
+    <target android:name="left" android:animation="@drawable/anim_icon__4" />
+    <target android:name="left_2" android:animation="@drawable/anim_icon__5" />
+    <target android:name="right_2" android:animation="@drawable/anim_icon__6" />
+</animated-vector>

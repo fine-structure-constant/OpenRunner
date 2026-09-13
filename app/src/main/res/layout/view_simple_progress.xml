@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:gravity="bottom" android:orientation="vertical" android:id="@id/v_progress_root" android:background="@color/red_500" android:padding="32.0dip" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="end" android:id="@id/v_progress_img_sleeping" android:layout_width="48.0dip" android:layout_height="48.0dip" android:src="@drawable/clip_file_not_found" android:tint="@color/blue_grey_900" />
+    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Subhead" android:textColor="@color/white" android:id="@id/v_progress_txt_sleeping_notice" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16.0dip" android:alpha="0.87" />
+    <ImageView android:layout_gravity="end" android:id="@id/v_progress_img_weather" android:layout_width="48.0dip" android:layout_height="48.0dip" android:src="@drawable/clip_weather_sun" />
+    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Subhead" android:textColor="@color/white" android:id="@id/v_progress_txt_distance" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16.0dip" android:alpha="0.87" />
+    <ProgressBar android:id="@id/v_progress_progress_distance" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:progressDrawable="@drawable/progressbar" android:progressTint="@color/yellow_A400" android:secondaryProgressTint="@color/blue_A400" style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+    <TextView android:textAppearance="@style/TextAppearance.AppCompat.Subhead" android:textColor="@color/white" android:id="@id/v_progress_txt_day" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16.0dip" android:alpha="0.87" />
+    <ProgressBar android:id="@id/v_progress_progress_day" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="4.0dip" android:progressDrawable="@drawable/progressbar" android:progressTint="@color/yellow_A400" style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+</LinearLayout>

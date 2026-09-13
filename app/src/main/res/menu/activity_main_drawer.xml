@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item android:icon="@drawable/ic_list_black_24dp" android:id="@id/nav_run_record" android:title="@string/m_running_records" />
+        <item android:icon="@drawable/ic_directions_run_black_24dp" android:id="@id/nav_run" android:title="@string/m_run" />
+        <item android:icon="@drawable/ic_announcement_black_24dp" android:id="@id/nav_announcement" android:title="@string/m_announcement" />
+        <item android:icon="@drawable/ic_flag_black_24dp" android:id="@id/nav_tasks" android:title="@string/m_tasks" />
+    </group>
+    <item android:title="@string/m_group_other">
+        <menu>
+            <item android:icon="@drawable/ic_cloud_black_24dp" android:id="@id/nav_weather" android:title="@string/m_weather" />
+            <item android:icon="@drawable/ic_settings_black_24dp" android:id="@id/nav_settings" android:title="@string/m_settings" />
+            <item android:icon="@drawable/ic_update" android:id="@id/nav_update" android:visible="false" android:title="@string/m_update" />
+            <item android:icon="@drawable/ic_insert_comment_black_24dp" android:id="@id/nav_feedback" android:title="@string/m_feed_back" />
+            <item android:icon="@drawable/ic_exit_to_app_black_24dp" android:id="@id/nav_logout" android:title="@string/m_log_out" />
+        </menu>
+    </item>
+</menu>

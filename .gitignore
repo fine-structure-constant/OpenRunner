@@ -1,0 +1,22 @@
+*.iml
+
+# Android Studio and Gradle generated state
+.gradle/
+.gradle-local*/
+.idea/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# Local signing material
+*.keystore
+*.jks
+
+# Apktool-generated metadata
+**/public.xml.apktool-backup
+
+# OS/editor files
+.DS_Store

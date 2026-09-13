@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@id/f_m_task_btn_clear_20180420" android:visible="@bool/DEBUG" android:orderInCategory="100" android:title="@string/m_task_clear_20180420" app:showAsAction="never" />
+</menu>

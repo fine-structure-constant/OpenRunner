@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@id/v_progress_root" android:background="@color/white" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_gravity="bottom" android:id="@id/v_progress_img_weather" android:layout_width="64.0dip" android:layout_height="64.0dip" android:layout_marginBottom="136.0dip" android:src="@drawable/clip_weather_sun" />
+    <ImageView android:layout_gravity="bottom" android:layout_width="fill_parent" android:layout_height="2.5dip" android:layout_marginBottom="68.0dip" android:src="@color/red_400" />
+    <ImageView android:layout_gravity="bottom" android:layout_width="fill_parent" android:layout_height="3.0dip" android:layout_marginBottom="40.0dip" android:src="@color/red_400" />
+    <ImageView android:layout_gravity="bottom" android:layout_width="fill_parent" android:layout_height="4.0dip" android:src="@color/red_400" />
+    <ImageView android:layout_gravity="bottom" android:id="@id/v_progress_img_group" android:layout_width="96.0dip" android:layout_height="96.0dip" android:layout_marginBottom="48.0dip" android:src="@drawable/clip_group_run_icon" />
+    <TextView android:textColor="@color/black" android:layout_gravity="bottom" android:id="@id/v_progress_txt_group" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="46.0dip" android:alpha="0.87" style="@style/Base.TextAppearance.AppCompat.Body1" />
+    <ImageView android:layout_gravity="bottom" android:id="@id/v_progress_img_runner" android:layout_width="96.0dip" android:layout_height="96.0dip" android:layout_marginBottom="12.0dip" android:src="@drawable/clip_runner_icon" />
+    <TextView android:textColor="@color/black" android:layout_gravity="bottom" android:id="@id/v_progress_txt_runner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="10.0dip" android:alpha="0.87" style="@style/Base.TextAppearance.AppCompat.Body1" />
+</FrameLayout>

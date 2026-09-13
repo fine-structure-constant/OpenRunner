@@ -1,0 +1,152 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'cn.edu.pku.pkurunner'
+    // 原包 compileSdk 为 28；本机已安装 Android API 36 / Build Tools 36.1.0
+    compileSdk 36
+    buildToolsVersion '36.1.0'
+
+    sourceSets {
+        main {
+            // AMap 2D AAR 已提供这些同名地图素材，避免再次合并反编译包内副本。
+            assets.srcDirs = []
+        }
+    }
+
+    defaultConfig {
+        // Keep the reconstructed development build side-by-side with the original/repacked APK.
+        applicationId 'cn.edu.pku.openrunner'
+        minSdk 21
+        targetSdk 28
+        versionCode 652
+        versionName '1.24.0304'
+
+        buildConfigField 'String', 'AMAP_WEB_KEY', '"bff87dda9f692c2c5f28102eb8d6dad7"'
+        buildConfigField 'String', 'DROPBOX_KEY', '"anxwqdheet1e4a4"'
+
+        // AMap / Umeng / Bugly 等 SDK 需要读取 meta-data，无需额外配置
+        // xUtils 的 DbManager 需要数据库名，见代码内 Config
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('../debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // 原包使用 Glide 注解处理器生成 GlideApp / GlideOptions / GlideRequest / GlideRequests
+    // 这几个类已从源码中排除，由 APT 重新生成
+    buildFeatures {
+        buildConfig true
+    }
+
+    packaging {
+        resources {
+            // 地图 SDK 自带同名地图素材；保留任一份即可，避免 APK 打包重复条目。
+            pickFirsts += ['assets/**']
+        }
+    }
+
+    // 保留原有 ABI（注意：arm64-v8a 缺 libwebpbackport.so，原包也是这样）
+    splits {
+        abi {
+            enable false
+        }
+    }
+
+    packagingOptions {
+        // 多个 SDK 带重复的 META-INF/services
+        pickFirst 'META-INF/services/*'
+        exclude 'META-INF/LICENSE*'
+        exclude 'META-INF/NOTICE*'
+        jniLibs {
+            useLegacyPackaging true
+        }
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+
+dependencies {
+    // ---------- AndroidX ----------
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.fragment:fragment:1.6.2'
+    implementation 'androidx.annotation:annotation:1.7.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'androidx.interpolator:interpolator:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.google.android.material:material:1.11.0'
+
+    // ---------- 响应式 ----------
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+
+    // ---------- 网络 ----------
+    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // ---------- 图片 ----------
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.16.0'
+
+    // ---------- 地图（高德 2D）----------
+    // 坐标来自 com.amap.api:map2d；若解析失败请手动下载 AAR 放入 app/libs/
+    implementation 'com.amap.api:map2d:6.0.0'
+
+    // ---------- 权限 / UI 引导 ----------
+    implementation 'com.guolindev.permissionx:permissionx:1.7.1'
+    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.3'
+    implementation 'com.github.instacart:truetime-android:3.5'
+
+    // ---------- 更新 / 统计 / 崩溃 ----------
+    implementation 'io.github.azhon:appupdate:4.2.4'
+    implementation 'id.zelory:compressor:2.1.1'
+    implementation 'com.umeng.umsdk:common:9.5.4'
+    // Common 9.5.x requires the Android Security Module (ASMS) at runtime.
+    implementation 'com.umeng.umsdk:asms:1.2.3'
+    implementation 'com.tencent.bugly:crashreport:4.1.9.3'
+
+    // ---------- 存储 / 数据库 ----------
+    implementation 'com.dropbox.core:dropbox-core-sdk:5.4.2'
+    implementation 'org.xutils:xutils:3.9.0'
+
+    // ---------- 调试（原包含 leakcanary，仅 debug 用）----------
+
+    // 本地兜底：把解析不到的 AAR/JAR 放进 app/libs/
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+}

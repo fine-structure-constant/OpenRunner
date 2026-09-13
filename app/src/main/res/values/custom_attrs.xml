@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="preferenceTheme" format="reference" />
+    <attr name="allowDividerAbove" format="boolean" />
+    <attr name="allowDividerBelow" format="boolean" />
+    <attr name="iconSpaceReserved" format="boolean" />
+    <attr name="singleLineTitle" format="boolean" />
+    <attr name="adjustable" format="boolean" />
+    <attr name="showSeekBarValue" format="boolean" />
+    <attr name="allowDividerAfterLastItem" format="boolean" />
+    <attr name="checkBoxPreferenceStyle" format="reference" />
+    <attr name="dialogPreferenceStyle" format="reference" />
+    <attr name="dropdownPreferenceStyle" format="reference" />
+    <attr name="editTextPreferenceStyle" format="reference" />
+    <attr name="preferenceCategoryStyle" format="reference" />
+    <attr name="preferenceFragmentCompatStyle" format="reference" />
+    <attr name="preferenceFragmentListStyle" format="reference" />
+    <attr name="preferenceFragmentStyle" format="reference" />
+    <attr name="preferenceScreenStyle" format="reference" />
+    <attr name="preferenceStyle" format="reference" />
+    <attr name="seekBarPreferenceStyle" format="reference" />
+    <attr name="switchPreferenceCompatStyle" format="reference" />
+    <attr name="switchPreferenceStyle" format="reference" />
+    <attr name="themeLineHeight" format="dimension" />
+    <declare-styleable name="BadgeView">
+        <attr name="distance" format="dimension" />
+        <attr name="textHeightPercent" format="float" />
+    </declare-styleable>
+    <declare-styleable name="GPSInfoView">
+        <attr name="appear" format="boolean" />
+        <attr name="signalStrength" format="integer" />
+        <attr name="textInfo" format="string" />
+    </declare-styleable>
+    <declare-styleable name="RunningProgressView">
+        <attr name="dayMode" format="boolean" />
+        <attr name="mainProgress" format="float" />
+        <attr name="mainText" format="string" />
+        <attr name="secondaryProgress" format="float" />
+        <attr name="secondaryText" format="string" />
+    </declare-styleable>
+    <declare-styleable name="SimpleProgressView">
+        <attr name="activeMode" format="boolean" />
+        <attr name="bonusProgress" format="float" />
+        <attr name="collapse" format="boolean" />
+        <attr name="dayProgress" format="float" />
+        <attr name="dayText" format="string" />
+        <attr name="dayTime" format="string" />
+        <attr name="distanceProgress" format="float" />
+        <attr name="distanceText" format="string" />
+        <attr name="sleepingText" format="string" />
+    </declare-styleable>
+</resources>

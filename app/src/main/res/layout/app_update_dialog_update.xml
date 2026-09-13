@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@android:color/transparent" android:layout_width="fill_parent" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:id="@id/iv_bg" android:background="@drawable/app_update_dialog_default" android:layout_width="fill_parent" android:layout_height="140.0dip" />
+    <LinearLayout android:orientation="vertical" android:background="@drawable/app_update_bg_white_radius_6" android:layout_width="fill_parent" android:layout_height="wrap_content">
+        <TextView android:textSize="15.0sp" android:textColor="@android:color/black" android:id="@id/tv_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="16.0dip" android:layout_marginRight="16.0dip" />
+        <TextView android:textSize="14.0sp" android:textColor="#ff757575" android:id="@id/tv_size" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="16.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="16.0dip" />
+        <ScrollView android:layout_width="fill_parent" android:layout_height="90.0dip" android:layout_marginLeft="16.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="16.0dip" android:overScrollMode="never">
+            <TextView android:textSize="14.0sp" android:textColor="#ff757575" android:id="@id/tv_description" android:layout_width="wrap_content" android:layout_height="wrap_content" android:lineSpacingMultiplier="1.1" />
+        </ScrollView>
+        <com.azhon.appupdate.view.NumberProgressBar android:id="@id/np_bar" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="16.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="16.0dip" />
+        <Button android:textColor="@android:color/white" android:id="@id/btn_update" android:background="@drawable/app_update_bg_button" android:layout_width="fill_parent" android:layout_height="40.0dip" android:layout_marginLeft="16.0dip" android:layout_marginTop="8.0dip" android:layout_marginRight="16.0dip" android:layout_marginBottom="16.0dip" android:text="@string/app_update_update" android:textAllCaps="false" />
+    </LinearLayout>
+    <View android:layout_gravity="center" android:id="@id/line" android:background="@android:color/white" android:layout_width="2.0dip" android:layout_height="30.0dip" />
+    <ImageButton android:layout_gravity="center" android:id="@id/ib_close" android:background="@drawable/app_update_dialog_close" android:layout_width="30.0dip" android:layout_height="30.0dip" android:contentDescription="@string/app_update_close" />
+</LinearLayout>

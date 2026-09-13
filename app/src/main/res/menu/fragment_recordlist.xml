@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@id/f_m_recordlist_clear_preferences" android:visible="@bool/DEBUG" android:orderInCategory="1001" android:title="@string/m_f_recordlist_clear" app:showAsAction="never" />
+</menu>

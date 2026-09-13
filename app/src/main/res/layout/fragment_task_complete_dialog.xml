@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:padding="24.0dip" android:layout_width="wrap_content" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:id="@id/f_task_complete_txt_title" android:layout_width="wrap_content" android:layout_height="wrap_content" style="@style/Base.TextAppearance.AppCompat.Title" />
+    <ImageView android:layout_gravity="center_horizontal" android:layout_width="120.0dip" android:layout_height="120.0dip" android:layout_marginTop="12.0dip" android:src="@drawable/clip_reward" />
+    <TextView android:id="@id/f_task_complete_txt_message" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12.0dip" style="@style/Base.TextAppearance.AppCompat.Body1" />
+</LinearLayout>
