@@ -38,11 +38,26 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // CI supplies these values through environment variables. Do not
+            // put the release keystore or passwords in the repository.
+            def ciKeystore = System.getenv('ANDROID_KEYSTORE_PATH')
+            def ciStorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+            def ciKeyAlias = System.getenv('ANDROID_KEY_ALIAS')
+            def ciKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+            if (ciKeystore && ciStorePassword && ciKeyAlias && ciKeyPassword) {
+                storeFile file(ciKeystore)
+                storePassword ciStorePassword
+                keyAlias ciKeyAlias
+                keyPassword ciKeyPassword
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
