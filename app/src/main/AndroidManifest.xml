@@ -42,6 +42,7 @@
         </provider>
         <activity android:name="cn.edu.pku.pkurunner.Settings.SettingsActivity"/>
         <activity android:label="@string/title_activity_login" android:name="cn.edu.pku.pkuiaaa_android.IAAA_Authen" android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:label="天气" android:name="cn.edu.pku.pkurunner.WeatherActivity"/>
         <meta-data android:name="com.bumptech.glide.integration.okhttp3.OkHttpGlideModule" android:value="GlideModule"/>
         <service android:name="com.azhon.appupdate.service.DownloadService"/>
         <provider android:authorities="cn.edu.pku.openrunner.fileProvider" android:exported="false" android:grantUriPermissions="true" android:name="com.azhon.appupdate.config.AppUpdateFileProvider">

@@ -165,7 +165,7 @@ public class Network {
     }
 
     public static Observable<Weather> getWeather() {
-        return f6984a.getWeather().subscribeOn(Schedulers.newThread()).doOnNext(new Consumer() { // from class: s.l
+        return f6984a.getWeather("fElIR").map(Weather::fromNmc).subscribeOn(Schedulers.newThread()).doOnNext(new Consumer() { // from class: s.l
             @Override // io.reactivex.functions.Consumer
             public final void accept(Object obj) {
                 Network.weather = (Weather) obj;

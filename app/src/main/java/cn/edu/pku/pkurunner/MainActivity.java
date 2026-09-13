@@ -283,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* JADX INFO: Access modifiers changed from: private */
     public void F(Weather weather) {
-        this.f6875k.edit().putString("weather", SerializeHelper.objectToString(weather)).apply();
+        this.f6875k.edit().putString("weather.nmc.v1", SerializeHelper.objectToString(weather)).apply();
         Toast.makeText(this, weather.getDescription(this), 1).show();
         D(weather);
     }
@@ -383,8 +383,8 @@ public class MainActivity extends AppCompatActivity {
     private void j0() {
         SharedPreferences sharedPreferences = getSharedPreferences("WeatherService", 0);
         this.f6875k = sharedPreferences;
-        if (sharedPreferences.contains("weather")) {
-            String string = this.f6875k.getString("weather", null);
+        if (sharedPreferences.contains("weather.nmc.v1")) {
+            String string = this.f6875k.getString("weather.nmc.v1", null);
             if (string == null) {
                 Network.weather = null;
             } else {
@@ -557,9 +557,19 @@ public class MainActivity extends AppCompatActivity {
         if (weather.getNow() == null) {
             return;
         }
-        String str = "https://www.heweather.com/files/images/cond_icon/" + weather.getNow().getCond().getCode() + ".png";
+        String str = "https://image.nmc.cn/assets/img/w/40x40/4/" + nmcIconCode(weather.getNow().getCond().getCode()) + ".png";
         this.f6881q.setWeatherDrawable(Glide.with((FragmentActivity) this).load(str).placeholder(R.drawable.ic_autorenew_white_24dp).error(R.drawable.ic_cloud_off_black_24dp).centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC));
         Glide.with((FragmentActivity) this).asBitmap().load(str).into(new c(100, 100));
+    }
+
+    private static String nmcIconCode(String code) {
+        // Migrate weather objects cached by the former HeWeather adapter.
+        if ("100".equals(code)) return "0";
+        if ("101".equals(code)) return "1";
+        if ("102".equals(code)) return "2";
+        if ("103".equals(code)) return "3";
+        if ("104".equals(code)) return "4";
+        return code;
     }
 
     private void E() {
@@ -692,7 +702,8 @@ public class MainActivity extends AppCompatActivity {
     /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void d0(Throwable th) {
         th.printStackTrace();
-        Toast.makeText(this, getString(R.string.a_main_error_loading_weather, th.getMessage()), 0).show();
+        this.f6875k.edit().remove("weather").remove("weather.nmc.v1").apply();
+        sendBroadcast(new Intent("cn.edu.pku.pkurunner.MainActivity.weatherUpdate"));
     }
 
     /* JADX INFO: Access modifiers changed from: private */
@@ -716,12 +727,7 @@ public class MainActivity extends AppCompatActivity {
             User user = Data.getUser();
             ClientUpdateNotice.downloadLatestVersion(this, user != null && user.isOffline().booleanValue());
         } else if (itemId == R.id.nav_weather) {
-            Weather weather = Network.weather;
-            if (weather != null && weather.getAqi() != null) {
-                Toast.makeText(this, weather.getDescription(this), Toast.LENGTH_SHORT).show();
-            } else {
-                sendBroadcast(new Intent("cn.edu.pku.pkurunner.MainActivity.weatherUpdate"));
-            }
+            startActivity(new Intent(this, WeatherActivity.class));
         }
         this.f6873i.closeDrawer(GravityCompat.START);
         return true;
