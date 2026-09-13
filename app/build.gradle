@@ -104,6 +104,28 @@ android {
         abortOnError false
         checkReleaseBuilds false
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+def robolectricDependencyDir = localProps.getProperty('robolectric.dependency.dir')
+
+tasks.withType(Test).configureEach {
+    if (robolectricDependencyDir != null && !robolectricDependencyDir.isEmpty()) {
+        systemProperty 'robolectric.dependency.dir', robolectricDependencyDir
+    }
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+    }
 }
 
 
@@ -160,8 +182,11 @@ dependencies {
     implementation 'com.dropbox.core:dropbox-core-sdk:5.4.2'
     implementation 'org.xutils:xutils:3.9.0'
 
-    // ---------- 调试（原包含 leakcanary，仅 debug 用）----------
-
-    // 本地兜底：把解析不到的 AAR/JAR 放进 app/libs/
+    // ---------- 本地兜底：把解析不到的 AAR/JAR 放进 app/libs/ ----------
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+
+    // ---------- 测试 ----------
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.google.truth:truth:1.4.4'
+    testImplementation 'org.robolectric:robolectric:4.13'
 }
