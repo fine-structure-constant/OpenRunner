@@ -25,7 +25,7 @@ android {
         // Keep the reconstructed development build side-by-side with the original/repacked APK.
         applicationId 'cn.edu.pku.openrunner'
         minSdk 21
-        targetSdk 28
+        targetSdk 31
         versionCode 652
         versionName '1.24.0304'
 
