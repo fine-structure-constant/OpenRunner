@@ -8,6 +8,7 @@
     <PreferenceCategory android:title="@string/p_setting_settings">
         <Preference android:title="@string/p_setting_clear_photos" android:key="pref_clean_photo" />
         <ListPreference android:entries="@array/p_setting_unit_display" android:title="@string/p_setting_unit" android:key="pref_unit" android:dialogTitle="@string/p_setting_unit_dialog" android:entryValues="@array/p_setting_unit_value" />
+        <ListPreference android:entries="@array/p_setting_theme_display" android:title="@string/p_setting_theme" android:key="pref_theme" android:dialogTitle="@string/p_setting_theme_dialog" android:entryValues="@array/p_setting_theme_value" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/p_setting_storage">
         <PreferenceScreen android:title="@string/p_setting_dropbox_title" android:key="pref_dropbox" android:summary="@string/p_setting_storage_summary">

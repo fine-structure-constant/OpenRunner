@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import cn.edu.pku.pkurunner.BuildConfig;
 import cn.edu.pku.pkurunner.Data;
@@ -332,6 +334,26 @@ public class SettingsActivity extends PreferenceActivity {
         });
     }
 
+    private void k0() {
+        final ListPreference preference = (ListPreference) findPreference("pref_theme");
+        String current = getSharedPreferences("appearance", MODE_PRIVATE).getString("theme", "system");
+        preference.setValue(current);
+        preference.setSummary(preference.getEntry());
+        preference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference ignored, Object value) {
+                String theme = (String) value;
+                getSharedPreferences("appearance", MODE_PRIVATE).edit().putString("theme", theme).apply();
+                preference.setSummary(preference.getEntries()[preference.findIndexOfValue(theme)]);
+                AppCompatDelegate.setDefaultNightMode("dark".equals(theme)
+                        ? AppCompatDelegate.MODE_NIGHT_YES
+                        : "light".equals(theme) ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                recreate();
+                return true;
+            }
+        });
+    }
+
     private void y() {
         Preference findPreference = findPreference("pref_dropbox");
         if (!Data.getUser().isOffline().booleanValue()) {
@@ -460,8 +482,19 @@ public class SettingsActivity extends PreferenceActivity {
         y();
     }
 
+    private void applySettingsTheme() {
+        String selected = getSharedPreferences("appearance", MODE_PRIVATE)
+                .getString("theme", "system");
+        boolean dark = "dark".equals(selected)
+                || ("system".equals(selected)
+                && (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                == Configuration.UI_MODE_NIGHT_YES);
+        setTheme(dark ? R.style.BaseTheme_Dark : R.style.BaseTheme_Light);
+    }
+
     @Override // android.preference.PreferenceActivity, android.app.Activity
     protected void onCreate(Bundle bundle) {
+        applySettingsTheme();
         super.onCreate(bundle);
         addPreferencesFromResource(R.xml.app_settings);
         f0();
@@ -469,6 +502,7 @@ public class SettingsActivity extends PreferenceActivity {
         g0();
         B();
         i0();
+        k0();
     }
 
     @Override // android.app.Activity

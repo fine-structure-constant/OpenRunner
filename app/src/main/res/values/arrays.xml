@@ -56,6 +56,16 @@
         <item>3</item>
         <item>4</item>
     </string-array>
+    <string-array name="p_setting_theme_display">
+        <item>跟随系统</item>
+        <item>浅色</item>
+        <item>深色</item>
+    </string-array>
+    <string-array name="p_setting_theme_value">
+        <item>system</item>
+        <item>light</item>
+        <item>dark</item>
+    </string-array>
     <string-array name="p_task_source_entry">
         <item>@string/p_task_source_school</item>
         <item>@string/p_task_source_github</item>

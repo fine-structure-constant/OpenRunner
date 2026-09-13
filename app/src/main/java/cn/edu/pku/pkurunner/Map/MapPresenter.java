@@ -14,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.internal.view.SupportMenu;
 import cn.edu.pku.pkurunner.Data;
 import cn.edu.pku.pkurunner.Exception.DataException;
 import cn.edu.pku.pkurunner.Map.GPSManager;
@@ -529,7 +528,7 @@ public class MapPresenter implements MapContract.Presenter {
             }
             this.f6935g.getLocationListener().onLocationChanged(location);
             if (this.f6942n != null) {
-                this.f6935g.getAMap().addPolyline(new PolylineOptions().add(this.f6942n.toLatLng(), point.toLatLng()).color(SupportMenu.CATEGORY_MASK));
+                this.f6935g.getAMap().addPolyline(new PolylineOptions().add(this.f6942n.toLatLng(), point.toLatLng()).color(this.f6935g.getFragmentContext().getResources().getColor(R.color.map_route)));
                 this.f6943o.b(point, location.getAccuracy(), location.getTime());
                 MapContract.View view = this.f6935g;
                 double d2 = this.f6930b;

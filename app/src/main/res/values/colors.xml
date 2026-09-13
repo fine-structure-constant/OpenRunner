@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="map_route">#ffe53935</color>
+    <color name="map_location_stroke">#ff42a5f5</color>
+    <color name="map_location_fill">#5542a5f5</color>
     <color name="abc_decor_view_status_guard">#ff000000</color>
     <color name="abc_decor_view_status_guard_light">#ffffffff</color>
     <color name="abc_search_url_text_normal">#ff7fa87f</color>

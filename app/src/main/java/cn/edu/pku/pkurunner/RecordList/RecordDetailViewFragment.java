@@ -261,7 +261,7 @@ public class RecordDetailViewFragment extends BottomSheetDialogFragment {
                     this.G.addMarker(new MarkerOptions().position(point2.toLatLng()).title(getString(R.string.f_record_detail_track_pause)));
                     this.G.addMarker(new MarkerOptions().position(point3.toLatLng()).title(getString(R.string.f_record_detail_track_resume)));
                 } else {
-                    this.G.addPolyline(new PolylineOptions().add(point2.toLatLng(), point3.toLatLng()).color(getResources().getColor(R.color.red_500)));
+                this.G.addPolyline(new PolylineOptions().add(point2.toLatLng(), point3.toLatLng()).color(getResources().getColor(R.color.map_route)));
                 }
             }
             i2++;

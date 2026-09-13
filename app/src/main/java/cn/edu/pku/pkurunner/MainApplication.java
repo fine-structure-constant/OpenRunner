@@ -1,6 +1,8 @@
 package cn.edu.pku.pkurunner;
 
 import android.app.Application;
+import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
 import cn.edu.pku.pkurunner.Network.Network;
 import cn.edu.pku.pkurunner.Utils.PerfectExitUtil;
 import com.instacart.library.truetime.TrueTime;
@@ -31,6 +33,11 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
         f6888a = this;
+        SharedPreferences appearance = getSharedPreferences("appearance", MODE_PRIVATE);
+        String theme = appearance.getString("theme", "system");
+        AppCompatDelegate.setDefaultNightMode("dark".equals(theme)
+                ? AppCompatDelegate.MODE_NIGHT_YES
+                : "light".equals(theme) ? AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         Network.init(this);
         x.Ext.init(this);
         x.Ext.setDebug(false);

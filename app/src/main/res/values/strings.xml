@@ -385,6 +385,8 @@
     <string name="p_setting_name">姓名</string>
     <string name="p_setting_photo_deleted">删除了多余的皂片！</string>
     <string name="p_setting_settings">设置</string>
+    <string name="p_setting_theme">主题</string>
+    <string name="p_setting_theme_dialog">选择主题</string>
     <string name="p_setting_storage">存储与备份</string>
     <string name="p_setting_storage_connecting">网络连接超时</string>
     <string name="p_setting_storage_sockettimeout">网络连接超时</string>

@@ -445,8 +445,8 @@ public class MapFragment extends Fragment implements MapContract.View {
         myLocationStyle.myLocationType(2);
         this.f6905f.myLocationIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_location_point));
         this.f6905f.anchor(0.5f, 0.5f);
-        this.f6905f.strokeColor(getResources().getColor(R.color.blue_200));
-        this.f6905f.radiusFillColor(getResources().getColor(R.color.blue_200_trans));
+        this.f6905f.strokeColor(getResources().getColor(R.color.map_location_stroke));
+        this.f6905f.radiusFillColor(getResources().getColor(R.color.map_location_fill));
         this.f6904e.setMyLocationStyle(this.f6905f);
         this.f6904e.getUiSettings().setMyLocationButtonEnabled(false);
         this.f6904e.getUiSettings().setScaleControlsEnabled(false);
