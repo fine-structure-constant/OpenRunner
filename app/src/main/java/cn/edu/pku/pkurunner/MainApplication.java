@@ -41,9 +41,9 @@ public class MainApplication extends Application {
         Network.init(this);
         x.Ext.init(this);
         x.Ext.setDebug(false);
-        CrashReport.initCrashReport(this, "900033802", false);
-        UMConfigure.preInit(this, "632197a105844627b548e03b", "Umeng");
-        UMConfigure.init(this, "632197a105844627b548e03b", "Umeng", 1, "");
+        CrashReport.initCrashReport(this, BuildConfig.BUGLY_APP_ID, false);
+        UMConfigure.preInit(this, BuildConfig.UMENG_APP_KEY, "Umeng");
+        UMConfigure.init(this, BuildConfig.UMENG_APP_KEY, "Umeng", 1, "");
         PerfectExitUtil.init(this);
         new Thread(new Runnable() { // from class: cn.edu.pku.pkurunner.q1
             @Override // java.lang.Runnable

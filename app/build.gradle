@@ -2,6 +2,12 @@ plugins {
     id 'com.android.application'
 }
 
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+
 android {
     namespace 'cn.edu.pku.pkurunner'
     // 原包 compileSdk 为 28；本机已安装 Android API 36 / Build Tools 36.1.0
@@ -24,11 +30,22 @@ android {
         versionName '1.24.0304'
 
         buildConfigField 'String', 'AMAP_WEB_KEY', '"bff87dda9f692c2c5f28102eb8d6dad7"'
-        buildConfigField 'String', 'DROPBOX_KEY', '"anxwqdheet1e4a4"'
+        buildConfigField 'String', 'DROPBOX_KEY', '"' + localProps.getProperty('DROPBOX_KEY', 'anxwqdheet1e4a4') + '"'
+        buildConfigField 'String', 'BUGLY_APP_ID', '"' + localProps.getProperty('BUGLY_APP_ID', '900033802') + '"'
+        buildConfigField 'String', 'UMENG_APP_KEY', '"' + localProps.getProperty('UMENG_APP_KEY', '632197a105844627b548e03b') + '"'
+
+        manifestPlaceholders = [
+                AMAP_API_KEY: localProps.getProperty('AMAP_API_KEY', '19fe50e8d34fcebd76a3a126990c6edb'),
+                DROPBOX_KEY : localProps.getProperty('DROPBOX_KEY', 'anxwqdheet1e4a4')
+        ]
 
         // AMap / Umeng / Bugly 等 SDK 需要读取 meta-data，无需额外配置
         // xUtils 的 DbManager 需要数据库名，见代码内 Config
         multiDexEnabled true
+
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'
+        }
     }
 
     signingConfigs {
@@ -80,6 +97,11 @@ android {
         resources {
             // 地图 SDK 自带同名地图素材；保留任一份即可，避免 APK 打包重复条目。
             pickFirsts += ['assets/**']
+            pickFirsts += ['META-INF/services/*']
+            excludes += ['META-INF/LICENSE*', 'META-INF/NOTICE*']
+        }
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 
@@ -87,16 +109,6 @@ android {
     splits {
         abi {
             enable false
-        }
-    }
-
-    packagingOptions {
-        // 多个 SDK 带重复的 META-INF/services
-        pickFirst 'META-INF/services/*'
-        exclude 'META-INF/LICENSE*'
-        exclude 'META-INF/NOTICE*'
-        jniLibs {
-            useLegacyPackaging true
         }
     }
 
@@ -112,11 +124,6 @@ android {
     }
 }
 
-def localProps = new Properties()
-def localPropsFile = rootProject.file('local.properties')
-if (localPropsFile.exists()) {
-    localPropsFile.withInputStream { localProps.load(it) }
-}
 def robolectricDependencyDir = localProps.getProperty('robolectric.dependency.dir')
 
 tasks.withType(Test).configureEach {
@@ -142,7 +149,6 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'androidx.interpolator:interpolator:1.0.0'
-    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.material:material:1.11.0'
 
     // ---------- 响应式 ----------
