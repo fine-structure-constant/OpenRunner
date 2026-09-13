@@ -52,7 +52,7 @@ public class NotificationDisplayService extends Service {
         } else {
             builder = new Notification.Builder(getApplicationContext());
         }
-        builder.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, (Class<?>) MainActivity.class), 0)).setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher)).setContentTitle(getString(R.string.s_running)).setSmallIcon(R.drawable.launcher_notification).setContentText(getString(R.string.s_return_to_main)).setWhen(System.currentTimeMillis());
+        builder.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, (Class<?>) MainActivity.class), PendingIntent.FLAG_IMMUTABLE)).setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher)).setContentTitle(getString(R.string.s_running)).setSmallIcon(R.drawable.launcher_notification).setContentText(getString(R.string.s_return_to_main)).setWhen(System.currentTimeMillis());
         Notification build = builder.build();
         build.defaults = 1;
         KeepAliveUtil.WakeAndWifiLocker.lock(this);

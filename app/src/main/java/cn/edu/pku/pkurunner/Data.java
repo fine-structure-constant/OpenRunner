@@ -482,7 +482,7 @@ public class Data {
         StringBuilder sb = new StringBuilder();
         sb.append("lastUsed");
         User user = f6851a;
-        sb.append(user == null ? user.getId() : "");
+        sb.append(user != null ? user.getId() : "");
         edit.putString(sb.toString(), str).commit();
     }
 
@@ -511,7 +511,7 @@ public class Data {
         StringBuilder sb = new StringBuilder();
         sb.append("lastUsed");
         User user = f6851a;
-        sb.append(user == null ? user.getId() : "");
+        sb.append(user != null ? user.getId() : "");
         return sharedPreferences.getString(sb.toString(), "");
     }
 
@@ -887,20 +887,12 @@ public class Data {
     public static FileMetadata uploadDatabaseToDropbox(Context context, DbxClientV2 dbxClientV2) throws IOException, DbxException {
         File file = new File(context.getFilesDir(), "data.db");
         A();
-        FileInputStream fileInputStream = new FileInputStream(file);
-        try {
+        try (FileInputStream fileInputStream = new FileInputStream(file)) {
             FileMetadata uploadAndFinish = dbxClientV2.files().uploadBuilder("/data.db").withMode(WriteMode.OVERWRITE).uploadAndFinish(fileInputStream);
-            fileInputStream.close();
             LogUtil.d(uploadAndFinish.toString());
-            d0();
             return uploadAndFinish;
-        } catch (Throwable th) {
-            try {
-                fileInputStream.close();
-            } catch (Throwable th2) {
-                th.addSuppressed(th2);
-            }
-            throw th;
+        } finally {
+            d0();
         }
     }
 }

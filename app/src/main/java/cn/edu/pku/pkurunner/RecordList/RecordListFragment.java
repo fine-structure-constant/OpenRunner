@@ -321,7 +321,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         if (intent.resolveActivity(getMainActivity().getPackageManager()) == null) {
             makeToast(R.string.f_record_error_start_camera, 0, new Object[0]);
         } else if (file != null) {
-            intent.putExtra("output", FileProvider.getUriForFile(getContext(), "cn.edu.pku.pkurunner.fileprovider", file));
+            intent.putExtra("output", FileProvider.getUriForFile(getContext(), "cn.edu.pku.openrunner.fileprovider", file));
             startActivityForResult(intent, 1001);
         }
     }
