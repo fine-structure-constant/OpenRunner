@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Everything that is identical in light and dark lives in the Base style. The `or_*` colour
+      tokens it points at are themselves qualifier-aware (values/palette.xml vs
+      values-night/palette.xml), so a single definition covers both modes. Only the few entries
+      whose *mapping* changes with the mode are re-declared in Theme.OpenRunner below and in
+      values-night/theme.xml.
+    -->
+    <style name="Theme.OpenRunner.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/or_primary</item>
+        <item name="colorOnPrimary">@color/or_on_primary</item>
+        <item name="colorPrimaryContainer">@color/or_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/or_on_primary_container</item>
+        <item name="colorPrimaryInverse">@color/or_primary</item>
+        <item name="colorSecondary">@color/or_secondary</item>
+        <item name="colorOnSecondary">@color/or_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/or_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/or_on_secondary_container</item>
+        <item name="colorTertiary">@color/or_secondary</item>
+        <item name="colorOnTertiary">@color/or_on_secondary</item>
+        <item name="colorTertiaryContainer">@color/or_secondary_container</item>
+        <item name="colorOnTertiaryContainer">@color/or_on_secondary_container</item>
+
+        <item name="colorSurface">@color/or_surface</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorSurfaceVariant">@color/or_surface_container_high</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="colorSurfaceContainerLowest">@color/or_surface_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/or_surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/or_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/or_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/or_surface_container_highest</item>
+        <item name="colorSurfaceInverse">@color/or_on_surface</item>
+        <item name="colorOnSurfaceInverse">@color/or_surface</item>
+
+        <item name="colorOutline">@color/or_outline</item>
+        <item name="colorOutlineVariant">@color/or_outline_variant</item>
+        <item name="colorError">@color/or_error</item>
+        <item name="colorOnError">@color/or_on_error</item>
+        <item name="colorErrorContainer">@color/or_error_container</item>
+        <item name="colorOnErrorContainer">@color/or_on_error_container</item>
+        <item name="colorControlHighlight">@color/or_outline_variant</item>
+
+        <item name="android:colorBackground">@color/or_surface</item>
+        <item name="colorOnBackground">@color/or_on_surface</item>
+        <item name="android:windowBackground">@color/or_surface</item>
+        <item name="android:statusBarColor">@color/or_surface</item>
+        <item name="android:navigationBarColor">@color/or_surface</item>
+
+        <item name="colorAccent">@color/or_primary</item>
+
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowSharedElementEnterTransition">@android:transition/move</item>
+        <item name="android:windowSharedElementExitTransition">@android:transition/move</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+        <item name="cardViewStyle">@style/CardView</item>
+        <item name="preferenceTheme">@style/ThemeOverlay.OpenRunner.Preference</item>
+
+        <item name="alertDialogTheme">@style/ThemeOverlay.OpenRunner.MaterialAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.OpenRunner.MaterialAlertDialog</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.OpenRunner.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.OpenRunner.Small</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.OpenRunner.Card</item>
+        <item name="materialCardViewStyle">@style/Widget.OpenRunner.DefaultCard</item>
+    </style>
+
+    <style name="Theme.OpenRunner" parent="@style/Theme.OpenRunner.Base">
+        <item name="colorPrimaryDark">@color/or_primary</item>
+        <item name="colorSurfaceBright">@color/or_surface</item>
+        <item name="colorSurfaceDim">@color/or_surface_container</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="Widget.OpenRunner.DefaultCard" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/or_surface_container_low</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="rippleColor">@color/or_primary_container</item>
+    </style>
+
+    <style name="ThemeOverlay.OpenRunner.MaterialAlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/or_surface_container_high</item>
+        <item name="colorSurfaceContainerHigh">@color/or_surface_container_high</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="colorPrimary">@color/or_primary</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.OpenRunner.Card</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <style name="Theme.OpenRunner.LoadingDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowMinWidthMajor">0%</item>
+        <item name="android:windowMinWidthMinor">0%</item>
+        <item name="android:backgroundDimAmount">0.32</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="colorSurface">@color/or_surface_container_high</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="colorPrimary">@color/or_primary</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <style name="ThemeOverlay.OpenRunner.AppBar" parent="ThemeOverlay.Material3">
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="colorControlNormal">@color/or_on_surface</item>
+        <item name="android:textColorPrimary">@color/or_on_surface</item>
+        <item name="android:textColorSecondary">@color/or_on_surface_variant</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <style name="ThemeOverlay.OpenRunner.PopupMenu" parent="ThemeOverlay.Material3">
+        <item name="colorSurface">@color/or_surface_container_high</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="android:textColorPrimary">@color/or_on_surface</item>
+    </style>
+
+    <style name="ThemeOverlay.OpenRunner.Preference" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="android:textColorPrimary">@color/or_on_surface</item>
+        <item name="android:textColorSecondary">@color/or_on_surface_variant</item>
+        <item name="android:textColorPrimaryInverse">@color/or_on_surface</item>
+        <item name="android:colorAccent">@color/or_primary</item>
+        <item name="android:colorControlActivated">@color/or_primary</item>
+        <item name="android:colorControlNormal">@color/or_on_surface_variant</item>
+        <item name="colorPrimary">@color/or_primary</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/or_hero_card</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardCornerRadius">28dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="rippleColor">@color/or_primary_container</item>
+    </style>
+
+    <style name="Widget.OpenRunner.ListRow" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardCornerRadius">0dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+</resources>

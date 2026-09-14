@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner.Map;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -683,7 +685,7 @@ public class MapPresenter implements MapContract.Presenter {
                 this.mapView.makeSnackBar(R.string.p_map_notice_wrong_time_period, 0, new Object[0]);
             }
             if (!TrueTime.isInitialized()) {
-                new AlertDialog.Builder(this.mapView.getFragmentContext()).setTitle(R.string.p_map_notice_network_error).setPositiveButton(R.string.p_map_notice_network_error_confirm, new InitTrueTimeListener()).create().show();
+                new MaterialAlertDialogBuilder(this.mapView.getFragmentContext()).setTitle(R.string.p_map_notice_network_error).setPositiveButton(R.string.p_map_notice_network_error_confirm, new InitTrueTimeListener()).create().show();
                 return true;
             }
             startDate = TrueTime.now();
@@ -700,7 +702,7 @@ public class MapPresenter implements MapContract.Presenter {
                 }
             });
         } else if (z2) {
-            new AlertDialog.Builder(this.mapView.getFragmentContext()).setTitle(R.string.p_map_dialog_title).setMessage(R.string.p_map_dialog_content).setPositiveButton(R.string.p_map_dialog_positive, new DialogInterface.OnClickListener() {
+            new MaterialAlertDialogBuilder(this.mapView.getFragmentContext()).setTitle(R.string.p_map_dialog_title).setMessage(R.string.p_map_dialog_content).setPositiveButton(R.string.p_map_dialog_positive, new DialogInterface.OnClickListener() {
                 @Override
                 public final void onClick(DialogInterface dialogInterface, int index) {
                     MapPresenter.this.z(dialogInterface, index);

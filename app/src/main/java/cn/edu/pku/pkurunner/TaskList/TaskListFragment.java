@@ -1,7 +1,9 @@
 package cn.edu.pku.pkurunner.TaskList;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -38,7 +40,7 @@ public class TaskListFragment extends Fragment implements TaskListContract.View 
 
     private boolean refreshing;
 
-    private ProgressDialog progressDialog;
+    private OrLoadingDialog progressDialog;
 
     private TaskListContract.Presenter presenter;
 
@@ -94,7 +96,7 @@ public class TaskListFragment extends Fragment implements TaskListContract.View 
 
     @Override
     public void dismissWaitingDialog() {
-        ProgressDialog progressDialog = this.progressDialog;
+        OrLoadingDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.dismiss();
             this.progressDialog = null;
@@ -108,7 +110,7 @@ public class TaskListFragment extends Fragment implements TaskListContract.View 
 
     @Override
     public void showCongratulationsDialog(@StringRes int index, @StringRes int index2) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         View inflate = getActivity().getLayoutInflater().inflate(R.layout.fragment_task_complete_dialog, (ViewGroup) null);
         ((TextView) inflate.findViewById(R.id.f_task_complete_txt_title)).setText(index);
         ((TextView) inflate.findViewById(R.id.f_task_complete_txt_message)).setText(index2);
@@ -122,7 +124,7 @@ public class TaskListFragment extends Fragment implements TaskListContract.View 
 
     @Override
     public void showTaskDetailDialog(String str, String str2) {
-        new AlertDialog.Builder(getContext()).setTitle(str).setMessage(str2).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(getContext()).setTitle(str).setMessage(str2).setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index) {
                 dialogInterface.dismiss();
@@ -132,7 +134,7 @@ public class TaskListFragment extends Fragment implements TaskListContract.View 
 
     @Override
     public void showWaitingDialog(int index) {
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        OrLoadingDialog progressDialog = new OrLoadingDialog(getContext());
         this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(1);
         this.progressDialog.setMessage("正在同步数据");

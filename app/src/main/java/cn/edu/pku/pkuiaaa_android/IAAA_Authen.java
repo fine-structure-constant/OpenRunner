@@ -1,7 +1,9 @@
 package cn.edu.pku.pkuiaaa_android;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.Activity;
-import android.app.ProgressDialog;
+import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -135,7 +137,7 @@ public class IAAA_Authen extends AppCompatActivity {
             IAAA_Authen.this.password = password;
             IAAA_Authen.this.verificationCode = code;
             IAAA_Authen.this.h(false);
-            ProgressDialog progress = IAAA_Authen.i(IAAA_Authen.this);
+            OrLoadingDialog progress = IAAA_Authen.i(IAAA_Authen.this);
             progress.show();
             try {
                 String mode = IAAA_Authen.this.secondFactorRequired
@@ -246,7 +248,7 @@ public class IAAA_Authen extends AppCompatActivity {
                     }
                     IAAA_Authen.countdownTimer.schedule(new SendCodeCountdownTask(), 0L, 2000L);
                     IAAA_Authen.this.h(true);
-                    ProgressDialog progressDialog = IAAA_Authen.i(IAAA_Authen.this);
+                    OrLoadingDialog progressDialog = IAAA_Authen.i(IAAA_Authen.this);
                     progressDialog.show();
                     try {
                         String mobileMask = IaaaApi.requestSmsCode(IAAA_Authen.this.username, IAAA_Authen.appId);
@@ -353,11 +355,11 @@ public class IAAA_Authen extends AppCompatActivity {
     }
 
     static AlertDialog f(View view, String str) {
-        return new AlertDialog.Builder(view.getContext()).setTitle(R.string.error).setMessage(str).setNegativeButton(R.string.ok, (DialogInterface.OnClickListener) null).create();
+        return new MaterialAlertDialogBuilder(view.getContext()).setTitle(R.string.error).setMessage(str).setNegativeButton(R.string.ok, (DialogInterface.OnClickListener) null).create();
     }
 
-    static ProgressDialog i(Activity activity) {
-        ProgressDialog progressDialog = new ProgressDialog(activity);
+    static OrLoadingDialog i(Activity activity) {
+        OrLoadingDialog progressDialog = new OrLoadingDialog(activity);
         progressDialog.setProgressStyle(0);
         progressDialog.setMessage("请稍候...");
         progressDialog.setIndeterminate(true);
@@ -366,7 +368,7 @@ public class IAAA_Authen extends AppCompatActivity {
     }
 
     static AlertDialog j(View view, String str) {
-        return new AlertDialog.Builder(view.getContext()).setTitle(R.string.notice).setMessage(str).setNegativeButton(R.string.ok, (DialogInterface.OnClickListener) null).create();
+        return new MaterialAlertDialogBuilder(view.getContext()).setTitle(R.string.notice).setMessage(str).setNegativeButton(R.string.ok, (DialogInterface.OnClickListener) null).create();
     }
 
     final void g(TextView textView) {

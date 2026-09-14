@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner.Utils;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.CountDownTimer;
@@ -48,7 +50,7 @@ public class CountDownDialogUtil {
     }
 
     public static void showDialog(Activity activity, String str, @Nullable String str2, @Nullable View view, final String str3, DialogInterface.OnClickListener onClickListener, @Nullable String str4, @Nullable DialogInterface.OnClickListener onClickListener2, final int index) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(activity);
         if (view != null) {
             builder.setView(view);
         }

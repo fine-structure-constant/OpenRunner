@@ -1,8 +1,10 @@
 package cn.edu.pku.pkurunner.RecordList;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +51,7 @@ import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import cn.edu.pku.pkurunner.View.RunningFabView;
 import com.google.android.material.snackbar.Snackbar;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -72,11 +75,11 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
 
     private ImageView emptyImageView;
 
-    private ProgressDialog progressDialog;
+    private OrLoadingDialog progressDialog;
 
     private boolean appBarExpanded;
 
-    private FloatingActionButton startRunningFab;
+    private RunningFabView startRunningFab;
 
     private RecordListContract.Presenter presenter;
 
@@ -221,6 +224,8 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     }
 
     public /* synthetic */ void F(AppBarLayout appBarLayout, AppBarStateChangeWrapper.State state) {
+        // The FAB rides along with the hero card, so it leaves the screen once the AppBar is
+        // fully collapsed -- hide it instead of leaving a stray button clipped at the edge.
         if (state == AppBarStateChangeWrapper.State.COLLAPSED) {
             this.startRunningFab.setClickable(false);
             this.startRunningFab.hide();
@@ -235,7 +240,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     }
 
     public /* synthetic */ void I(int index, int index2, final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(getContext()).setTitle(index).setMessage(index2).setPositiveButton(R.string.f_record_dialog_positive, new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(getContext()).setTitle(index).setMessage(index2).setPositiveButton(R.string.f_record_dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index3) {
                 RecordListFragment.J(observableEmitter, dialogInterface, index3);
@@ -278,7 +283,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     }
 
     public /* synthetic */ void P(int index, int index2, final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(getMainActivity()).setTitle(index).setMessage(index2).setPositiveButton(R.string.f_record_start_camera, new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(getMainActivity()).setTitle(index).setMessage(index2).setPositiveButton(R.string.f_record_start_camera, new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index3) {
                 RecordListFragment.L(observableEmitter, dialogInterface, index3);
@@ -347,7 +352,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
 
     @Override
     public void dismissWaitDialog() {
-        ProgressDialog progressDialog = this.progressDialog;
+        OrLoadingDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.dismiss();
             this.progressDialog = null;
@@ -376,7 +381,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
 
     @Override
     public void setWaitingDialogMessage(@StringRes int index) {
-        ProgressDialog progressDialog = this.progressDialog;
+        OrLoadingDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.setMessage(getString(index));
         }
@@ -411,7 +416,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
 
     @Override
     public void showWaitingDialog() {
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        OrLoadingDialog progressDialog = new OrLoadingDialog(getContext());
         this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(0);
         this.progressDialog.setIndeterminate(false);
@@ -498,7 +503,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         this.rootView = inflate;
         SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) inflate.findViewById(R.id.f_recordlist_swipeRefreshLayout);
         this.swipeRefreshLayout = swipeRefreshLayout;
-        swipeRefreshLayout.setColorSchemeResources(R.color.orange_500, R.color.green_500, R.color.blue_500);
+        swipeRefreshLayout.setColorSchemeResources(R.color.or_primary);
         this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public final void onRefresh() {
@@ -518,9 +523,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
         recyclerView.addOnScrollListener(new ScrollStateResetListener());
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), 1);
-        dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
-        recyclerView.addItemDecoration(dividerItemDecoration);
         RecordCardAdapter recordCardAdapter = new RecordCardAdapter();
         this.recordCardAdapter = recordCardAdapter;
         recordCardAdapter.setPresenter(this.presenter, new RecordCardAdapter.ResourcesProvider() {
@@ -544,7 +546,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         this.noticeText = (TextView) this.rootView.findViewById(R.id.f_recordlist_txt_notice);
         this.emptyImageView = (ImageView) this.rootView.findViewById(R.id.f_recordlist_img);
         this.emptyHintText = (TextView) this.rootView.findViewById(R.id.f_recordlist_txt_loading);
-        FloatingActionButton floatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.v_main_fab_switch);
+        RunningFabView floatingActionButton = (RunningFabView) getActivity().findViewById(R.id.v_main_fab_switch);
         this.startRunningFab = floatingActionButton;
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override

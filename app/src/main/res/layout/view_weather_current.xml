@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView android:id="@id/v_weather_card_current" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" app:cardBackgroundColor="@color/or_hero_card" app:cardCornerRadius="28dp" app:cardElevation="0dp" app:strokeWidth="0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="20dp" android:paddingTop="20dp" android:paddingEnd="20dp" android:paddingBottom="18dp">
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
+
+            <ImageView android:id="@id/v_weather_img_current" android:layout_width="72dp" android:layout_height="72dp" android:contentDescription="@null" android:scaleType="fitCenter" />
+
+            <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="16dp">
+
+                <LinearLayout android:orientation="horizontal" android:gravity="bottom" android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+                    <TextView android:id="@id/v_weather_txt_temperature" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.HeroValue" android:textColor="@color/or_on_surface" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="4dp" android:layout_marginBottom="2dp" android:text="@string/or_weather_unit_celsius" android:textAppearance="@style/TextAppearance.OpenRunner.HeroUnit" />
+                </LinearLayout>
+
+                <TextView android:id="@id/v_weather_txt_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textAppearance="@style/TextAppearance.OpenRunner.HeroCaption" android:textColor="@color/or_on_surface" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="16dp" android:background="@color/or_outline_variant" />
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp">
+
+            <TextView android:id="@id/v_weather_txt_city" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemTitle" android:textColor="@color/or_on_surface" />
+
+            <TextView android:id="@id/v_weather_txt_source" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/or_weather_source" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

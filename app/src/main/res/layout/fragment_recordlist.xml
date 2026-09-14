@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/f_recordlist_swipeRefreshLayout" android:layout_width="fill_parent" android:layout_height="fill_parent"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/f_recordlist_swipeRefreshLayout" android:layout_width="match_parent" android:layout_height="match_parent"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
-        <androidx.recyclerview.widget.RecyclerView android:id="@id/f_recordlist_recyclerview" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="wrap_content" />
-        <ImageView android:layout_gravity="center_horizontal" android:id="@id/f_recordlist_img" android:visibility="gone" android:layout_width="96.0dip" android:layout_height="96.0dip" android:layout_marginTop="96.0dip" android:src="@drawable/ic_inbox" />
-        <TextView android:textSize="20.0sp" android:layout_gravity="center_horizontal" android:id="@id/f_recordlist_txt_notice" android:padding="20.0dip" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/f_list_no_data_notice" />
-        <TextView android:textSize="20.0sp" android:layout_gravity="center_horizontal" android:id="@id/f_recordlist_txt_loading" android:padding="20.0dip" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/f_list_loading" />
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+        <LinearLayout android:id="@id/f_recordlist_header" android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="20dp" android:paddingTop="4dp" android:paddingEnd="16dp" android:paddingBottom="10dp">
+            <TextView android:id="@id/f_recordlist_txt_section" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/m_running_records" android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+            <TextView android:id="@id/f_recordlist_txt_section_action" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/or_see_all" android:textAppearance="@style/TextAppearance.OpenRunner.SectionAction" />
+            <ImageView android:layout_width="18dp" android:layout_height="18dp" android:layout_marginStart="2dp" android:contentDescription="@null" android:src="@drawable/ic_chevron_right" android:tint="@color/or_on_surface_variant" />
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView android:id="@id/f_recordlist_recyclerview" android:visibility="visible" android:clipToPadding="false" android:paddingBottom="24dp" android:scrollbars="none" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <ImageView android:id="@id/f_recordlist_img" android:layout_gravity="center_horizontal" android:visibility="gone" android:layout_width="96dp" android:layout_height="96dp" android:layout_marginTop="96dp" android:contentDescription="@null" android:src="@drawable/ic_inbox" android:tint="@color/or_on_surface_variant" />
+        <TextView android:id="@id/f_recordlist_txt_notice" android:layout_gravity="center_horizontal" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="20dp" android:text="@string/f_list_no_data_notice" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+        <TextView android:id="@id/f_recordlist_txt_loading" android:layout_gravity="center_horizontal" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="20dp" android:text="@string/f_list_loading" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

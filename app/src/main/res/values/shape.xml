@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ShapeAppearance.OpenRunner" parent="ShapeAppearance.Material3.Corner.None" />
+
+    <style name="ShapeAppearance.OpenRunner.Small" parent="ShapeAppearance.OpenRunner">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Card" parent="ShapeAppearance.OpenRunner">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Circle" parent="ShapeAppearance.OpenRunner">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

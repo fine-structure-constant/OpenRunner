@@ -1,7 +1,9 @@
 package cn.edu.pku.pkurunner.Settings;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -46,7 +48,7 @@ import org.xutils.common.util.LogUtil;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private ProgressDialog progressDialog;
+    private OrLoadingDialog progressDialog;
 
     private int uploadRetryCount = 0;
 
@@ -149,7 +151,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public /* synthetic */ void M(final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(this).setTitle("Really upload database (will overwrite remote file)?").setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(this).setTitle("Really upload database (will overwrite remote file)?").setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index) {
                 SettingsActivity.K(observableEmitter, dialogInterface, index);
@@ -163,7 +165,7 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public /* synthetic */ ObservableSource N(Boolean bool) {
-        ProgressDialog progressDialog = new ProgressDialog(this);
+        OrLoadingDialog progressDialog = new OrLoadingDialog(this);
         this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(0);
         this.progressDialog.setMessage("Uploading...");

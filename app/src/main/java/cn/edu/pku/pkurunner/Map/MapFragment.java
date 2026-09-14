@@ -5,7 +5,7 @@ import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.app.ProgressDialog;
+import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -81,7 +81,7 @@ public class MapFragment extends Fragment implements MapContract.View {
 
     private GPSInfoView gpsInfoView;
 
-    private ProgressDialog progressDialog;
+    private OrLoadingDialog progressDialog;
 
     private View rootView;
 
@@ -321,7 +321,7 @@ public class MapFragment extends Fragment implements MapContract.View {
 
     @Override
     public void makeWaitingDialog(@StringRes int index, Object... objArr) {
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        OrLoadingDialog progressDialog = new OrLoadingDialog(getContext());
         this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(0);
         this.progressDialog.setMessage(getString(index, objArr));

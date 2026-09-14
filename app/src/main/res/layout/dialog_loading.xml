@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.card.MaterialCardView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" app:cardBackgroundColor="@color/or_surface_container_high" app:cardCornerRadius="28dp" app:cardElevation="0dp" app:strokeWidth="0dp" app:cardUseCompatPadding="true">
+
+        <LinearLayout android:orientation="vertical" android:gravity="center_horizontal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="132dp" android:paddingStart="32dp" android:paddingTop="28dp" android:paddingEnd="32dp" android:paddingBottom="28dp">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator android:id="@id/d_loading_indicator" android:layout_width="wrap_content" android:layout_height="wrap_content" android:indeterminate="true" app:indicatorSize="44dp" app:indicatorColor="@color/or_primary" app:trackColor="@color/or_primary_container" app:trackThickness="4dp" />
+
+            <TextView android:id="@id/d_loading_txt_message" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:gravity="center" android:maxWidth="220dp" android:textAppearance="@style/TextAppearance.OpenRunner.HeroCaption" android:textColor="@color/or_on_surface" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

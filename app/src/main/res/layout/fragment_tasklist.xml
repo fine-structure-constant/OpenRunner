@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/f_tasklist_swipeRefreshLayout" android:layout_width="fill_parent" android:layout_height="fill_parent"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/f_tasklist_swipeRefreshLayout" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/or_surface"
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent">
-        <androidx.recyclerview.widget.RecyclerView android:id="@id/f_tasklist_recyclerview" android:background="@color/grey_200" android:layout_width="fill_parent" android:layout_height="wrap_content" />
-        <TextView android:textSize="20.0sp" android:gravity="center" android:id="@id/f_tasklist_txt_notice" android:padding="20.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="@string/f_list_no_data_notice" />
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent">
+        <TextView android:id="@id/f_tasklist_txt_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="20dp" android:paddingTop="4dp" android:paddingEnd="20dp" android:paddingBottom="10dp" android:text="@string/m_tasks" android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+        <androidx.recyclerview.widget.RecyclerView android:id="@id/f_tasklist_recyclerview" android:clipToPadding="false" android:paddingBottom="24dp" android:scrollbars="none" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+        <TextView android:gravity="center" android:id="@id/f_tasklist_txt_notice" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/f_list_no_data_notice" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
     </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="fill_parent" android:layout_height="fill_parent" android:keepScreenOn="true"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/or_surface" android:keepScreenOn="true"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.amap.api.maps2d.MapView android:id="@id/f_map_mapview" android:layout_width="fill_parent" android:layout_height="fill_parent" app:layout_constraintBottom_toTopOf="@id/f_map_guideline" app:layout_constraintLeft_toLeftOf="parent" app:layout_constraintRight_toRightOf="parent" app:layout_constraintTop_toTopOf="parent" />
-    <androidx.core.widget.NestedScrollView android:id="@id/f_map_bottomsheet" android:layout_width="fill_parent" android:layout_height="wrap_content" app:behavior_hideable="false" app:behavior_peekHeight="200.0dip" app:layout_behavior="@string/bottom_sheet_behavior" app:layout_constraintBottom_toBottomOf="parent">
+    <com.amap.api.maps2d.MapView android:id="@id/f_map_mapview" android:layout_width="match_parent" android:layout_height="match_parent" />
+    <androidx.core.widget.NestedScrollView android:id="@id/f_map_bottomsheet" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@android:color/transparent" app:behavior_hideable="false" app:behavior_peekHeight="228dp" app:layout_behavior="@string/bottom_sheet_behavior">
         <include layout="@layout/view_map_indicator" />
     </androidx.core.widget.NestedScrollView>
-    <cn.edu.pku.pkurunner.View.GPSInfoView android:id="@id/f_map_gpsinfo" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="16.0dip" app:appear="false" app:signalStrength="0" />
+    <cn.edu.pku.pkurunner.View.GPSInfoView android:id="@id/f_map_gpsinfo" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="16dp" app:appear="false" app:cardBackgroundColor="@color/or_surface_container_low" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:signalStrength="0" app:strokeWidth="0dp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

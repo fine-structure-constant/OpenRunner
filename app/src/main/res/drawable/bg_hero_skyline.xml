@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector android:height="120dp" android:width="320dp" android:viewportWidth="320" android:viewportHeight="120"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@color/or_sun" android:pathData="M262,26 m-13,0 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M0,92 h22 v28 h-22 z" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M28,78 h20 v42 h-20 z" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M116,72 h22 v48 h-22 z" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M150,88 h26 v32 h-26 z" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M240,84 h22 v36 h-22 z" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M272,94 h30 v26 h-30 z" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M60,92 m-10,0 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0" />
+    <path android:fillColor="@color/or_skyline_back" android:pathData="M226,94 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M44,62 h32 v58 h-32 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M84,86 h24 v34 h-24 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M140,50 h34 v70 h-34 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M182,70 h26 v50 h-26 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M216,96 h28 v24 h-28 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M252,74 h34 v46 h-34 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M296,90 h24 v30 h-24 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M200,36 h13 v84 h-13 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M193,46 h27 v6 h-27 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M191,60 h31 v6 h-31 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M189,74 h35 v6 h-35 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M187,88 h39 v6 h-39 z" />
+    <path android:fillColor="@color/or_skyline" android:pathData="M206,22 l7,14 h-14 z" />
+</vector>

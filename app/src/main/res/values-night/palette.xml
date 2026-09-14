@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="or_primary">#F34C4F</color>
+    <color name="or_on_primary">#FFFFFF</color>
+    <color name="or_primary_container">#372127</color>
+    <color name="or_on_primary_container">#FFDADB</color>
+    <color name="or_secondary">#FFB3B5</color>
+    <color name="or_on_secondary">#52282A</color>
+    <color name="or_secondary_container">#6B3B3D</color>
+    <color name="or_on_secondary_container">#FFDADB</color>
+
+    <color name="or_surface">#12151B</color>
+    <color name="or_app_bar">#12151B</color>
+    <color name="or_surface_container_lowest">#0D1015</color>
+    <color name="or_surface_container_low">#161920</color>
+    <color name="or_surface_container">#1A1C24</color>
+    <color name="or_surface_container_high">#1F1D24</color>
+    <color name="or_surface_container_highest">#242631</color>
+    <color name="or_on_surface">#E6E8EE</color>
+    <color name="or_on_surface_variant">#8E95A4</color>
+    <color name="or_outline">#5A5D66</color>
+    <color name="or_outline_variant">#2A2E38</color>
+
+    <color name="or_hero_card">#1F1D24</color>
+    <color name="or_skyline">#4B2A2F</color>
+    <color name="or_skyline_back">#352126</color>
+    <color name="or_sun">#7A3A3E</color>
+    <color name="or_track">#33353D</color>
+    <color name="or_success">#7ED684</color>
+    <color name="or_warning">#F0B357</color>
+
+    <color name="or_error">#FFB4AB</color>
+    <color name="or_on_error">#690005</color>
+    <color name="or_error_container">#93000A</color>
+    <color name="or_on_error_container">#FFDAD6</color>
+</resources>

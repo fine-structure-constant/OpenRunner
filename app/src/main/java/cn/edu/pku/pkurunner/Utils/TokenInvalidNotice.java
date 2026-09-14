@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner.Utils;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,7 +18,7 @@ public abstract class TokenInvalidNotice {
     }
 
     public static /* synthetic */ void d(Context context, final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(context).setTitle(R.string.d_token_invalid_dialog_title).setMessage(R.string.d_token_invalid_dialog_content).setPositiveButton(R.string.d_token_invalid_dialog_positive_button, new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(context).setTitle(R.string.d_token_invalid_dialog_title).setMessage(R.string.d_token_invalid_dialog_content).setPositiveButton(R.string.d_token_invalid_dialog_positive_button, new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index) {
                 TokenInvalidNotice.c(observableEmitter, dialogInterface, index);

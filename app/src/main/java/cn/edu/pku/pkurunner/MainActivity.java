@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -50,6 +52,7 @@ import cn.edu.pku.pkurunner.Utils.ThreatDetectUtil;
 import cn.edu.pku.pkurunner.Utils.TokenInvalidNotice;
 import cn.edu.pku.pkurunner.Utils.UpdateHelper;
 import cn.edu.pku.pkurunner.View.ProgressableView;
+import cn.edu.pku.pkurunner.View.RunningFabView;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
@@ -332,7 +335,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void f0() {
-        new AlertDialog.Builder(this).setTitle(R.string.a_main_logout_dialog_title).setMessage(R.string.a_main_logout_dialog_content).setPositiveButton(R.string.a_main_logout_dialog_positive, new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(this).setTitle(R.string.a_main_logout_dialog_title).setMessage(R.string.a_main_logout_dialog_content).setPositiveButton(R.string.a_main_logout_dialog_positive, new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index) {
                 MainActivity.this.P(dialogInterface, index);
@@ -377,6 +380,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment2 = this.currentFragment;
         if (fragment2 != fragment) {
             this.currentFragment = fragment;
+            updateRunningFab(fragment);
             FragmentTransaction beginTransaction = getSupportFragmentManager().beginTransaction();
             if (fragment2 != null) {
                 beginTransaction.hide(fragment2);
@@ -397,6 +401,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment2 = this.currentFragment;
         if (fragment2 != fragment) {
             this.currentFragment = fragment;
+            updateRunningFab(fragment);
             FragmentTransaction customAnimations = getSupportFragmentManager().beginTransaction().setCustomAnimations(index2, index);
             if (fragment2 != null) {
                 customAnimations.hide(fragment2);
@@ -409,6 +414,32 @@ public class MainActivity extends AppCompatActivity {
                 customAnimations.add(R.id.v_main_frame, fragment, String.valueOf(findIdByFragment)).commit();
             }
             this.lastFragmentId = findIdByFragment;
+        }
+    }
+
+    /**
+     * The "start running" FAB only makes sense while browsing records / tasks -- on the running
+     * map it would sit on top of the map for no reason. The map also collapses the AppBar, so
+     * leaving it has to expand the hero card again, otherwise the FAB would be re-shown while its
+     * anchor is still scrolled out of view.
+     */
+    private void updateRunningFab(Fragment fragment) {
+        View fab = findViewById(R.id.v_main_fab_switch);
+        AppBarLayout appBar = (AppBarLayout) findViewById(R.id.v_main_appbar);
+        if (fragment == this.mapFragment) {
+            if (fab != null) {
+                fab.setVisibility(View.GONE);
+            }
+            return;
+        }
+        if (appBar != null) {
+            appBar.setExpanded(true, false);
+        }
+        if (fab != null) {
+            fab.setVisibility(View.VISIBLE);
+            if (fab instanceof RunningFabView) {
+                ((RunningFabView) fab).show();
+            }
         }
     }
 
@@ -459,17 +490,16 @@ public class MainActivity extends AppCompatActivity {
                 this.progressableView.setSecondaryText(getString(R.string.status_post_duration, new SimpleDateFormat().format(Long.valueOf(userStatus.getEndDate().getTime()))));
             }
             if (target == 0.0d) {
-                this.progressableView.setMainText(getString(R.string.status_main_distance_notarget, Double.valueOf(current / 1000.0d), getString(R.string.status_prefinished, Integer.valueOf(userStatus.getValidCount()))));
+                this.progressableView.setMainValue(getString(R.string.or_hero_value_plain, Double.valueOf(current / 1000.0d)));
+                this.progressableView.setMainUnit(getString(R.string.v_record_km));
+                this.progressableView.setMainCaption(getString(R.string.status_prefinished, Integer.valueOf(userStatus.getValidCount())));
                 this.progressableView.setMainProgress(1.0f);
                 this.progressableView.setMainBonusProgress(1.0f);
             } else {
                 boolean isPassed = userStatus.isPassed();
-                Object[] objArr = new Object[4];
-                objArr[0] = Double.valueOf(current / 1000.0d);
-                objArr[1] = Double.valueOf(bonus / 1000.0d);
-                objArr[2] = Double.valueOf(target / 1000.0d);
-                objArr[3] = isPassed ? getString(R.string.status_finished) : getString(R.string.status_prefinished, Integer.valueOf(userStatus.getValidCount()));
-                this.progressableView.setMainText(getString(R.string.status_main_distance, objArr));
+                this.progressableView.setMainValue(getString(R.string.or_hero_value_plain, Double.valueOf(current / 1000.0d)));
+                this.progressableView.setMainUnit(getString(R.string.or_hero_unit, Double.valueOf(target / 1000.0d)));
+                this.progressableView.setMainCaption(isPassed ? getString(R.string.status_finished) : getString(R.string.status_prefinished, Integer.valueOf(userStatus.getValidCount())));
                 this.progressableView.setMainProgress((float) (current / target));
                 this.progressableView.setMainBonusProgress((float) (value / target));
             }
@@ -693,7 +723,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean k0() {
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.v_main_fab_switch);
+        View floatingActionButton = findViewById(R.id.v_main_fab_switch);
         if (floatingActionButton == null || floatingActionButton.getVisibility() != 0 || this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
             return false;
         }
@@ -724,7 +754,7 @@ public class MainActivity extends AppCompatActivity {
         }
         this.lastBackPressTime = 0L;
         if (this.mapFragment.presenter.isRunning()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setTitle(R.string.a_main_exit_dialog_title);
             builder.setMessage(R.string.a_main_exit_dialog_content);
             builder.setPositiveButton(R.string.a_main_exit_dialog_positive, new DialogInterface.OnClickListener() {
@@ -752,7 +782,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         i0(bundle);
         if (ThreatDetectUtil.isX86()) {
-            new AlertDialog.Builder(this).setMessage("请勿使用模拟器运行本软件！").setPositiveButton("确定", new EmulatorWarningClickListener()).setCancelable(false).create().show();
+            new MaterialAlertDialogBuilder(this).setMessage("请勿使用模拟器运行本软件！").setPositiveButton("确定", new EmulatorWarningClickListener()).setCancelable(false).create().show();
         }
         E();
         G();
@@ -800,7 +830,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (J()) {
-            new AlertDialog.Builder(this).setTitle("非常事态！！！").setMessage("请不要在非手机的Android端使用本软件哦！\n小心用着用着设备飞出去哦！（大雾").setCancelable(false).setPositiveButton("原地爆炸", new DialogInterface.OnClickListener() {
+            new MaterialAlertDialogBuilder(this).setTitle("非常事态！！！").setMessage("请不要在非手机的Android端使用本软件哦！\n小心用着用着设备飞出去哦！（大雾").setCancelable(false).setPositiveButton("原地爆炸", new DialogInterface.OnClickListener() {
                 @Override
                 public final void onClick(DialogInterface dialogInterface, int index) {
                     MainActivity.this.T(dialogInterface, index);
@@ -856,7 +886,9 @@ public class MainActivity extends AppCompatActivity {
             while (records.hasNext()) {
                 value += records.next().getDistance();
             }
-            this.progressableView.setMainText(getString(R.string.status_offline, Integer.valueOf((int) (value / 1000.0d))));
+            this.progressableView.setMainValue(getString(R.string.or_hero_value_plain, Double.valueOf(value / 1000.0d)));
+            this.progressableView.setMainUnit(getString(R.string.v_record_km));
+            this.progressableView.setMainCaption(getString(R.string.status_offline, Integer.valueOf((int) (value / 1000.0d))));
         }
         if (this.currentFragment == null) {
             m0(this.recordListFragment);
@@ -880,7 +912,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void switchFromRecordListToRunning() {
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.v_main_fab_switch);
+        View floatingActionButton = findViewById(R.id.v_main_fab_switch);
         if (this.mapFragment.isStateSaved()) {
             this.mapFragment.getArguments().putInt("FabX", (int) (floatingActionButton.getX() + (floatingActionButton.getWidth() / 2)));
             this.mapFragment.getArguments().putInt("FabY", (int) (floatingActionButton.getY() + (floatingActionButton.getHeight() / 2)));

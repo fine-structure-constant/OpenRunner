@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Only the entries whose mapping differs in dark mode. Everything else lives in
+      Theme.OpenRunner.Base (values/theme.xml) and picks up the dark values automatically through
+      the or_* tokens in values-night/palette.xml.
+    -->
+    <style name="Theme.OpenRunner" parent="@style/Theme.OpenRunner.Base">
+        <item name="colorPrimaryDark">@color/or_surface</item>
+        <item name="colorSurfaceBright">@color/or_surface_container_high</item>
+        <item name="colorSurfaceDim">@color/or_surface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

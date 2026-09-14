@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/or_surface" android:fillViewport="true" android:scrollbars="none"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout android:id="@id/v_weather_content" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="16dp" android:paddingTop="4dp" android:paddingEnd="16dp" android:paddingBottom="28dp">
+
+        <TextView android:id="@id/v_weather_txt_loading" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:paddingTop="48dp" android:paddingBottom="48dp" android:text="@string/or_weather_loading" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+    </LinearLayout>
+</ScrollView>

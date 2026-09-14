@@ -1,7 +1,9 @@
 package cn.edu.pku.pkurunner;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
+import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,7 +36,7 @@ import org.xutils.common.Callback;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private ProgressDialog progressDialog;
+    private OrLoadingDialog progressDialog;
 
     private final ActivityResultLauncher<Intent> iaaaLoginLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
@@ -66,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public /* synthetic */ void A(Boolean bool) {
-        ProgressDialog progressDialog = this.progressDialog;
+        OrLoadingDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
@@ -74,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public /* synthetic */ void B(Throwable th) {
-        ProgressDialog progressDialog = this.progressDialog;
+        OrLoadingDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
@@ -127,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void Q() {
-        ProgressDialog progressDialog = new ProgressDialog(this);
+        OrLoadingDialog progressDialog = new OrLoadingDialog(this);
         this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(0);
         this.progressDialog.setMessage(getString(R.string.a_login_logining_to_server));
@@ -218,7 +220,7 @@ public class LoginActivity extends AppCompatActivity {
                 arrayAdapter.add(user.getName());
             }
         }
-        new AlertDialog.Builder(this).setTitle(getString(R.string.a_login_offline_existing_choose_one)).setNegativeButton(getString(R.string.a_login_offline_existing_cancel), new DialogInterface.OnClickListener() {
+        new MaterialAlertDialogBuilder(this).setTitle(getString(R.string.a_login_offline_existing_choose_one)).setNegativeButton(getString(R.string.a_login_offline_existing_cancel), new DialogInterface.OnClickListener() {
             @Override
             public final void onClick(DialogInterface dialogInterface, int index) {
                 dialogInterface.dismiss();

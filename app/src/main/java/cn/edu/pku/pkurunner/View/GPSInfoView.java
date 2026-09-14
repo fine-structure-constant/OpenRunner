@@ -10,12 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import cn.edu.pku.pkurunner.R;
 import com.amap.api.maps2d.model.BitmapDescriptorFactory;
+import com.google.android.material.card.MaterialCardView;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -23,7 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import java.util.concurrent.TimeUnit;
 
-public class GPSInfoView extends CardView {
+public class GPSInfoView extends MaterialCardView {
 
     private static final int[] SIGNAL_LEVEL_DRAWABLES;
 

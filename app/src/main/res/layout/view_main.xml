@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/a_main_coordinator" android:layout_width="fill_parent" android:layout_height="fill_parent"
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@id/a_main_coordinator" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/or_surface"
   xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
-    <com.google.android.material.appbar.AppBarLayout android:theme="@style/AppTheme.AppBarOverlay" android:id="@id/v_main_appbar" android:layout_width="fill_parent" android:layout_height="wrap_content">
-        <com.google.android.material.appbar.CollapsingToolbarLayout android:id="@id/v_main_collapsing" android:fitsSystemWindows="true" android:layout_width="fill_parent" android:layout_height="wrap_content" app:contentScrim="@color/primary" app:layout_scrollFlags="scroll|exitUntilCollapsed" app:titleEnabled="false">
-            <include layout="@layout/view_record_user_status" />
-            <androidx.appcompat.widget.Toolbar android:id="@id/v_main_toolbar" android:background="@color/primary" android:layout_width="fill_parent" android:layout_height="?android:actionBarSize" app:layout_collapseMode="pin" app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    <com.google.android.material.appbar.AppBarLayout android:id="@id/v_main_appbar" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/or_app_bar" app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout android:id="@id/v_main_collapsing" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="?attr/actionBarSize" app:contentScrim="@color/or_app_bar" app:titleEnabled="false" app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <FrameLayout android:id="@id/v_main_status_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="?attr/actionBarSize" app:layout_collapseMode="parallax">
+                <include layout="@layout/view_record_user_status" />
+            </FrameLayout>
+
+            <com.google.android.material.appbar.MaterialToolbar android:id="@id/v_main_toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="@color/or_app_bar" app:layout_collapseMode="pin" app:popupTheme="@style/ThemeOverlay.OpenRunner.PopupMenu" app:title="@string/app_name" app:titleTextAppearance="@style/TextAppearance.OpenRunner.AppBarTitle" app:theme="@style/ThemeOverlay.OpenRunner.AppBar" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
-    <FrameLayout android:id="@id/v_main_frame" android:layout_width="fill_parent" android:layout_height="fill_parent" app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@id/v_main_fab_switch" android:visibility="visible" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="@dimen/fab_margin" android:src="@drawable/ic_directions_run_black_24dp" android:tint="@color/white" app:layout_anchor="@id/v_main_collapsing" app:layout_anchorGravity="end|bottom|center" />
+
+    <FrameLayout android:id="@id/v_main_frame" android:layout_width="match_parent" android:layout_height="match_parent" app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <cn.edu.pku.pkurunner.View.RunningFabView android:id="@id/v_main_fab_switch" android:layout_width="92dp" android:layout_height="92dp" android:layout_marginEnd="12dp" android:layout_marginBottom="10dp" app:cardBackgroundColor="@color/or_primary" app:cardCornerRadius="46dp" app:cardElevation="6dp" app:layout_anchor="@id/v_main_status_container" app:layout_anchorGravity="end|bottom" app:rippleColor="@color/or_on_primary" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" app:cardBackgroundColor="@color/or_surface_container_low" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="20dp" android:paddingTop="18dp" android:paddingEnd="20dp" android:paddingBottom="18dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/or_weather_details_title" android:textAppearance="@style/TextAppearance.OpenRunner.ItemTitle" android:textColor="@color/or_on_surface" />
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/or_weather_label_feels" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+            <TextView android:id="@id/v_weather_txt_feels" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" android:textColor="@color/or_on_surface" />
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/or_weather_label_humidity" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+            <TextView android:id="@id/v_weather_txt_humidity" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" android:textColor="@color/or_on_surface" />
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/or_weather_label_wind" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+            <TextView android:id="@id/v_weather_txt_wind" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" android:textColor="@color/or_on_surface" />
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/or_weather_label_wind_speed" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+            <TextView android:id="@id/v_weather_txt_wind_speed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" android:textColor="@color/or_on_surface" />
+        </LinearLayout>
+
+        <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp">
+            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/or_weather_label_aqi" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" />
+            <TextView android:id="@id/v_weather_txt_aqi" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" android:textColor="@color/or_on_surface" />
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

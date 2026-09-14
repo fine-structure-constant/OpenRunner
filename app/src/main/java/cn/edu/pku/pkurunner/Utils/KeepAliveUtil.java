@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner.Utils;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -303,7 +305,7 @@ public class KeepAliveUtil {
     public static boolean check(final FragmentActivity fragmentActivity) {
         Context applicationContext = fragmentActivity.getApplicationContext();
         if (!b(applicationContext)) {
-            new AlertDialog.Builder(fragmentActivity).setTitle("跑步轨迹优化-电池白名单").setMessage("为减少跑步轨迹的问题，请在弹出的界面中点击【允许】或【不限制】，将" + applicationContext.getString(R.string.app_name) + "加入电池白名单").setPositiveButton("好，我知道了", new DialogInterface.OnClickListener() {
+            new MaterialAlertDialogBuilder(fragmentActivity).setTitle("跑步轨迹优化-电池白名单").setMessage("为减少跑步轨迹的问题，请在弹出的界面中点击【允许】或【不限制】，将" + applicationContext.getString(R.string.app_name) + "加入电池白名单").setPositiveButton("好，我知道了", new DialogInterface.OnClickListener() {
                 @Override
                 public final void onClick(DialogInterface dialogInterface, int index) {
                     KeepAliveUtil.d(fragmentActivity);

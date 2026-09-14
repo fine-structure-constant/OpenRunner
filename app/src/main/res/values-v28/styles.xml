@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Base.Theme.AppCompat" parent="@style/Base.V28.Theme.AppCompat" />
-    <style name="Base.Theme.AppCompat.Light" parent="@style/Base.V28.Theme.AppCompat.Light" />
     <style name="Base.V14.ThemeOverlay.MaterialComponents.MaterialAlertDialog" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">
         <item name="android:backgroundDimAmount">0.32</item>
         <item name="android:checkedTextViewStyle">@style/Widget.MaterialComponents.CheckedTextView</item>

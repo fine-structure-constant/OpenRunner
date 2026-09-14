@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner.Offline;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -32,7 +34,7 @@ public abstract class QuickOfflineSignin {
     }
 
     public static /* synthetic */ void f(final Activity activity, final ObservableEmitter observableEmitter) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(activity);
         View inflate = activity.getLayoutInflater().inflate(R.layout.fragment_offline_info, (ViewGroup) null);
         final TextInputEditText textInputEditText = (TextInputEditText) inflate.findViewById(R.id.f_offline_info_tiet);
         final RadioGroup radioGroup = (RadioGroup) inflate.findViewById(R.id.f_offline_info_radiogroup);

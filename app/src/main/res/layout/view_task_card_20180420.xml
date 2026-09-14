@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView android:orientation="horizontal" android:focusable="true" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:foreground="?android:selectableItemBackground" android:stateListAnimator="@animator/touch_raise"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_marginBottom="16.0dip">
+<com.google.android.material.card.MaterialCardView android:id="@id/view_card_task_fg" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginTop="6dp" android:layout_marginEnd="16dp" android:layout_marginBottom="6dp" android:clickable="true" android:focusable="true" app:cardBackgroundColor="@color/or_surface_container_low" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:rippleColor="@color/or_primary_container" app:strokeWidth="0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content">
         <include layout="@layout/view_task_card_basic" />
         <include layout="@layout/view_activity_20180420" />
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

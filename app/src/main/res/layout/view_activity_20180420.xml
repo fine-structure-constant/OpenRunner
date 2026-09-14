@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_width="fill_parent" android:layout_height="fill_parent"
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <Button android:textColor="@color/white" android:id="@id/v_a_20180420_btn_red" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/v_activity_20180420_red" android:layout_weight="1.0" android:layout_marginStart="16.0dip" android:layout_marginEnd="16.0dip" android:backgroundTint="@color/red_500" />
-    <Button android:textColor="@color/white" android:id="@id/v_a_20180420_btn_blue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/v_activity_20180420_blue" android:layout_weight="1.0" android:layout_marginStart="16.0dip" android:layout_marginEnd="16.0dip" android:backgroundTint="@color/blue_500" />
+<LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="18dp" android:paddingEnd="18dp" android:paddingBottom="18dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.button.MaterialButton android:id="@id/v_a_20180420_btn_red" style="@style/Widget.Material3.Button" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="6dp" android:text="@string/v_activity_20180420_red" app:backgroundTint="@color/or_primary" />
+    <com.google.android.material.button.MaterialButton android:id="@id/v_a_20180420_btn_blue" style="@style/Widget.Material3.Button" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:text="@string/v_activity_20180420_blue" app:backgroundTint="@color/blue_700" />
 </LinearLayout>

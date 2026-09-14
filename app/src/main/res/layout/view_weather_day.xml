@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" app:cardBackgroundColor="@color/or_surface_container_low" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="0dp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="18dp" android:paddingTop="16dp" android:paddingEnd="18dp" android:paddingBottom="16dp">
+
+        <TextView android:id="@id/v_weather_txt_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.OpenRunner.ItemTitle" android:textColor="@color/or_on_surface" />
+
+        <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:weightSum="2">
+
+            <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/or_weather_label_day" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" />
+
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp">
+                    <ImageView android:id="@id/v_weather_img_day" android:layout_width="36dp" android:layout_height="36dp" android:contentDescription="@null" android:scaleType="fitCenter" />
+                    <TextView android:id="@id/v_weather_txt_day_desc" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" android:textColor="@color/or_on_surface" />
+                </LinearLayout>
+
+                <TextView android:id="@id/v_weather_txt_day_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textAppearance="@style/TextAppearance.OpenRunner.ItemTitle" android:textColor="@color/or_on_surface" />
+
+                <TextView android:id="@id/v_weather_txt_day_wind" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" />
+            </LinearLayout>
+
+            <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/or_weather_label_night" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" />
+
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp">
+                    <ImageView android:id="@id/v_weather_img_night" android:layout_width="36dp" android:layout_height="36dp" android:contentDescription="@null" android:scaleType="fitCenter" />
+                    <TextView android:id="@id/v_weather_txt_night_desc" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textAppearance="@style/TextAppearance.OpenRunner.ItemSubtitle" android:textColor="@color/or_on_surface" />
+                </LinearLayout>
+
+                <TextView android:id="@id/v_weather_txt_night_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textAppearance="@style/TextAppearance.OpenRunner.ItemTitle" android:textColor="@color/or_on_surface" />
+
+                <TextView android:id="@id/v_weather_txt_night_wind" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textAppearance="@style/TextAppearance.OpenRunner.ItemMeta" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

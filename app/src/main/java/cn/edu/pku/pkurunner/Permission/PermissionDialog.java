@@ -1,5 +1,7 @@
 package cn.edu.pku.pkurunner.Permission;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -45,7 +47,7 @@ public class PermissionDialog extends DialogFragment {
         int checkSelfPermission;
         int checkSelfPermission2;
         int checkSelfPermission3;
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity());
         View inflate = getActivity().getLayoutInflater().inflate(R.layout.fragment_permission_dialog, (ViewGroup) null);
         this.rootView = inflate;
         builder.setView(inflate);

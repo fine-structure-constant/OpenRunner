@@ -166,16 +166,45 @@
     <item type="id" name="f_record_detail_txt_steps" />
     <item type="id" name="f_record_detail_txt_uid" />
     <item type="id" name="f_record_record_img_location" />
+    <item type="id" name="f_recordlist_header" />
     <item type="id" name="f_recordlist_img" />
     <item type="id" name="f_recordlist_recyclerview" />
     <item type="id" name="f_recordlist_swipeRefreshLayout" />
     <item type="id" name="f_recordlist_txt_loading" />
     <item type="id" name="f_recordlist_txt_notice" />
+    <item type="id" name="f_recordlist_txt_section" />
+    <item type="id" name="f_recordlist_txt_section_action" />
     <item type="id" name="f_task_complete_txt_message" />
     <item type="id" name="f_task_complete_txt_title" />
     <item type="id" name="f_tasklist_recyclerview" />
     <item type="id" name="f_tasklist_swipeRefreshLayout" />
     <item type="id" name="f_tasklist_txt_notice" />
+    <item type="id" name="f_tasklist_txt_section" />
+    <item type="id" name="view_card_task_fg" />
+    <item type="id" name="p_weather_toolbar" />
+    <item type="id" name="f_weather_container" />
+    <item type="id" name="v_weather_content" />
+    <item type="id" name="v_weather_txt_loading" />
+    <item type="id" name="v_weather_card_current" />
+    <item type="id" name="v_weather_img_current" />
+    <item type="id" name="v_weather_txt_temperature" />
+    <item type="id" name="v_weather_txt_description" />
+    <item type="id" name="v_weather_txt_city" />
+    <item type="id" name="v_weather_txt_source" />
+    <item type="id" name="v_weather_txt_feels" />
+    <item type="id" name="v_weather_txt_humidity" />
+    <item type="id" name="v_weather_txt_wind" />
+    <item type="id" name="v_weather_txt_wind_speed" />
+    <item type="id" name="v_weather_txt_aqi" />
+    <item type="id" name="v_weather_txt_date" />
+    <item type="id" name="v_weather_img_day" />
+    <item type="id" name="v_weather_txt_day_desc" />
+    <item type="id" name="v_weather_txt_day_temp" />
+    <item type="id" name="v_weather_txt_day_wind" />
+    <item type="id" name="v_weather_img_night" />
+    <item type="id" name="v_weather_txt_night_desc" />
+    <item type="id" name="v_weather_txt_night_temp" />
+    <item type="id" name="v_weather_txt_night_wind" />
     <item type="id" name="fragment_container_view_tag" />
     <item type="id" name="fullscreen_header" />
     <item type="id" name="ghost_view" />
@@ -391,20 +420,31 @@
     <item type="id" name="v_main_collapsing" />
     <item type="id" name="v_main_fab_switch" />
     <item type="id" name="v_main_frame" />
+    <item type="id" name="v_main_status_container" />
     <item type="id" name="v_main_toolbar" />
+    <item type="id" name="v_progress_day_group" />
+    <item type="id" name="v_progress_img_calendar" />
     <item type="id" name="v_progress_img_group" />
     <item type="id" name="v_progress_img_runner" />
+    <item type="id" name="v_progress_img_skyline" />
     <item type="id" name="v_progress_img_sleeping" />
     <item type="id" name="v_progress_img_weather" />
     <item type="id" name="v_progress_progress_day" />
     <item type="id" name="v_progress_progress_distance" />
+    <item type="id" name="v_progress_progress_group" />
     <item type="id" name="v_progress_root" />
+    <item type="id" name="v_progress_sleeping_group" />
+    <item type="id" name="v_progress_txt_caption" />
     <item type="id" name="v_progress_txt_day" />
     <item type="id" name="v_progress_txt_distance" />
     <item type="id" name="v_progress_txt_group" />
+    <item type="id" name="v_progress_txt_percent" />
     <item type="id" name="v_progress_txt_runner" />
     <item type="id" name="v_progress_txt_sleeping_notice" />
+    <item type="id" name="v_progress_txt_unit" />
     <item type="id" name="v_record_card_circle_bg" />
+    <item type="id" name="v_record_card_img_chevron" />
+    <item type="id" name="v_record_card_img_icon_bg" />
     <item type="id" name="v_record_card_img_status" />
     <item type="id" name="v_record_card_txt_date" />
     <item type="id" name="v_record_card_txt_distance" />
@@ -424,4 +464,6 @@
     <item type="id" name="view_tree_view_model_store_owner" />
     <item type="id" name="visible_removing_fragment_view_tag" />
     <item type="id" name="zero_corner_chip" />
+    <item type="id" name="d_loading_indicator" />
+    <item type="id" name="d_loading_txt_message" />
 </resources>

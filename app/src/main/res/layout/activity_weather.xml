@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="@color/or_surface"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@id/p_weather_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/or_app_bar"
+        android:elevation="0dp"
+        app:navigationContentDescription="@string/abc_action_bar_up_description"
+        app:navigationIcon="@drawable/ic_arrow_back_white"
+        app:navigationIconTint="@color/or_on_surface"
+        app:title="@string/m_weather"
+        app:titleTextAppearance="@style/TextAppearance.OpenRunner.AppBarTitle"
+        app:titleTextColor="@color/or_on_surface" />
+
+    <FrameLayout
+        android:id="@id/f_weather_container"
+        android:background="@color/or_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

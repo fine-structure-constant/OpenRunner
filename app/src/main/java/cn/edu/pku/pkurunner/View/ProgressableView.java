@@ -29,4 +29,13 @@ public interface ProgressableView {
     void setSleepingIndicatorText(String str);
 
     <T> ViewTarget<ImageView, T> setWeatherDrawable(RequestBuilder<T> glideRequest);
+
+    default void setMainValue(String str) {
+    }
+
+    default void setMainUnit(String str) {
+    }
+
+    default void setMainCaption(String str) {
+    }
 }

@@ -1,182 +1,143 @@
 package cn.edu.pku.pkurunner;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import androidx.annotation.ColorInt;
-import androidx.appcompat.app.ActionBarDrawerToggle;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import com.google.android.material.navigation.NavigationView;
+import androidx.core.widget.TextViewCompat;
+
 import com.bumptech.glide.Glide;
+import com.google.android.material.appbar.MaterialToolbar;
+
 import cn.edu.pku.pkurunner.Model.Weather;
 import cn.edu.pku.pkurunner.Network.Network;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
+/**
+ * Weather page. A plain pushed screen with a back arrow, same shape as
+ * {@link cn.edu.pku.pkurunner.Settings.SettingsActivity} -- it no longer piggybacks on
+ * {@code activity_main} / the navigation drawer.
+ */
 public class WeatherActivity extends AppCompatActivity {
+
+    private static final String ICON_BASE = "https://image.nmc.cn/assets/img/w/40x40/4/";
+
     private LinearLayout content;
+
+    @Nullable
+    private TextView loadingText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        DrawerLayout drawer = findViewById(R.id.a_main_drawer_layout);
-        Toolbar toolbar = findViewById(R.id.v_main_toolbar);
-        toolbar.setTitle("天气");
-        setSupportActionBar(toolbar);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        NavigationView navigation = findViewById(R.id.a_main_nav);
-        navigation.getMenu().findItem(R.id.nav_weather).setChecked(true);
-        navigation.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_weather) {
-                drawer.closeDrawer(GravityCompat.START);
-            } else if (id == R.id.nav_settings) {
-                startActivity(new android.content.Intent(this, cn.edu.pku.pkurunner.Settings.SettingsActivity.class));
-                drawer.closeDrawer(GravityCompat.START);
-            } else {
-                finish();
-            }
-            return true;
-        });
-        findViewById(R.id.v_status_progress).setVisibility(View.GONE);
-        findViewById(R.id.v_main_fab_switch).setVisibility(View.GONE);
+        setContentView(R.layout.activity_weather);
+        MaterialToolbar toolbar = findViewById(R.id.p_weather_toolbar);
+        toolbar.setNavigationOnClickListener(view -> finish());
 
-        ScrollView scroll = new ScrollView(this);
-        content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(20), dp(16), dp(20), dp(24));
-        scroll.addView(content);
-        ((FrameLayout) findViewById(R.id.v_main_frame)).addView(scroll,
-                new FrameLayout.LayoutParams(-1, -1));
+        View root = getLayoutInflater().inflate(R.layout.view_weather, null, false);
+        this.content = root.findViewById(R.id.v_weather_content);
+        this.loadingText = root.findViewById(R.id.v_weather_txt_loading);
+        ((FrameLayout) findViewById(R.id.f_weather_container)).addView(root, new FrameLayout.LayoutParams(-1, -1));
+
         render(Network.weather);
         if (Network.weather == null) {
-            addText("正在加载天气…", 18, themedColor(android.R.attr.textColorSecondary, 0xff666666));
-            Network.getWeather().observeOn(AndroidSchedulers.mainThread()).subscribe(
-                    this::render,
-                    error -> showError(error.getMessage()));
+            Network.getWeather().observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::render, error -> showError(error.getMessage()));
         }
     }
 
     private void render(Weather weather) {
-        if (weather == null) return;
+        if (weather == null) {
+            return;
+        }
         content.removeAllViews();
 
-        TextView title = addText(weather.getCity(), 26, themedColor(android.R.attr.textColorPrimary, 0xff000000));
-        title.setGravity(Gravity.CENTER_HORIZONTAL);
-        TextView update = addText("国家气象中心 · 实时天气", 13, themedColor(android.R.attr.textColorSecondary, 0xff666666));
-        update.setGravity(Gravity.CENTER_HORIZONTAL);
+        // ---- current conditions -------------------------------------------------------------
+        View hero = getLayoutInflater().inflate(R.layout.view_weather_current, content, false);
+        setText(hero, R.id.v_weather_txt_city, safe(weather.getCity(), "—"));
+        setText(hero, R.id.v_weather_txt_temperature, safe(weather.getCurrentTemperature(), "--"));
+        setText(hero, R.id.v_weather_txt_description, safe(weather.getCurrentDescription(), ""));
+        loadIcon(hero.findViewById(R.id.v_weather_img_current), weather.getCurrentIconCode());
+        content.addView(hero);
 
-        LinearLayout current = new LinearLayout(this);
-        current.setGravity(Gravity.CENTER_VERTICAL);
-        current.setPadding(0, dp(16), 0, dp(12));
-        ImageView icon = new ImageView(this);
-        current.addView(icon, new LinearLayout.LayoutParams(dp(72), dp(72)));
-        LinearLayout summary = new LinearLayout(this);
-        summary.setOrientation(LinearLayout.VERTICAL);
-        TextView temperature = new TextView(this);
-        temperature.setText(safe(weather.getCurrentTemperature(), "--") + " ℃");
-        temperature.setTextSize(30);
-        temperature.setTextColor(themedColor(android.R.attr.textColorPrimary, 0xff000000));
-        summary.addView(temperature);
-        TextView description = new TextView(this);
-        description.setText(weather.getCurrentDescription());
-        description.setTextSize(18);
-        summary.addView(description);
-        current.addView(summary);
-        content.addView(current);
-        String iconUrl = "https://image.nmc.cn/assets/img/w/40x40/4/" + weather.getCurrentIconCode() + ".png";
-        Glide.with(this).load(iconUrl).error(R.drawable.ic_cloud_off_black_24dp).into(icon);
+        // ---- live details -------------------------------------------------------------------
+        View details = getLayoutInflater().inflate(R.layout.view_weather_details, content, false);
+        setText(details, R.id.v_weather_txt_feels, safe(weather.getFeelsLike(), "--") + " ℃");
+        setText(details, R.id.v_weather_txt_humidity, safe(weather.getHumidity(), "--") + "%");
+        setText(details, R.id.v_weather_txt_wind,
+                safe(weather.getWindDirection(), "--") + " · " + safe(weather.getWindPower(), "--"));
+        setText(details, R.id.v_weather_txt_wind_speed, safe(weather.getWindSpeed(), "--"));
+        setText(details, R.id.v_weather_txt_aqi, safe(weather.getAqiQuality(), "未知")
+                + "（AQI " + safe(weather.getAqiValue(), "--") + "）");
+        content.addView(details);
 
-        addText("体感温度：" + safe(weather.getFeelsLike(), "--") + " ℃    湿度：" + safe(weather.getHumidity(), "--") + "%", 16, themedColor(android.R.attr.textColorSecondary, 0xff666666));
-        addText("风向：" + safe(weather.getWindDirection(), "--") + "    风力：" + safe(weather.getWindPower(), "--") + "    风速：" + safe(weather.getWindSpeed(), "--"), 16, themedColor(android.R.attr.textColorSecondary, 0xff666666));
-        addText("空气质量：" + safe(weather.getAqiQuality(), "未知") + "（AQI " + safe(weather.getAqiValue(), "--") + "）", 16, themedColor(android.R.attr.textColorSecondary, 0xff666666));
+        // ---- 7 day forecast -----------------------------------------------------------------
+        TextView section = new TextView(this);
+        section.setText(R.string.or_weather_section_forecast);
+        TextViewCompat.setTextAppearance(section, R.style.TextAppearance_OpenRunner_SectionTitle);
+        section.setPadding(0, dp(22), 0, dp(2));
+        content.addView(section);
 
-        addText("7 天预报", 22, themedColor(android.R.attr.textColorPrimary, 0xff000000)).setPadding(0, dp(24), 0, dp(8));
         for (int i = 0; i < weather.getForecastCount(); i++) {
-            TextView date = addText(weather.getForecastDate(i), 17, themedColor(android.R.attr.textColorPrimary, 0xff000000));
-            date.setPadding(0, dp(10), 0, dp(4));
-            LinearLayout parts = new LinearLayout(this);
-            parts.setWeightSum(2);
-            parts.addView(forecastPart("白天", weather.getForecastDayIconCode(i),
-                    weather.getForecastWeather(i), weather.getForecastMaxTemperature(i), weather.getForecastWind(i)),
-                    new LinearLayout.LayoutParams(0, -2, 1));
-            parts.addView(forecastPart("夜间", weather.getForecastNightIconCode(i),
-                    weather.getForecastNightWeather(i), weather.getForecastMinTemperature(i), weather.getForecastNightWind(i)),
-                    new LinearLayout.LayoutParams(0, -2, 1));
-            content.addView(parts);
+            View day = getLayoutInflater().inflate(R.layout.view_weather_day, content, false);
+            setText(day, R.id.v_weather_txt_date, weather.getForecastDate(i));
+
+            setText(day, R.id.v_weather_txt_day_desc, safe(weather.getForecastWeather(i), "未知"));
+            setText(day, R.id.v_weather_txt_day_temp,
+                    safe(weather.getForecastMaxTemperature(i), "--") + " ℃");
+            setText(day, R.id.v_weather_txt_day_wind,
+                    getString(R.string.or_weather_wind_format, safe(weather.getForecastWind(i), "--")));
+            loadIcon(day.findViewById(R.id.v_weather_img_day), weather.getForecastDayIconCode(i));
+
+            setText(day, R.id.v_weather_txt_night_desc, safe(weather.getForecastNightWeather(i), "未知"));
+            setText(day, R.id.v_weather_txt_night_temp,
+                    safe(weather.getForecastMinTemperature(i), "--") + " ℃");
+            setText(day, R.id.v_weather_txt_night_wind,
+                    getString(R.string.or_weather_wind_format, safe(weather.getForecastNightWind(i), "--")));
+            loadIcon(day.findViewById(R.id.v_weather_img_night), weather.getForecastNightIconCode(i));
+
+            content.addView(day);
         }
-    }
-
-    private LinearLayout forecastPart(String label, String iconCode, String description, String temperature, String wind) {
-        LinearLayout part = new LinearLayout(this);
-        part.setOrientation(LinearLayout.VERTICAL);
-        part.setPadding(0, dp(2), dp(8), dp(8));
-        TextView title = textView(label, 15, themedColor(android.R.attr.textColorSecondary, 0xff666666));
-        part.addView(title);
-        ImageView icon = new ImageView(this);
-        part.addView(icon, new LinearLayout.LayoutParams(dp(40), dp(40)));
-        String iconUrl = "https://image.nmc.cn/assets/img/w/40x40/4/" + safe(iconCode, "9999") + ".png";
-        Glide.with(this).load(iconUrl).error(R.drawable.ic_cloud_off_black_24dp).into(icon);
-        part.addView(textView(safe(description, "未知"), 15, themedColor(android.R.attr.textColorSecondary, 0xff666666)));
-        part.addView(textView(safe(temperature, "--") + " ℃", 16, themedColor(android.R.attr.textColorPrimary, 0xff000000)));
-        part.addView(textView("风：" + safe(wind, "--"), 14, themedColor(android.R.attr.textColorSecondary, 0xff666666)));
-        return part;
-    }
-
-    private TextView addText(String value, float size, int color) {
-        TextView text = textView(value, size, color);
-        content.addView(text, new LinearLayout.LayoutParams(-1, -2));
-        return text;
-    }
-
-    private TextView textView(String value, float size, int color) {
-        TextView text = new TextView(this);
-        text.setText(value);
-        text.setTextSize(size);
-        text.setTextColor(color);
-        return text;
     }
 
     private void showError(String message) {
         content.removeAllViews();
-        addText("天气加载失败：" + safe(message, "未知错误"), 17, themedColor(android.R.attr.textColorSecondary, 0xff666666));
+        TextView error = new TextView(this);
+        error.setText(getString(R.string.or_weather_error, safe(message, "未知错误")));
+        TextViewCompat.setTextAppearance(error, R.style.TextAppearance_OpenRunner_ItemSubtitle);
+        error.setPadding(0, dp(48), 0, dp(48));
+        error.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        content.addView(error);
+    }
+
+    private void setText(View root, int id, CharSequence value) {
+        TextView text = root.findViewById(id);
+        if (text != null) {
+            text.setText(value);
+        }
+    }
+
+    private void loadIcon(View target, String iconCode) {
+        if (!(target instanceof ImageView)) {
+            return;
+        }
+        Glide.with(this)
+                .load(ICON_BASE + safe(iconCode, "9999") + ".png")
+                .error(R.drawable.ic_cloud_off_black_24dp)
+                .into((ImageView) target);
     }
 
     private String safe(String value, String fallback) {
-        return value == null || value.length() == 0 || "9999".equals(value) || "9999.0".equals(value) ? fallback : value;
+        return value == null || value.length() == 0 || "9999".equals(value) || "9999.0".equals(value)
+                ? fallback : value;
     }
 
     private int dp(int value) {
         return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
     }
-
-    @ColorInt
-    private int themedColor(int attribute, int fallback) {
-        TypedValue value = new TypedValue();
-        if (getTheme().resolveAttribute(attribute, value, true)) {
-            if (value.type >= TypedValue.TYPE_FIRST_INT && value.type <= TypedValue.TYPE_LAST_INT) {
-                return value.data;
-            }
-            if (value.resourceId != 0) {
-                ColorStateList colors = ContextCompat.getColorStateList(this, value.resourceId);
-                if (colors != null) return colors.getDefaultColor();
-            }
-        }
-        return fallback;
-    }
-
 }

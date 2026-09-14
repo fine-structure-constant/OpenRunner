@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.OpenRunner" parent="TextAppearance.Material3.BodyMedium" />
+
+    <style name="TextAppearance.OpenRunner.AppBarTitle" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/or_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.HeroLabel" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.15</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.HeroValue" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">34sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:textColor">@color/or_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.HeroUnit" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.HeroCaption" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.HeroProgress" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.SectionTitle" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/or_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.SectionAction" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.ItemTitle" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/or_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.ItemUnit" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.ItemSubtitle" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.ItemMeta" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.ItemAvatar" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_primary</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.Fab" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/or_on_primary</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.DrawerName" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/or_on_primary</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.DrawerDepartment" parent="TextAppearance.OpenRunner">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/or_on_primary</item>
+        <item name="android:alpha">0.87</item>
+    </style>
+</resources>
