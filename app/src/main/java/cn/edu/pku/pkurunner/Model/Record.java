@@ -30,7 +30,6 @@ public class Record implements Serializable, Parcelable {
     @Column(name = "duration")
     private int duration;
 
-    /* renamed from: id, reason: collision with root package name */
     @Column(isId = true, name = "id", property = "UNIQUE")
     private int f6978id;
 
@@ -62,17 +61,17 @@ public class Record implements Serializable, Parcelable {
     @Column(name = "verified")
     private boolean verified;
     private static final DateFormat dateFormatter = DateFormat.getDateTimeInstance();
-    public static final Parcelable.Creator<Record> CREATOR = new Parcelable.Creator<Record>() { // from class: cn.edu.pku.pkurunner.Model.Record.1
+    public static final Parcelable.Creator<Record> CREATOR = new Parcelable.Creator<Record>() {
         /* JADX WARN: Can't rename method to resolve collision */
-        @Override // android.os.Parcelable.Creator
+        @Override
         public Record createFromParcel(Parcel parcel) {
             return new Record(parcel);
         }
 
         /* JADX WARN: Can't rename method to resolve collision */
-        @Override // android.os.Parcelable.Creator
-        public Record[] newArray(int i2) {
-            return new Record[i2];
+        @Override
+        public Record[] newArray(int index) {
+            return new Record[index];
         }
     };
 
@@ -102,7 +101,7 @@ public class Record implements Serializable, Parcelable {
         UNKNOWN
     }
 
-    @Override // android.os.Parcelable
+    @Override
     public int describeContents() {
         return 0;
     }
@@ -183,20 +182,20 @@ public class Record implements Serializable, Parcelable {
         this.detailed = z2;
     }
 
-    public void setDistance(int i2) {
-        this.distance = i2;
+    public void setDistance(int index) {
+        this.distance = index;
     }
 
-    public void setDuration(int i2) {
-        this.duration = i2;
+    public void setDuration(int index) {
+        this.duration = index;
     }
 
-    public void setId(int i2) {
-        this.f6978id = i2;
+    public void setId(int index) {
+        this.f6978id = index;
     }
 
-    public void setInvalidReason(int i2) {
-        this.invalidReason = i2;
+    public void setInvalidReason(int index) {
+        this.invalidReason = index;
     }
 
     public void setPhotoName(String str) {
@@ -211,12 +210,12 @@ public class Record implements Serializable, Parcelable {
         this.placeHint = str;
     }
 
-    public void setRecordId(int i2) {
-        this.recordId = i2;
+    public void setRecordId(int index) {
+        this.recordId = index;
     }
 
-    public void setStep(int i2) {
-        this.step = i2;
+    public void setStep(int index) {
+        this.step = index;
     }
 
     public void setTrack(ArrayList<Point> arrayList) {
@@ -235,7 +234,6 @@ public class Record implements Serializable, Parcelable {
         this.verified = z2;
     }
 
-    /* renamed from: cn.edu.pku.pkurunner.Model.Record$2, reason: invalid class name */
     static /* synthetic */ class AnonymousClass2 {
         static final /* synthetic */ int[] $SwitchMap$cn$edu$pku$pkurunner$Model$Record$RecordPlace;
 
@@ -258,70 +256,58 @@ public class Record implements Serializable, Parcelable {
     }
 
     public static String getPlaceString(RecordPlace recordPlace) {
-        int i2 = AnonymousClass2.$SwitchMap$cn$edu$pku$pkurunner$Model$Record$RecordPlace[recordPlace.ordinal()];
-        return i2 != 1 ? i2 != 2 ? User.UNKNOWN_GENDER_STRING : "未名湖" : "五四";
+        int index = AnonymousClass2.$SwitchMap$cn$edu$pku$pkurunner$Model$Record$RecordPlace[recordPlace.ordinal()];
+        return index != 1 ? index != 2 ? User.UNKNOWN_GENDER_STRING : "未名湖" : "五四";
     }
 
     public double getAccumulateBearing() {
-        double d2;
         ArrayList<Point> arrayList = this.track;
-        double d3 = 0.0d;
-        if (arrayList != null) {
-            int i2 = 3;
-            if (arrayList.size() >= 3) {
-                Iterator<Point> it = this.track.iterator();
-                double d4 = 0.0d;
-                double d5 = 0.0d;
-                while (it.hasNext()) {
-                    Point next = it.next();
-                    if (next.getStatus() != 3) {
-                        d4 += next.getLongitude();
-                        d5 += next.getLatitude();
-                    }
-                }
-                double size = d4 / this.track.size();
-                double size2 = d5 / this.track.size();
-                int i3 = 1;
-                while (i3 < this.track.size()) {
-                    Point point = this.track.get(i3);
-                    Point point2 = this.track.get(i3 - 1);
-                    if (point.getStatus() != i2) {
-                        if (point2.getStatus() == i2) {
-                            if (i3 > 1) {
-                                point2 = this.track.get(i3 - 2);
-                            }
-                        }
-                        double longitude = point.getLongitude() - size;
-                        double latitude = point.getLatitude() - size2;
-                        double longitude2 = point2.getLongitude() - size;
-                        double latitude2 = point2.getLatitude() - size2;
-                        d2 = size;
-                        d3 += Math.atan2((latitude * longitude2) - (longitude * latitude2), (longitude * longitude2) + (latitude * latitude2));
-                        i3++;
-                        size = d2;
-                        i2 = 3;
-                    }
-                    d2 = size;
-                    i3++;
-                    size = d2;
-                    i2 = 3;
-                }
+        double accumulate = 0.0d;
+        if (arrayList == null || arrayList.size() < 3) {
+            return accumulate;
+        }
+        double longitudeSum = 0.0d;
+        double latitudeSum = 0.0d;
+        Iterator<Point> it = this.track.iterator();
+        while (it.hasNext()) {
+            Point next = it.next();
+            if (next.getStatus() != Point.STATUS_MARKER) {
+                longitudeSum += next.getLongitude();
+                latitudeSum += next.getLatitude();
             }
         }
-        return d3;
+        double centerLongitude = longitudeSum / this.track.size();
+        double centerLatitude = latitudeSum / this.track.size();
+        for (int index = 1; index < this.track.size(); index++) {
+            Point point = this.track.get(index);
+            Point previous = this.track.get(index - 1);
+            if (point.getStatus() == Point.STATUS_MARKER) {
+                continue;
+            }
+            if (previous.getStatus() == Point.STATUS_MARKER && index > 1) {
+                previous = this.track.get(index - 2);
+            }
+            double longitude = point.getLongitude() - centerLongitude;
+            double latitude = point.getLatitude() - centerLatitude;
+            double previousLongitude = previous.getLongitude() - centerLongitude;
+            double previousLatitude = previous.getLatitude() - centerLatitude;
+            accumulate += Math.atan2((latitude * previousLongitude) - (longitude * previousLatitude),
+                    (longitude * previousLongitude) + (latitude * previousLatitude));
+        }
+        return accumulate;
     }
 
     public RecordPlace getPlace() {
-        int i2;
+        int index;
         ArrayList<Point> arrayList = this.track;
         if (arrayList == null || arrayList.isEmpty()) {
             return RecordPlace.UNKNOWN;
         }
         int[] iArr = new int[3];
-        int i3 = 0;
-        int i4 = 0;
+        int index2 = 0;
+        int index3 = 0;
         while (true) {
-            if (i4 >= 30) {
+            if (index3 >= 30) {
                 break;
             }
             int random = (int) (Math.random() * this.track.size());
@@ -334,14 +320,14 @@ public class Record implements Serializable, Parcelable {
             } else {
                 iArr[1] = iArr[1] + 1;
             }
-            i4++;
+            index3++;
         }
-        for (i2 = 1; i2 < 3; i2++) {
-            if (iArr[i2] > iArr[i3]) {
-                i3 = i2;
+        for (index = 1; index < 3; index++) {
+            if (iArr[index] > iArr[index2]) {
+                index2 = index;
             }
         }
-        return RecordPlace.values()[i3];
+        return RecordPlace.values()[index2];
     }
 
     public boolean isPlaceHintAvailable() {
@@ -353,8 +339,8 @@ public class Record implements Serializable, Parcelable {
         return "Record{id=" + this.f6978id + ", recordId=" + this.recordId + ", userId='" + this.userId + "', distance=" + this.distance + ", duration=" + this.duration + ", date=" + dateFormatter.format(this.date) + ", uploaded=" + this.uploaded + ", verified=" + this.verified + ", detailed=" + this.detailed + ", photoName='" + this.photoName + "', photoRemotePath='" + this.photoRemotePath + "', step=" + this.step + ", invalidReason=" + this.invalidReason + ", track=" + this.track + '}';
     }
 
-    @Override // android.os.Parcelable
-    public void writeToParcel(Parcel parcel, int i2) {
+    @Override
+    public void writeToParcel(Parcel parcel, int index) {
         parcel.writeInt(this.f6978id);
         parcel.writeInt(this.recordId);
         parcel.writeString(this.userId);
@@ -393,16 +379,16 @@ public class Record implements Serializable, Parcelable {
         }
         this.detailed = true;
         ArrayList<Point> arrayList = new ArrayList<>();
-        for (int i2 = 0; i2 < inner.track.length; i2++) {
-            arrayList.add(new Point(i2, -1, inner.track[i2][0], inner.track[i2][1], inner.track[i2].length < 3 ? 0 : (int) inner.track[i2][2]));
+        for (int index = 0; index < inner.track.length; index++) {
+            arrayList.add(new Point(index, -1, inner.track[index][0], inner.track[index][1], inner.track[index].length < 3 ? 0 : (int) inner.track[index][2]));
         }
         this.track = arrayList;
     }
 
-    public Record(String str, int i2, int i3, Date date, int i4, String str2) {
+    public Record(String str, int index, int index2, Date date, int index3, String str2) {
         this.track = new ArrayList<>();
-        this.distance = i2;
-        this.duration = i3;
+        this.distance = index;
+        this.duration = index2;
         this.date = date;
         this.checkField = str2;
         this.f6978id = 0;
@@ -411,7 +397,7 @@ public class Record implements Serializable, Parcelable {
         this.verified = false;
         this.uploaded = false;
         this.detailed = false;
-        this.step = i4;
+        this.step = index3;
         this.invalidReason = 0;
     }
 

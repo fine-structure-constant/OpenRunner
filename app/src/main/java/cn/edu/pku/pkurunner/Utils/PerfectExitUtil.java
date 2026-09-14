@@ -10,55 +10,53 @@ import java.util.Set;
 
 public class PerfectExitUtil {
 
-    /* renamed from: a, reason: collision with root package name */
-    private static final Set<Activity> f7133a = new HashSet<>();
+    private static final Set<Activity> activitySet = new HashSet<>();
 
-    /* renamed from: b, reason: collision with root package name */
-    private static boolean f7134b = false;
+    private static boolean exiting = false;
 
-    static class a implements Application.ActivityLifecycleCallbacks {
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+    static class ActivityLifecycleTracker implements Application.ActivityLifecycleCallbacks {
+        @Override
         public void onActivityPaused(Activity activity) {
         }
 
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+        @Override
         public void onActivityResumed(Activity activity) {
         }
 
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+        @Override
         public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
         }
 
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+        @Override
         public void onActivityStarted(Activity activity) {
         }
 
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+        @Override
         public void onActivityStopped(Activity activity) {
         }
 
-        a() {
+        ActivityLifecycleTracker() {
         }
 
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+        @Override
         public void onActivityCreated(Activity activity, Bundle bundle) {
-            PerfectExitUtil.f7133a.add(activity);
+            PerfectExitUtil.activitySet.add(activity);
         }
 
-        @Override // android.app.Application.ActivityLifecycleCallbacks
+        @Override
         public void onActivityDestroyed(Activity activity) {
-            PerfectExitUtil.f7133a.remove(activity);
+            PerfectExitUtil.activitySet.remove(activity);
         }
     }
 
     public static void exit() {
-        for (Activity activity : f7133a) {
+        for (Activity activity : activitySet) {
             if (activity != null && !activity.isFinishing()) {
                 activity.finish();
             }
         }
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() { // from class: y.h
-            @Override // java.lang.Runnable
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
             public final void run() {
                 System.exit(0);
             }
@@ -66,10 +64,10 @@ public class PerfectExitUtil {
     }
 
     public static void init(Application application) {
-        if (f7134b) {
+        if (exiting) {
             return;
         }
-        f7134b = true;
-        application.registerActivityLifecycleCallbacks(new a());
+        exiting = true;
+        application.registerActivityLifecycleCallbacks(new ActivityLifecycleTracker());
     }
 }

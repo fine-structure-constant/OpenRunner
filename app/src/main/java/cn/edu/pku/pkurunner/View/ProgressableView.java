@@ -14,15 +14,15 @@ public interface ProgressableView {
 
     void setDayMode(boolean z2);
 
-    void setMainBonusProgress(float f2);
+    void setMainBonusProgress(float value);
 
-    void setMainProgress(float f2);
+    void setMainProgress(float value);
 
     void setMainText(String str);
 
     void setReferenceTime(Date date);
 
-    void setSecondaryProgress(float f2);
+    void setSecondaryProgress(float value);
 
     void setSecondaryText(String str);
 

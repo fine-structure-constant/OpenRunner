@@ -20,7 +20,6 @@ public class PartialRecord {
     private int duration;
     private ArrayList<Point> geo;
 
-    /* renamed from: id, reason: collision with root package name */
     @Column(isId = true, name = "id", property = "UNIQUE")
     private int f6976id;
 
@@ -54,17 +53,17 @@ public class PartialRecord {
         return this.step;
     }
 
-    public PartialRecord(int i2, int i3, Date date, int i4) {
-        this.duration = i3;
-        this.distance = i2;
-        this.step = i4;
+    public PartialRecord(int index, int index2, Date date, int index3) {
+        this.duration = index2;
+        this.distance = index;
+        this.step = index3;
         this.date = date;
     }
 
     public Record toRecord(String str) {
-        int i2 = this.distance;
-        int i3 = this.duration;
+        int index = this.distance;
+        int index2 = this.duration;
         Date date = this.date;
-        return new Record(str, i2, i3, date, this.step, SecUtil.generateCheckField(str, date));
+        return new Record(str, index, index2, date, this.step, SecUtil.generateCheckField(str, date));
     }
 }

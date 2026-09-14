@@ -18,152 +18,138 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.xutils.common.util.LogUtil;
 
-/* JADX INFO: Access modifiers changed from: package-private */
 public abstract class GPSManager {
 
-    /* renamed from: a, reason: collision with root package name */
-    private static HashMap f6889a = new HashMap();
+    private static HashMap locationListeners = new HashMap();
 
-    /* renamed from: b, reason: collision with root package name */
-    private static HashMap f6890b = new HashMap();
+    private static HashMap statusListeners = new HashMap();
 
-    /* renamed from: c, reason: collision with root package name */
-    private static LocationManager f6891c;
+    private static LocationManager locationManager;
 
-    /* renamed from: d, reason: collision with root package name */
-    private static LocationListener f6892d;
+    private static LocationListener locationListener;
 
-    /* renamed from: e, reason: collision with root package name */
-    private static GpsStatus.Listener f6893e;
+    private static GpsStatus.Listener gpsStatusListener;
 
-    /* renamed from: f, reason: collision with root package name */
-    private static Location f6894f;
+    private static Location lastLocation;
 
-    private static GnssStatus.Callback f6895g;
+    private static GnssStatus.Callback gnssStatusCallback;
 
     public interface GPSLocationListener {
         void onLocationUpdate(Location location);
     }
 
     public interface GPSStatusListener {
-        void onStatusUpdate(int i2, int i3, double d2);
+        void onStatusUpdate(int index, int index2, double value);
     }
 
-    static class a implements LocationListener {
-        @Override // android.location.LocationListener
+    static class LocationUpdateListener implements LocationListener {
+        @Override
         public void onLocationChanged(Location location) {
             LogUtil.d("Incoming new location.");
-            GPSManager.i(location);
+            GPSManager.dispatchLocation(location);
         }
 
-        @Override // android.location.LocationListener
+        @Override
         public void onProviderDisabled(String str) {
             LogUtil.d(str + " is disabled.");
         }
 
-        @Override // android.location.LocationListener
+        @Override
         public void onProviderEnabled(String str) {
             LogUtil.d(str + " is enabled.");
         }
 
-        @Override // android.location.LocationListener
-        public void onStatusChanged(String str, int i2, Bundle bundle) {
+        @Override
+        public void onStatusChanged(String str, int index, Bundle bundle) {
             LogUtil.d(str + " status changed.");
         }
 
-        a() {
+        LocationUpdateListener() {
         }
     }
 
-    static class b extends CountDownTimer {
+    static class AccuracyCountdown extends CountDownTimer {
 
-        /* renamed from: a, reason: collision with root package name */
-        private int f6897a;
+        private int accuracyThreshold;
 
-        /* renamed from: b, reason: collision with root package name */
-        private long f6898b;
+        private long totalMillis;
 
-        /* renamed from: c, reason: collision with root package name */
-        private ObservableEmitter f6899c;
+        private ObservableEmitter emitter;
 
-        private void a(boolean z2) {
+        private void finish(boolean z2) {
             if (!z2) {
-                this.f6899c.onNext(new a(false, false, "Not accurate"));
+                this.emitter.onNext(new Result(false, false, "Not accurate"));
                 return;
             }
-            GPSManager.p();
+            GPSManager.stopLocationUpdates();
             cancel();
-            this.f6899c.onNext(new a(true, false, "Accurate"));
+            this.emitter.onNext(new Result(true, false, "Accurate"));
         }
 
-        @Override // android.os.CountDownTimer
+        @Override
         public void onFinish() {
-            a(false);
+            finish(false);
         }
 
-        static class a {
+        static class Result {
 
-            /* renamed from: a, reason: collision with root package name */
-            public boolean f6900a;
+            public boolean accurate;
 
-            /* renamed from: b, reason: collision with root package name */
-            public boolean f6901b;
+            public boolean waiting;
 
-            /* renamed from: c, reason: collision with root package name */
-            public String f6902c;
+            public String message;
 
-            public a(boolean z2, boolean z3, String str) {
-                this.f6900a = z2;
-                this.f6901b = z3;
-                this.f6902c = str;
+            public Result(boolean z2, boolean z3, String str) {
+                this.accurate = z2;
+                this.waiting = z3;
+                this.message = str;
             }
         }
 
-        b(long j2, long j3, ObservableEmitter observableEmitter) {
+        AccuracyCountdown(long j2, long j3, ObservableEmitter observableEmitter) {
             super(j2, j3);
-            this.f6897a = 15;
-            this.f6898b = j2;
-            this.f6899c = observableEmitter;
-            GPSManager.t();
+            this.accuracyThreshold = 15;
+            this.totalMillis = j2;
+            this.emitter = observableEmitter;
+            GPSManager.requestLocationUpdates();
         }
 
-        @Override // android.os.CountDownTimer
+        @Override
         public void onTick(long j2) {
             double accuracy;
-            if (GPSManager.f6894f == null) {
+            if (GPSManager.lastLocation == null) {
                 accuracy = Double.POSITIVE_INFINITY;
             } else {
-                accuracy = GPSManager.f6894f.getAccuracy();
+                accuracy = GPSManager.lastLocation.getAccuracy();
             }
             LogUtil.d("Accuracy: " + String.valueOf(accuracy));
-            if (GPSManager.f6894f != null && GPSManager.f6894f.isFromMockProvider()) {
-                this.f6899c.onError(new GPSException(GPSException.CAUSE.MOCK_LOCATION));
-                GPSManager.p();
+            if (GPSManager.lastLocation != null && GPSManager.lastLocation.isFromMockProvider()) {
+                this.emitter.onError(new GPSException(GPSException.CAUSE.MOCK_LOCATION));
+                GPSManager.stopLocationUpdates();
                 cancel();
                 return;
             }
-            if (accuracy <= this.f6897a) {
-                a(true);
+            if (accuracy <= this.accuracyThreshold) {
+                finish(true);
             }
-            if (j2 < this.f6898b / 2) {
-                this.f6897a += 10;
+            if (j2 < this.totalMillis / 2) {
+                this.accuracyThreshold += 10;
             }
-            this.f6899c.onNext(new a(false, true, accuracy + "/" + this.f6897a));
+            this.emitter.onNext(new Result(false, true, accuracy + "/" + this.accuracyThreshold));
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static void i(Location location) {
+    public static void dispatchLocation(Location location) {
         LogUtil.d(String.format("Location at %s now.", location.toString()));
-        f6894f = location;
+        lastLocation = location;
         if (location.isFromMockProvider()) {
             return;
         }
         double[] convert = WGS84_GCJ02.convert(location.getLongitude(), location.getLatitude());
         location.setLongitude(convert[0]);
         location.setLatitude(convert[1]);
-        LogUtil.d(f6889a.size() + " listeners");
-        Iterator it = f6889a.values().iterator();
+        LogUtil.d(locationListeners.size() + " listeners");
+        Iterator it = locationListeners.values().iterator();
         while (it.hasNext()) {
             ((GPSLocationListener) it.next()).onLocationUpdate(location);
         }
@@ -171,8 +157,7 @@ public abstract class GPSManager {
 
     static class GPSException extends Exception {
 
-        /* renamed from: a, reason: collision with root package name */
-        CAUSE f6895a;
+        CAUSE cause;
 
         public enum CAUSE {
             GPS_NOT_PROVIDED,
@@ -180,173 +165,166 @@ public abstract class GPSManager {
         }
 
         GPSException(CAUSE cause) {
-            this.f6895a = cause;
+            this.cause = cause;
         }
     }
 
-    static void g(GPSLocationListener gPSLocationListener, String str) {
-        if (f6889a.isEmpty()) {
-            t();
+    static void addLocationListener(GPSLocationListener gPSLocationListener, String str) {
+        if (locationListeners.isEmpty()) {
+            requestLocationUpdates();
         }
-        f6889a.put(str, gPSLocationListener);
+        locationListeners.put(str, gPSLocationListener);
     }
 
-    static void h(GPSStatusListener gPSStatusListener, String str) {
-        if (f6890b.isEmpty()) {
-            u();
+    static void addStatusListener(GPSStatusListener gPSStatusListener, String str) {
+        if (statusListeners.isEmpty()) {
+            registerStatusListener();
         }
-        f6890b.put(str, gPSStatusListener);
+        statusListeners.put(str, gPSStatusListener);
     }
 
-    private static void j(GpsStatus gpsStatus) {
+    private static void dispatchGpsStatus(GpsStatus gpsStatus) {
         LogUtil.d("GPSStatus updated! " + gpsStatus);
-        int i2 = 0;
-        int i3 = 0;
-        double d2 = 0.0d;
+        int index = 0;
+        int index2 = 0;
+        double value = 0.0d;
         for (GpsSatellite gpsSatellite : gpsStatus.getSatellites()) {
-            d2 += Math.pow(2.0d, gpsSatellite.getSnr() / 10.0d);
+            value += Math.pow(2.0d, gpsSatellite.getSnr() / 10.0d);
             if (gpsSatellite.usedInFix()) {
-                i2++;
+                index++;
             }
-            i3++;
+            index2++;
         }
-        v(i2, i3, d2);
+        dispatchStatus(index, index2, value);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void w(GnssStatus gnssStatus) {
+    public static /* synthetic */ void dispatchGnssStatus(GnssStatus gnssStatus) {
         LogUtil.d("GnssStatus updated! " + gnssStatus);
         int satelliteCount = gnssStatus.getSatelliteCount();
-        int i2 = 0;
-        double d2 = 0.0d;
-        for (int i3 = 0; i3 < satelliteCount; i3++) {
-            d2 += Math.pow(2.0d, gnssStatus.getCn0DbHz(i3) / 10.0d);
-            if (gnssStatus.usedInFix(i3)) {
-                i2++;
+        int index = 0;
+        double value = 0.0d;
+        for (int index2 = 0; index2 < satelliteCount; index2++) {
+            value += Math.pow(2.0d, gnssStatus.getCn0DbHz(index2) / 10.0d);
+            if (gnssStatus.usedInFix(index2)) {
+                index++;
             }
         }
-        v(i2, satelliteCount, d2);
+        dispatchStatus(index, satelliteCount, value);
     }
 
-    private static void v(int i2, int i3, double d2) {
-        Iterator it = f6890b.values().iterator();
+    private static void dispatchStatus(int index, int index2, double value) {
+        Iterator it = statusListeners.values().iterator();
         while (it.hasNext()) {
-            ((GPSStatusListener) it.next()).onStatusUpdate(i2, i3, d2);
+            ((GPSStatusListener) it.next()).onStatusUpdate(index, index2, value);
         }
     }
 
-    static Observable k() {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.Map.b
-            @Override // io.reactivex.ObservableOnSubscribe
+    static Observable waitForAccurateLocation() {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                GPSManager.l(observableEmitter);
+                GPSManager.startAccuracyTimer(observableEmitter);
             }
         });
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void l(ObservableEmitter observableEmitter) {
-        if (f6891c.isProviderEnabled("gps")) {
-            new b(10010L, 1000L, observableEmitter).start();
+    public static /* synthetic */ void startAccuracyTimer(ObservableEmitter observableEmitter) {
+        if (locationManager.isProviderEnabled("gps")) {
+            new AccuracyCountdown(10010L, 1000L, observableEmitter).start();
         } else {
             observableEmitter.onError(new GPSException(GPSException.CAUSE.GPS_NOT_PROVIDED));
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void m(int i2) {
+    public static /* synthetic */ void onLegacyGpsStatusChanged(int index) {
         try {
-            j(f6891c.getGpsStatus(null));
+            dispatchGpsStatus(locationManager.getGpsStatus(null));
         } catch (SecurityException | UnsupportedOperationException e2) {
             e2.printStackTrace();
         }
     }
 
-    static void n(Context context) {
-        f6891c = (LocationManager) context.getSystemService("location");
-        f6892d = new a();
+    static void initialize(Context context) {
+        locationManager = (LocationManager) context.getSystemService("location");
+        locationListener = new LocationUpdateListener();
         if (Build.VERSION.SDK_INT >= 24) {
-            f6895g = new GnssStatus.Callback() { // from class: cn.edu.pku.pkurunner.Map.b
-                @Override // android.location.GnssStatus.Callback
+            gnssStatusCallback = new GnssStatus.Callback() {
+                @Override
                 public void onSatelliteStatusChanged(GnssStatus gnssStatus) {
-                    GPSManager.w(gnssStatus);
+                    GPSManager.dispatchGnssStatus(gnssStatus);
                 }
             };
         } else {
-            f6893e = new GpsStatus.Listener() { // from class: cn.edu.pku.pkurunner.Map.a
-                @Override // android.location.GpsStatus.Listener
-                public final void onGpsStatusChanged(int i2) {
-                    GPSManager.m(i2);
+            gpsStatusListener = new GpsStatus.Listener() {
+                @Override
+                public final void onGpsStatusChanged(int index) {
+                    GPSManager.onLegacyGpsStatusChanged(index);
                 }
             };
         }
     }
 
-    static void o() {
-        LocationListener locationListener;
-        LocationManager locationManager = f6891c;
-        if (locationManager != null && (locationListener = f6892d) != null) {
+    static void release() {
+        if (locationManager != null && locationListener != null) {
             locationManager.removeUpdates(locationListener);
             if (Build.VERSION.SDK_INT >= 24) {
-                f6891c.unregisterGnssStatusCallback(f6895g);
+                locationManager.unregisterGnssStatusCallback(gnssStatusCallback);
             } else {
-                f6891c.removeGpsStatusListener(f6893e);
+                locationManager.removeGpsStatusListener(gpsStatusListener);
             }
         }
-        f6889a.clear();
-        f6890b.clear();
-        f6892d = null;
-        f6891c = null;
+        locationListeners.clear();
+        statusListeners.clear();
+        locationListener = null;
+        locationManager = null;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static void p() {
-        if (f6891c == null || f6892d == null || !f6889a.isEmpty()) {
+    public static void stopLocationUpdates() {
+        if (locationManager == null || locationListener == null || !locationListeners.isEmpty()) {
             return;
         }
-        f6891c.removeUpdates(f6892d);
+        locationManager.removeUpdates(locationListener);
     }
 
-    private static void q() {
-        if (f6891c == null || f6892d == null || !f6890b.isEmpty()) {
+    private static void stopStatusUpdates() {
+        if (locationManager == null || locationListener == null || !statusListeners.isEmpty()) {
             return;
         }
         if (Build.VERSION.SDK_INT >= 24) {
-            f6891c.unregisterGnssStatusCallback(f6895g);
+            locationManager.unregisterGnssStatusCallback(gnssStatusCallback);
         } else {
-            f6891c.removeGpsStatusListener(f6893e);
+            locationManager.removeGpsStatusListener(gpsStatusListener);
         }
     }
 
-    static void r(String str) {
-        f6889a.remove(str);
-        if (f6889a.isEmpty()) {
-            p();
+    static void removeLocationListener(String str) {
+        locationListeners.remove(str);
+        if (locationListeners.isEmpty()) {
+            stopLocationUpdates();
         }
     }
 
-    static void s(String str) {
-        f6890b.remove(str);
-        if (f6890b.isEmpty()) {
-            q();
+    static void removeStatusListener(String str) {
+        statusListeners.remove(str);
+        if (statusListeners.isEmpty()) {
+            stopStatusUpdates();
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static void t() {
+    public static void requestLocationUpdates() {
         try {
-            f6891c.requestLocationUpdates("gps", 1000L, BitmapDescriptorFactory.HUE_RED, f6892d);
+            locationManager.requestLocationUpdates("gps", 1000L, BitmapDescriptorFactory.HUE_RED, locationListener);
         } catch (SecurityException e2) {
             e2.printStackTrace();
         }
     }
 
-    private static void u() {
+    private static void registerStatusListener() {
         try {
             if (Build.VERSION.SDK_INT >= 24) {
-                f6891c.registerGnssStatusCallback(f6895g, null);
+                locationManager.registerGnssStatusCallback(gnssStatusCallback, null);
             } else {
-                f6891c.addGpsStatusListener(f6893e);
+                locationManager.addGpsStatusListener(gpsStatusListener);
             }
         } catch (SecurityException | UnsupportedOperationException e2) {
             e2.printStackTrace();

@@ -21,27 +21,25 @@ import java.util.Map;
 
 public class PermissionDialog extends DialogFragment {
 
-    /* renamed from: t, reason: collision with root package name */
-    private View f6990t;
+    private View rootView;
 
-    private ActivityResultLauncher<String[]> f6991u;
+    private ActivityResultLauncher<String[]> permissionLauncher;
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        this.f6991u = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
-            @Override // androidx.activity.result.ActivityResultCallback
+        this.permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+            @Override
             public void onActivityResult(Map<String, Boolean> map) {
                 dismissAllowingStateLoss();
             }
         });
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void s(DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void s(DialogInterface dialogInterface, int index) {
     }
 
-    @Override // androidx.fragment.app.DialogFragment
+    @Override
     @NonNull
     public Dialog onCreateDialog(Bundle bundle) {
         int checkSelfPermission;
@@ -49,11 +47,11 @@ public class PermissionDialog extends DialogFragment {
         int checkSelfPermission3;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View inflate = getActivity().getLayoutInflater().inflate(R.layout.fragment_permission_dialog, (ViewGroup) null);
-        this.f6990t = inflate;
+        this.rootView = inflate;
         builder.setView(inflate);
-        TextView textView = (TextView) this.f6990t.findViewById(R.id.f_perm_phone);
-        TextView textView2 = (TextView) this.f6990t.findViewById(R.id.f_perm_sd);
-        TextView textView3 = (TextView) this.f6990t.findViewById(R.id.f_perm_location);
+        TextView textView = (TextView) this.rootView.findViewById(R.id.f_perm_phone);
+        TextView textView2 = (TextView) this.rootView.findViewById(R.id.f_perm_sd);
+        TextView textView3 = (TextView) this.rootView.findViewById(R.id.f_perm_location);
         if (Build.VERSION.SDK_INT >= 23) {
             checkSelfPermission = getActivity().checkSelfPermission("android.permission.READ_PHONE_STATE");
             Boolean valueOf = Boolean.valueOf(checkSelfPermission == 0);
@@ -75,16 +73,16 @@ public class PermissionDialog extends DialogFragment {
                 arrayList.add("android.permission.ACCESS_FINE_LOCATION");
             }
             if (arrayList.size() != 0) {
-                builder.setNegativeButton(R.string.f_permission_not_auth, new DialogInterface.OnClickListener() { // from class: u.b
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public final void onClick(DialogInterface dialogInterface, int i2) {
-                        PermissionDialog.this.q(dialogInterface, i2);
+                builder.setNegativeButton(R.string.f_permission_not_auth, new DialogInterface.OnClickListener() {
+                    @Override
+                    public final void onClick(DialogInterface dialogInterface, int index) {
+                        PermissionDialog.this.q(dialogInterface, index);
                     }
                 });
-                builder.setPositiveButton(R.string.f_permission_auth_now, new DialogInterface.OnClickListener() { // from class: u.c
-                    @Override // android.content.DialogInterface.OnClickListener
-                    public final void onClick(DialogInterface dialogInterface, int i2) {
-                        PermissionDialog.this.r(arrayList, dialogInterface, i2);
+                builder.setPositiveButton(R.string.f_permission_auth_now, new DialogInterface.OnClickListener() {
+                    @Override
+                    public final void onClick(DialogInterface dialogInterface, int index) {
+                        PermissionDialog.this.r(arrayList, dialogInterface, index);
                     }
                 });
                 return builder.create();
@@ -94,32 +92,30 @@ public class PermissionDialog extends DialogFragment {
             textView2.setVisibility(8);
             textView3.setVisibility(8);
         }
-        builder.setPositiveButton(R.string.f_permission_btn_ok, new DialogInterface.OnClickListener() { // from class: u.d
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
-                PermissionDialog.s(dialogInterface, i2);
+        builder.setPositiveButton(R.string.f_permission_btn_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
+                PermissionDialog.s(dialogInterface, index);
             }
         });
         return builder.create();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public /* synthetic */ void q(DialogInterface dialogInterface, int i2) {
+    public /* synthetic */ void q(DialogInterface dialogInterface, int index) {
         dismiss();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public /* synthetic */ void r(ArrayList arrayList, DialogInterface dialogInterface, int i2) {
-        this.f6991u.launch((String[]) arrayList.toArray(new String[arrayList.size()]));
+    public /* synthetic */ void r(ArrayList arrayList, DialogInterface dialogInterface, int index) {
+        this.permissionLauncher.launch((String[]) arrayList.toArray(new String[arrayList.size()]));
     }
 
-    private void t(TextView textView, int i2, Boolean bool) {
-        int i3;
+    private void t(TextView textView, int index, Boolean bool) {
+        int index2;
         if (bool.booleanValue()) {
-            i3 = R.string.f_permission_status_positive;
+            index2 = R.string.f_permission_status_positive;
         } else {
-            i3 = R.string.f_permission_status_negative;
+            index2 = R.string.f_permission_status_negative;
         }
-        textView.setText(Html.fromHtml(getString(i2, getString(i3))));
+        textView.setText(Html.fromHtml(getString(index, getString(index2))));
     }
 }

@@ -13,45 +13,41 @@ import java.util.concurrent.TimeUnit;
 
 public class CountDownDialogUtil {
 
-    class a extends CountDownTimer {
+    class ButtonCountdownTimer extends CountDownTimer {
 
-        /* renamed from: a, reason: collision with root package name */
-        final /* synthetic */ Button f7130a;
+        final /* synthetic */ Button button;
 
-        /* renamed from: b, reason: collision with root package name */
-        final /* synthetic */ CharSequence f7131b;
+        final /* synthetic */ CharSequence originalText;
 
-        /* renamed from: c, reason: collision with root package name */
-        final /* synthetic */ String f7132c;
+        final /* synthetic */ String finishText;
 
         /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
-        a(long j2, long j3, Button button, CharSequence charSequence, String str) {
+        ButtonCountdownTimer(long j2, long j3, Button button, CharSequence charSequence, String str) {
             super(j2, j3);
-            this.f7130a = button;
-            this.f7131b = charSequence;
-            this.f7132c = str;
+            this.button = button;
+            this.originalText = charSequence;
+            this.finishText = str;
         }
 
-        @Override // android.os.CountDownTimer
+        @Override
         public void onFinish() {
-            this.f7130a.setEnabled(true);
-            this.f7130a.setText(this.f7132c);
+            this.button.setEnabled(true);
+            this.button.setText(this.finishText);
         }
 
-        @Override // android.os.CountDownTimer
+        @Override
         public void onTick(long j2) {
-            this.f7130a.setEnabled(false);
-            this.f7130a.setText(String.format(Locale.getDefault(), "%s (%d)", this.f7131b, Long.valueOf(TimeUnit.MILLISECONDS.toSeconds(j2) + 1)));
+            this.button.setEnabled(false);
+            this.button.setText(String.format(Locale.getDefault(), "%s (%d)", this.originalText, Long.valueOf(TimeUnit.MILLISECONDS.toSeconds(j2) + 1)));
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void b(AlertDialog alertDialog, int i2, String str, DialogInterface dialogInterface) {
+    public static /* synthetic */ void b(AlertDialog alertDialog, int index, String str, DialogInterface dialogInterface) {
         Button button = alertDialog.getButton(-1);
-        new CountDownDialogUtil().new a(i2 * 1000, 1000L, button, button.getText(), str).start();
+        new CountDownDialogUtil().new ButtonCountdownTimer(index * 1000, 1000L, button, button.getText(), str).start();
     }
 
-    public static void showDialog(Activity activity, String str, @Nullable String str2, @Nullable View view, final String str3, DialogInterface.OnClickListener onClickListener, @Nullable String str4, @Nullable DialogInterface.OnClickListener onClickListener2, final int i2) {
+    public static void showDialog(Activity activity, String str, @Nullable String str2, @Nullable View view, final String str3, DialogInterface.OnClickListener onClickListener, @Nullable String str4, @Nullable DialogInterface.OnClickListener onClickListener2, final int index) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         if (view != null) {
             builder.setView(view);
@@ -63,10 +59,10 @@ public class CountDownDialogUtil {
             builder.setMessage(str2);
         }
         final AlertDialog create = builder.setTitle(str).setPositiveButton(str3, onClickListener).setCancelable(false).create();
-        create.setOnShowListener(new DialogInterface.OnShowListener() { // from class: y.d
-            @Override // android.content.DialogInterface.OnShowListener
+        create.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
             public final void onShow(DialogInterface dialogInterface) {
-                CountDownDialogUtil.b(create, i2, str3, dialogInterface);
+                CountDownDialogUtil.b(create, index, str3, dialogInterface);
             }
         });
         create.show();

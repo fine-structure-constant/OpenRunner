@@ -52,33 +52,26 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Network {
 
-    /* renamed from: a, reason: collision with root package name */
-    private static WeatherService f6984a = null;
+    private static WeatherService weatherService = null;
     public static final String announcementUrl = "https://pkunewyouth.pku.edu.cn/public/htmls/requirement.html?t=" + System.currentTimeMillis();
 
-    /* renamed from: b, reason: collision with root package name */
-    private static TaskService f6985b = null;
+    private static TaskService taskService = null;
 
-    /* renamed from: c, reason: collision with root package name */
-    private static LoginService f6986c = null;
+    private static LoginService loginService = null;
 
-    /* renamed from: d, reason: collision with root package name */
-    private static RecordService f6987d = null;
+    private static RecordService recordService = null;
 
-    /* renamed from: e, reason: collision with root package name */
-    private static GymRecordService f6988e = null;
+    private static GymRecordService gymRecordService = null;
 
-    /* renamed from: f, reason: collision with root package name */
-    private static ActivityService f6989f = null;
+    private static ActivityService activityService = null;
     public static final String photoBaseUrl = "https://pkunewyouth.pku.edu.cn/";
     public static Weather weather;
 
-    private static class b implements Function {
-        private b() {
+    private static class DataPackUnwrapFunction implements Function {
+        private DataPackUnwrapFunction() {
         }
 
-        @Override // io.reactivex.functions.Function
-        /* renamed from: a, reason: merged with bridge method [inline-methods] */
+        @Override
         public Object apply(Object value) {
             DataPack dataPack = (DataPack) value;
             if (dataPack.isSuccess()) {
@@ -89,8 +82,8 @@ public class Network {
     }
 
     public static Observable<Boolean> clearActivity20180420() {
-        return f6989f.clear20180420(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new Function() { // from class: s.h
-            @Override // io.reactivex.functions.Function
+        return activityService.clear20180420(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource m2;
                 m2 = Network.m((DataPack) obj);
@@ -100,8 +93,8 @@ public class Network {
     }
 
     public static Observable<ArrayList<GymRecord>> getGymRecords() {
-        return f6988e.getGymRecords(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.f
-            @Override // io.reactivex.functions.Function
+        return gymRecordService.getGymRecords(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource n2;
                 n2 = Network.n((ArrayList) obj);
@@ -111,16 +104,16 @@ public class Network {
     }
 
     public static Observable<Version> getLatestVersion(boolean z2) {
-        return (z2 ? f6986c.getLatestVersionForOffline() : f6986c.getLatestVersion()).subscribeOn(Schedulers.newThread());
+        return (z2 ? loginService.getLatestVersionForOffline() : loginService.getLatestVersion()).subscribeOn(Schedulers.newThread());
     }
 
     public static Observable<Version> getMinVersion() {
-        return f6986c.getMinVersion().subscribeOn(Schedulers.newThread());
+        return loginService.getMinVersion().subscribeOn(Schedulers.newThread());
     }
 
     public static Observable<ArrayList<Record>> getRecords(String str) {
-        return f6987d.getRecords(str).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.e
-            @Override // io.reactivex.functions.Function
+        return recordService.getRecords(str).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource o2;
                 o2 = Network.o((ArrayList) obj);
@@ -130,17 +123,17 @@ public class Network {
     }
 
     public static Observable<String> getReverseEncoding(Point point) {
-        return f6987d.reverseEncoding(String.format("%.6f,%.6f", Double.valueOf(point.getLongitude()), Double.valueOf(point.getLatitude())), BuildConfig.AMAP_WEB_KEY, 1000).subscribeOn(Schedulers.newThread()).flatMap(new Function() { // from class: s.d
-            @Override // io.reactivex.functions.Function
+        return recordService.reverseEncoding(String.format("%.6f,%.6f", Double.valueOf(point.getLongitude()), Double.valueOf(point.getLatitude())), BuildConfig.AMAP_WEB_KEY, 1000).subscribeOn(Schedulers.newThread()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 return ((AMapReverseEncoding) obj).getStreetName();
             }
         });
     }
 
-    public static Observable<Record> getSingleRecord(String str, int i2) {
-        return f6987d.getSingleRecord(str, i2).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.m
-            @Override // io.reactivex.functions.Function
+    public static Observable<Record> getSingleRecord(String str, int index) {
+        return recordService.getSingleRecord(str, index).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource p2;
                 p2 = Network.p((Record.Inner) obj);
@@ -150,8 +143,8 @@ public class Network {
     }
 
     public static Observable<ArrayList<Task>> getTasks() {
-        return f6985b.getList(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.j
-            @Override // io.reactivex.functions.Function
+        return taskService.getList(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource q2;
                 q2 = Network.q((Map) obj);
@@ -161,12 +154,12 @@ public class Network {
     }
 
     public static Observable<UserStatus> getUserStatus() {
-        return f6987d.getStatus(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new b());
+        return recordService.getStatus(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction());
     }
 
     public static Observable<Weather> getWeather() {
-        return f6984a.getWeather("fElIR").map(Weather::fromNmc).subscribeOn(Schedulers.newThread()).doOnNext(new Consumer() { // from class: s.l
-            @Override // io.reactivex.functions.Consumer
+        return weatherService.getWeather("fElIR").map(Weather::fromNmc).subscribeOn(Schedulers.newThread()).doOnNext(new Consumer() {
+            @Override
             public final void accept(Object obj) {
                 Network.weather = (Weather) obj;
             }
@@ -175,8 +168,8 @@ public class Network {
 
     public static void init(Context context) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.addInterceptor(new Interceptor() { // from class: s.i
-            @Override // okhttp3.Interceptor
+        builder.addInterceptor(new Interceptor() {
+            @Override
             public final Response intercept(Interceptor.Chain chain) throws java.io.IOException {
                 Response s2;
                 s2 = Network.s(chain);
@@ -184,12 +177,12 @@ public class Network {
             }
         });
         Retrofit build = new Retrofit.Builder().baseUrl(photoBaseUrl).addConverterFactory(GsonConverterFactory.create()).addCallAdapterFactory(RxJava2CallAdapterFactory.create()).client(builder.build()).build();
-        f6984a = (WeatherService) build.create(WeatherService.class);
-        f6985b = (TaskService) build.create(TaskService.class);
-        f6986c = (LoginService) build.create(LoginService.class);
-        f6987d = (RecordService) build.create(RecordService.class);
-        f6988e = (GymRecordService) build.create(GymRecordService.class);
-        f6989f = (ActivityService) build.create(ActivityService.class);
+        weatherService = (WeatherService) build.create(WeatherService.class);
+        taskService = (TaskService) build.create(TaskService.class);
+        loginService = (LoginService) build.create(LoginService.class);
+        recordService = (RecordService) build.create(RecordService.class);
+        gymRecordService = (GymRecordService) build.create(GymRecordService.class);
+        activityService = (ActivityService) build.create(ActivityService.class);
     }
 
     public static void interceptIfSocketTimeout(Throwable th, Callback.Callable<Void> callable) {
@@ -202,8 +195,8 @@ public class Network {
     }
 
     public static Observable<User> loginNew(String str) {
-        return f6986c.login(str).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.k
-            @Override // io.reactivex.functions.Function
+        return loginService.login(str).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource t2;
                 t2 = Network.t((User.Inner) obj);
@@ -212,7 +205,6 @@ public class Network {
         });
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource n(ArrayList arrayList) {
         ArrayList arrayList2 = new ArrayList();
         Iterator it = arrayList.iterator();
@@ -222,7 +214,6 @@ public class Network {
         return Observable.just(arrayList2);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource o(ArrayList arrayList) {
         ArrayList arrayList2 = new ArrayList();
         Iterator it = arrayList.iterator();
@@ -232,19 +223,17 @@ public class Network {
         return Observable.just(arrayList2);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource p(Record.Inner inner) {
         return Observable.just(new Record(inner));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource q(Map map) {
         return Observable.just(new ArrayList(map.values()));
     }
 
     public static Observable<Boolean> signUpActivity20180420(boolean z2) {
-        return f6989f.signUp20180420(20180420, Data.getUser().getId(), z2 ? "red" : "blue").subscribeOn(Schedulers.newThread()).flatMap(new Function() { // from class: s.g
-            @Override // io.reactivex.functions.Function
+        return activityService.signUp20180420(20180420, Data.getUser().getId(), z2 ? "red" : "blue").subscribeOn(Schedulers.newThread()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource u2;
                 u2 = Network.u((DataPack) obj);
@@ -253,14 +242,13 @@ public class Network {
         });
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource t(User.Inner inner) {
         return Observable.just(new User(inner));
     }
 
-    public static Observable<GymRecord> uploadGymRecordGetOut(int i2, String str) {
-        return f6988e.verifyGymRecord(Data.getUser().getId(), i2, str).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.a
-            @Override // io.reactivex.functions.Function
+    public static Observable<GymRecord> uploadGymRecordGetOut(int index, String str) {
+        return gymRecordService.verifyGymRecord(Data.getUser().getId(), index, str).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource v2;
                 v2 = Network.v((GymRecord.Inner) obj);
@@ -285,8 +273,8 @@ public class Network {
             }
             if (SecUtil.verifyCheckField(record.getUserId(), record.getDate(), record.getCheckField())) {
                 if (file == null) {
-                    return f6987d.uploadRecordWithoutPhoto(Data.getUser().getId(), record.getDuration(), record.getDistance(), record.getDate().getTime(), jSONArray.toString(), jSONObject.toString(), record.getStep(), SecUtil.getAbstract(Data.getUser().getId(), String.valueOf(record.getDate().getTime()))).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.b
-                        @Override // io.reactivex.functions.Function
+                    return recordService.uploadRecordWithoutPhoto(Data.getUser().getId(), record.getDuration(), record.getDistance(), record.getDate().getTime(), jSONArray.toString(), jSONObject.toString(), record.getStep(), SecUtil.getAbstract(Data.getUser().getId(), String.valueOf(record.getDate().getTime()))).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+                        @Override
                         public final Object apply(Object obj) {
                             ObservableSource w2;
                             w2 = Network.w((Record.Inner) obj);
@@ -294,8 +282,8 @@ public class Network {
                         }
                     });
                 }
-                return f6987d.uploadRecord(Data.getUser().getId(), record.getDuration(), record.getDistance(), record.getDate().getTime(), jSONArray.toString(), jSONObject.toString(), record.getStep(), SecUtil.getAbstract(Data.getUser().getId(), String.valueOf(record.getDate().getTime())), RequestBody.create(MediaType.parse("image/jpeg"), file)).subscribeOn(Schedulers.newThread()).flatMap(new b()).flatMap(new Function() { // from class: s.c
-                    @Override // io.reactivex.functions.Function
+                return recordService.uploadRecord(Data.getUser().getId(), record.getDuration(), record.getDistance(), record.getDate().getTime(), jSONArray.toString(), jSONObject.toString(), record.getStep(), SecUtil.getAbstract(Data.getUser().getId(), String.valueOf(record.getDate().getTime())), RequestBody.create(MediaType.parse("image/jpeg"), file)).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
+                    @Override
                     public final Object apply(Object obj) {
                         ObservableSource x2;
                         x2 = Network.x((Record.Inner) obj);
@@ -317,27 +305,22 @@ public class Network {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource v(GymRecord.Inner inner) {
         return Observable.just(new GymRecord(inner));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource w(Record.Inner inner) {
         return Observable.just(new Record(inner));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource x(Record.Inner inner) {
         return Observable.just(new Record(inner));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource m(DataPack dataPack) {
         return Observable.just(Boolean.valueOf(dataPack.isSuccess()));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ Response s(Interceptor.Chain chain) throws java.io.IOException {
         Request.Builder newBuilder = chain.request().newBuilder();
         if (Data.getUser() != null) {
@@ -346,7 +329,6 @@ public class Network {
         return chain.proceed(newBuilder.header("Platform", "Android").header("Manufacturer", Build.MANUFACTURER).header("ClientVersion", BuildConfig.VERSION_NAME).build());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource u(DataPack dataPack) {
         return Observable.just(Boolean.valueOf(dataPack.isSuccess()));
     }

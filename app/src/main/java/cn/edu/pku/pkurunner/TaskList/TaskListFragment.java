@@ -28,219 +28,208 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class TaskListFragment extends Fragment implements TaskListContract.View {
 
-    /* renamed from: d, reason: collision with root package name */
-    private View f7108d;
+    private View rootView;
 
-    /* renamed from: e, reason: collision with root package name */
-    private TaskCardAdapter f7109e;
+    private TaskCardAdapter taskCardAdapter;
 
-    /* renamed from: f, reason: collision with root package name */
-    private TextView f7110f;
+    private TextView emptyHintText;
 
-    /* renamed from: g, reason: collision with root package name */
-    private SwipeRefreshLayout f7111g;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    /* renamed from: h, reason: collision with root package name */
-    private boolean f7112h;
+    private boolean refreshing;
 
-    /* renamed from: i, reason: collision with root package name */
-    private ProgressDialog f7113i;
+    private ProgressDialog progressDialog;
 
-    /* renamed from: j, reason: collision with root package name */
-    private TaskListContract.Presenter f7114j;
+    private TaskListContract.Presenter presenter;
 
-    class a extends RecyclerView.OnScrollListener {
-        a() {
+    class TaskListScrollListener extends RecyclerView.OnScrollListener {
+        TaskListScrollListener() {
         }
 
-        @Override // androidx.recyclerview.widget.RecyclerView.OnScrollListener
-        public void onScrollStateChanged(RecyclerView recyclerView, int i2) {
-            super.onScrollStateChanged(recyclerView, i2);
-            if (i2 == 0) {
-                TaskListFragment.this.f7112h = false;
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int index) {
+            super.onScrollStateChanged(recyclerView, index);
+            if (index == 0) {
+                TaskListFragment.this.refreshing = false;
             }
         }
 
-        @Override // androidx.recyclerview.widget.RecyclerView.OnScrollListener
-        public void onScrolled(RecyclerView recyclerView, int i2, int i3) {
-            super.onScrolled(recyclerView, i2, i3);
-            TaskListFragment.this.f7112h = true;
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int index, int index2) {
+            super.onScrolled(recyclerView, index, index2);
+            TaskListFragment.this.refreshing = true;
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean n(SwipeRefreshLayout swipeRefreshLayout, View view) {
-        return this.f7112h;
+        return this.refreshing;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void p(DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void p(DialogInterface dialogInterface, int index) {
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
+    @Override
     public TaskCardAdapter getTaskCardAdapter() {
-        return this.f7109e;
+        return this.taskCardAdapter;
     }
 
-    @Override // cn.edu.pku.pkurunner.Contract.BaseView
+    @Override
     public void setPresenter(@NonNull TaskListContract.Presenter presenter) {
-        this.f7114j = presenter;
+        this.presenter = presenter;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void m() {
-        this.f7114j.syncData();
+        this.presenter.syncData();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void o() {
-        this.f7111g.setRefreshing(true);
-        this.f7114j.syncData();
+        this.swipeRefreshLayout.setRefreshing(true);
+        this.presenter.syncData();
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
+    @Override
     public void cancelRefresh() {
-        this.f7111g.setRefreshing(false);
+        this.swipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
+    @Override
     public void dismissWaitingDialog() {
-        ProgressDialog progressDialog = this.f7113i;
+        ProgressDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.dismiss();
-            this.f7113i = null;
+            this.progressDialog = null;
         }
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
-    public void makeSnackBar(@StringRes int i2, int i3, Object... objArr) {
-        Snackbar.make(this.f7108d, getString(i2, objArr), i3).show();
+    @Override
+    public void makeSnackBar(@StringRes int index, int index2, Object... objArr) {
+        Snackbar.make(this.rootView, getString(index, objArr), index2).show();
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
-    public void showCongratulationsDialog(@StringRes int i2, @StringRes int i3) {
+    @Override
+    public void showCongratulationsDialog(@StringRes int index, @StringRes int index2) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         View inflate = getActivity().getLayoutInflater().inflate(R.layout.fragment_task_complete_dialog, (ViewGroup) null);
-        ((TextView) inflate.findViewById(R.id.f_task_complete_txt_title)).setText(i2);
-        ((TextView) inflate.findViewById(R.id.f_task_complete_txt_message)).setText(i3);
-        builder.setView(inflate).setPositiveButton(getString(R.string.f_task_complete_dialog_ok), new DialogInterface.OnClickListener() { // from class: cn.edu.pku.pkurunner.TaskList.i
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i4) {
-                TaskListFragment.p(dialogInterface, i4);
+        ((TextView) inflate.findViewById(R.id.f_task_complete_txt_title)).setText(index);
+        ((TextView) inflate.findViewById(R.id.f_task_complete_txt_message)).setText(index2);
+        builder.setView(inflate).setPositiveButton(getString(R.string.f_task_complete_dialog_ok), new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index3) {
+                TaskListFragment.p(dialogInterface, index3);
             }
         }).create().show();
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
+    @Override
     public void showTaskDetailDialog(String str, String str2) {
-        new AlertDialog.Builder(getContext()).setTitle(str).setMessage(str2).setPositiveButton("OK", new DialogInterface.OnClickListener() { // from class: cn.edu.pku.pkurunner.TaskList.j
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
+        new AlertDialog.Builder(getContext()).setTitle(str).setMessage(str2).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
                 dialogInterface.dismiss();
             }
         }).create().show();
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
-    public void showWaitingDialog(int i2) {
+    @Override
+    public void showWaitingDialog(int index) {
         ProgressDialog progressDialog = new ProgressDialog(getContext());
-        this.f7113i = progressDialog;
+        this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(1);
-        this.f7113i.setMessage("正在同步数据");
-        this.f7113i.setIndeterminate(false);
-        this.f7113i.setCancelable(false);
-        this.f7113i.setMax(i2);
-        this.f7113i.show();
+        this.progressDialog.setMessage("正在同步数据");
+        this.progressDialog.setIndeterminate(false);
+        this.progressDialog.setCancelable(false);
+        this.progressDialog.setMax(index);
+        this.progressDialog.show();
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
+    @Override
     public void toggleNotice(Boolean bool) {
-        this.f7110f.setVisibility(bool.booleanValue() ? 0 : 8);
+        this.emptyHintText.setVisibility(bool.booleanValue() ? 0 : 8);
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
-    public void updateWaitingDialog(int i2) {
-        this.f7113i.setProgress(i2);
+    @Override
+    public void updateWaitingDialog(int index) {
+        this.progressDialog.setProgress(index);
     }
 
-    @Override // cn.edu.pku.pkurunner.TaskList.TaskListContract.View
-    public void makeToast(@StringRes int i2, int i3, Object... objArr) {
-        Toast.makeText(getContext(), getString(i2, objArr), i3).show();
+    @Override
+    public void makeToast(@StringRes int index, int index2, Object... objArr) {
+        Toast.makeText(getContext(), getString(index, objArr), index2).show();
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
         setHasOptionsMenu(true);
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
         menuInflater.inflate(R.menu.fragment_task, menu);
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_tasklist, viewGroup, false);
-        this.f7108d = inflate;
+        this.rootView = inflate;
         SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) inflate.findViewById(R.id.f_tasklist_swipeRefreshLayout);
-        this.f7111g = swipeRefreshLayout;
+        this.swipeRefreshLayout = swipeRefreshLayout;
         swipeRefreshLayout.setColorSchemeResources(R.color.orange_500, R.color.green_500, R.color.blue_500);
-        this.f7111g.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() { // from class: cn.edu.pku.pkurunner.TaskList.k
-            @Override // androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+        this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
             public final void onRefresh() {
                 TaskListFragment.this.m();
             }
         });
-        this.f7111g.setOnChildScrollUpCallback(new SwipeRefreshLayout.OnChildScrollUpCallback() { // from class: cn.edu.pku.pkurunner.TaskList.l
-            @Override // androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback
+        this.swipeRefreshLayout.setOnChildScrollUpCallback(new SwipeRefreshLayout.OnChildScrollUpCallback() {
+            @Override
             public final boolean canChildScrollUp(SwipeRefreshLayout swipeRefreshLayout2, View view) {
                 boolean n2;
                 n2 = TaskListFragment.this.n(swipeRefreshLayout2, view);
                 return n2;
             }
         });
-        RecyclerView recyclerView = (RecyclerView) this.f7108d.findViewById(R.id.f_tasklist_recyclerview);
+        RecyclerView recyclerView = (RecyclerView) this.rootView.findViewById(R.id.f_tasklist_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
-        recyclerView.addOnScrollListener(new a());
+        recyclerView.addOnScrollListener(new TaskListScrollListener());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), 1);
         dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
         recyclerView.addItemDecoration(dividerItemDecoration);
         TaskCardAdapter taskCardAdapter = new TaskCardAdapter();
-        this.f7109e = taskCardAdapter;
-        taskCardAdapter.setPresenter(this, this.f7114j, new TaskCardAdapter.b() { // from class: cn.edu.pku.pkurunner.TaskList.m
+        this.taskCardAdapter = taskCardAdapter;
+        taskCardAdapter.setPresenter(this, this.presenter, new TaskCardAdapter.TaskActionCallback() {
         });
-        recyclerView.setAdapter(this.f7109e);
-        this.f7110f = (TextView) this.f7108d.findViewById(R.id.f_tasklist_txt_notice);
-        this.f7111g.post(new Runnable() { // from class: cn.edu.pku.pkurunner.TaskList.n
-            @Override // java.lang.Runnable
+        recyclerView.setAdapter(this.taskCardAdapter);
+        this.emptyHintText = (TextView) this.rootView.findViewById(R.id.f_tasklist_txt_notice);
+        this.swipeRefreshLayout.post(new Runnable() {
+            @Override
             public final void run() {
                 TaskListFragment.this.o();
             }
         });
-        return this.f7108d;
+        return this.rootView;
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onHiddenChanged(boolean z2) {
         super.onHiddenChanged(z2);
         if (!z2) {
-            this.f7114j.start();
+            this.presenter.start();
         }
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         menuItem.getItemId();
         return super.onOptionsItemSelected(menuItem);
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onResume() {
         super.onResume();
-        this.f7114j.start();
+        this.presenter.start();
     }
 }

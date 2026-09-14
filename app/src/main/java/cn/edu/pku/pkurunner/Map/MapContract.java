@@ -58,11 +58,11 @@ public interface MapContract {
 
         void indicatorShowUpAnimation();
 
-        void makeSnackBar(@StringRes int i2, int i3, Object... objArr);
+        void makeSnackBar(@StringRes int index, int index2, Object... objArr);
 
-        void makeToast(@StringRes int i2, int i3, Object... objArr);
+        void makeToast(@StringRes int index, int index2, Object... objArr);
 
-        void makeWaitingDialog(@StringRes int i2, Object... objArr);
+        void makeWaitingDialog(@StringRes int index, Object... objArr);
 
         void notifyGPSInfo();
 
@@ -76,7 +76,7 @@ public interface MapContract {
 
         void requireWakeLock();
 
-        void setAssistantText(@StringRes int i2, double d2, Object... objArr);
+        void setAssistantText(@StringRes int index, double value, Object... objArr);
 
         void setLocatingPointEnabled(boolean z2);
 
@@ -96,8 +96,8 @@ public interface MapContract {
 
         void updateTextSci(SpeedHelper.SPEED_UNIT speed_unit);
 
-        void updateTextView(double d2, double d3, double d4, boolean z2);
+        void updateTextView(double value, double value2, double value3, boolean z2);
 
-        void updateWaitingDialog(@StringRes int i2, Object... objArr);
+        void updateWaitingDialog(@StringRes int index, Object... objArr);
     }
 }

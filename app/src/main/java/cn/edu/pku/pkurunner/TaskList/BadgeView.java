@@ -15,105 +15,98 @@ import cn.edu.pku.pkurunner.TaskList.BadgeResourceResolver;
 
 public class BadgeView extends FrameLayout {
 
-    /* renamed from: f, reason: collision with root package name */
-    private static float f7089f = 0.5f;
+    private static float BADGE_ANCHOR_RATIO_X = 0.5f;
 
-    /* renamed from: g, reason: collision with root package name */
-    private static float f7090g = 0.77f;
+    private static float BADGE_ANCHOR_RATIO_Y = 0.77f;
 
-    /* renamed from: a, reason: collision with root package name */
-    private View f7091a;
+    private View rootView;
 
-    /* renamed from: b, reason: collision with root package name */
-    private ImageView f7092b;
+    private ImageView badgeImageView;
 
-    /* renamed from: c, reason: collision with root package name */
-    private TextView f7093c;
+    private TextView badgeText;
 
-    /* renamed from: d, reason: collision with root package name */
-    private String f7094d;
+    private String badgeName;
 
-    /* renamed from: e, reason: collision with root package name */
-    private boolean f7095e;
+    private boolean badgeLoaded;
 
     public BadgeView(@NonNull Context context) {
         super(context);
-        this.f7095e = false;
+        this.badgeLoaded = false;
         a(context, null);
     }
 
     private void b() {
-        if (this.f7095e) {
+        if (this.badgeLoaded) {
             try {
-                this.f7092b.setImageResource(BadgeResourceResolver.resolve(this.f7094d));
-                this.f7093c.setVisibility(0);
-            } catch (BadgeResourceResolver.a unused) {
-                this.f7092b.setImageResource(BadgeResourceResolver.NULL_RESOURCE);
-                this.f7093c.setVisibility(8);
+                this.badgeImageView.setImageResource(BadgeResourceResolver.resolve(this.badgeName));
+                this.badgeText.setVisibility(0);
+            } catch (BadgeResourceResolver.UnknownBadgeException unused) {
+                this.badgeImageView.setImageResource(BadgeResourceResolver.NULL_RESOURCE);
+                this.badgeText.setVisibility(8);
             }
         } else {
-            this.f7092b.setImageResource(BadgeResourceResolver.UNACHIEVED_RESOURCE);
-            this.f7093c.setVisibility(8);
+            this.badgeImageView.setImageResource(BadgeResourceResolver.UNACHIEVED_RESOURCE);
+            this.badgeText.setVisibility(8);
         }
         invalidate();
     }
 
     public void setBadgeSeries(String str) {
-        this.f7094d = str;
+        this.badgeName = str;
         b();
     }
 
-    public void setDistance(int i2) {
-        this.f7093c.setText(String.valueOf(i2));
+    public void setDistance(int index2) {
+        this.badgeText.setText(String.valueOf(index2));
         invalidate();
     }
 
     public void setStatus(boolean z2) {
-        this.f7095e = z2;
+        this.badgeLoaded = z2;
         b();
     }
 
     public BadgeView(Context context, @Nullable AttributeSet attributeSet) {
         super(context, attributeSet);
-        this.f7095e = false;
+        this.badgeLoaded = false;
         a(context, attributeSet);
     }
 
     private void a(Context context, AttributeSet attributeSet) {
         View inflate = View.inflate(context, R.layout.view_badge, this);
-        this.f7091a = inflate;
-        this.f7092b = (ImageView) inflate.findViewById(R.id.v_badge_img);
-        this.f7093c = (TextView) this.f7091a.findViewById(R.id.v_badge_txt);
+        this.rootView = inflate;
+        this.badgeImageView = (ImageView) inflate.findViewById(R.id.v_badge_img);
+        this.badgeText = (TextView) this.rootView.findViewById(R.id.v_badge_txt);
         if (attributeSet != null) {
             TypedArray obtainStyledAttributes = context.obtainStyledAttributes(attributeSet, R.styleable.BadgeView);
             int indexCount = obtainStyledAttributes.getIndexCount();
-            for (int i2 = 0; i2 < indexCount; i2++) {
-                int index = obtainStyledAttributes.getIndex(i2);
+            for (int index2 = 0; index2 < indexCount; index2++) {
+                int index = obtainStyledAttributes.getIndex(index2);
                 if (index != 0) {
                     if (index == 1) {
-                        f7090g = obtainStyledAttributes.getFloat(i2, f7090g);
+                        BADGE_ANCHOR_RATIO_Y = obtainStyledAttributes.getFloat(index2, BADGE_ANCHOR_RATIO_Y);
                     }
                 } else {
-                    setDistance(obtainStyledAttributes.getInteger(i2, 0));
+                    setDistance(obtainStyledAttributes.getInteger(index2, 0));
                 }
             }
             obtainStyledAttributes.recycle();
         }
     }
 
-    @Override // android.view.View
+    @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        this.f7092b.draw(canvas);
-        this.f7093c.draw(canvas);
+        this.badgeImageView.draw(canvas);
+        this.badgeText.draw(canvas);
     }
 
-    @Override // android.widget.FrameLayout, android.view.ViewGroup, android.view.View
-    protected void onLayout(boolean z2, int i2, int i3, int i4, int i5) {
-        super.onLayout(z2, i2, i3, i4, i5);
-        float x2 = (this.f7092b.getX() + (this.f7092b.getWidth() * f7089f)) - (this.f7093c.getWidth() / 2);
-        float y2 = (this.f7092b.getY() + (this.f7092b.getHeight() * f7090g)) - (this.f7093c.getHeight() / 2);
-        this.f7093c.setX(x2);
-        this.f7093c.setY(y2);
+    @Override
+    protected void onLayout(boolean z2, int index2, int index3, int index4, int i5) {
+        super.onLayout(z2, index2, index3, index4, i5);
+        float x2 = (this.badgeImageView.getX() + (this.badgeImageView.getWidth() * BADGE_ANCHOR_RATIO_X)) - (this.badgeText.getWidth() / 2);
+        float y2 = (this.badgeImageView.getY() + (this.badgeImageView.getHeight() * BADGE_ANCHOR_RATIO_Y)) - (this.badgeText.getHeight() / 2);
+        this.badgeText.setX(x2);
+        this.badgeText.setY(y2);
     }
 }

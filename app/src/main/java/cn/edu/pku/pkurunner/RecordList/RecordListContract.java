@@ -13,17 +13,17 @@ import java.io.File;
 public interface RecordListContract {
 
     public interface Presenter extends BasePresenter {
-        void deleteRecord(int i2, int i3);
+        void deleteRecord(int index, int index2);
 
         void refreshList();
 
-        void showRecordDetail(int i2);
+        void showRecordDetail(int index);
 
         void start(boolean z2);
 
         void syncData();
 
-        void uploadVerifyRecord(int i2, int i3);
+        void uploadVerifyRecord(int index, int index2);
     }
 
     public interface View extends BaseView<Presenter> {
@@ -51,17 +51,17 @@ public interface RecordListContract {
 
         Observable<Pair<String, String>> launchIaaaLogin();
 
-        void makeSnackBar(@StringRes int i2, int i3, Object... objArr);
+        void makeSnackBar(@StringRes int index, int index2, Object... objArr);
 
-        void makeToast(@StringRes int i2, int i3, Object... objArr);
+        void makeToast(@StringRes int index, int index2, Object... objArr);
 
         void scrollRecyclerViewToTop();
 
-        void setWaitingDialogMessage(@StringRes int i2);
+        void setWaitingDialogMessage(@StringRes int index);
 
-        Observable<Boolean> showConfirmDialog(@StringRes int i2, @StringRes int i3);
+        Observable<Boolean> showConfirmDialog(@StringRes int index, @StringRes int index2);
 
-        Observable<PhotoStatus> showPhotoDialog(@StringRes int i2, @StringRes int i3);
+        Observable<PhotoStatus> showPhotoDialog(@StringRes int index, @StringRes int index2);
 
         void showRecordDetailSheet(Bundle bundle);
 

@@ -39,16 +39,16 @@ public class Task {
         return this.status;
     }
 
-    public void setActivityId(int i2) {
-        this.activityId = i2;
+    public void setActivityId(int index) {
+        this.activityId = index;
     }
 
     public void setDescription(String str) {
         this.description = str;
     }
 
-    public void setId(int i2) {
-        this.id = i2;
+    public void setId(int index) {
+        this.id = index;
     }
 
     public void setName(String str) {
@@ -59,7 +59,7 @@ public class Task {
         this.requirement = str;
     }
 
-    public void setStatus(int i2) {
-        this.status = i2;
+    public void setStatus(int index) {
+        this.status = index;
     }
 }

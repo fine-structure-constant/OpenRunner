@@ -18,38 +18,27 @@ import java.util.Date;
 
 public class SimpleProgressView extends LinearLayout implements ProgressableView {
 
-    /* renamed from: a, reason: collision with root package name */
-    private View f7162a;
+    private View rootView;
 
-    /* renamed from: b, reason: collision with root package name */
-    private LinearLayout f7163b;
+    private LinearLayout progressRootLayout;
 
-    /* renamed from: c, reason: collision with root package name */
-    private ImageView f7164c;
+    private ImageView weatherImageView;
 
-    /* renamed from: d, reason: collision with root package name */
-    private ImageView f7165d;
+    private ImageView sleepingImageView;
 
-    /* renamed from: e, reason: collision with root package name */
-    private ProgressBar f7166e;
+    private ProgressBar distanceProgressBar;
 
-    /* renamed from: f, reason: collision with root package name */
-    private ProgressBar f7167f;
+    private ProgressBar dayProgressBar;
 
-    /* renamed from: g, reason: collision with root package name */
-    private TextView f7168g;
+    private TextView distanceText;
 
-    /* renamed from: h, reason: collision with root package name */
-    private TextView f7169h;
+    private TextView dayText;
 
-    /* renamed from: i, reason: collision with root package name */
-    private TextView f7170i;
+    private TextView sleepingNoticeText;
 
-    /* renamed from: j, reason: collision with root package name */
-    private boolean f7171j;
+    private boolean dayMode;
 
-    /* renamed from: k, reason: collision with root package name */
-    private boolean f7172k;
+    private boolean activeMode;
 
     public SimpleProgressView(@NonNull Context context) {
         super(context);
@@ -61,91 +50,91 @@ public class SimpleProgressView extends LinearLayout implements ProgressableView
     }
 
     private void c() {
-        this.f7164c.setVisibility(a(this.f7172k));
-        this.f7169h.setVisibility(a(this.f7172k));
+        this.weatherImageView.setVisibility(a(this.activeMode));
+        this.dayText.setVisibility(a(this.activeMode));
         boolean z2 = false;
-        this.f7167f.setVisibility(a(this.f7172k && !this.f7171j));
-        this.f7168g.setVisibility(a(this.f7172k && !this.f7171j));
-        ProgressBar progressBar = this.f7166e;
-        if (this.f7172k && !this.f7171j) {
+        this.dayProgressBar.setVisibility(a(this.activeMode && !this.dayMode));
+        this.distanceText.setVisibility(a(this.activeMode && !this.dayMode));
+        ProgressBar progressBar = this.distanceProgressBar;
+        if (this.activeMode && !this.dayMode) {
             z2 = true;
         }
         progressBar.setVisibility(a(z2));
-        this.f7165d.setVisibility(a(!this.f7172k));
-        this.f7170i.setVisibility(a(!this.f7172k));
+        this.sleepingImageView.setVisibility(a(!this.activeMode));
+        this.sleepingNoticeText.setVisibility(a(!this.activeMode));
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void reset() {
-        this.f7168g.setText(R.string.status_loading_text);
-        this.f7169h.setText((CharSequence) null);
-        this.f7166e.setProgress(0);
-        this.f7166e.setSecondaryProgress(0);
-        this.f7167f.setProgress(0);
+        this.distanceText.setText(R.string.status_loading_text);
+        this.dayText.setText((CharSequence) null);
+        this.distanceProgressBar.setProgress(0);
+        this.distanceProgressBar.setSecondaryProgress(0);
+        this.dayProgressBar.setProgress(0);
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setActiveMode(boolean z2) {
-        this.f7172k = z2;
+        this.activeMode = z2;
         c();
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setCollapseMode(boolean z2) {
-        this.f7171j = z2;
+        this.dayMode = z2;
         c();
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setDayMode(boolean z2) {
-        this.f7163b.setBackgroundColor(getResources().getColor(z2 ? R.color.red_500 : R.color.grey_800));
-        this.f7164c.setImageResource(z2 ? R.drawable.clip_weather_sun : R.drawable.clip_weather_moon);
-        this.f7165d.setColorFilter(getResources().getColor(z2 ? R.color.grey_900 : R.color.grey_200));
+        this.progressRootLayout.setBackgroundColor(getResources().getColor(z2 ? R.color.red_500 : R.color.grey_800));
+        this.weatherImageView.setImageResource(z2 ? R.drawable.clip_weather_sun : R.drawable.clip_weather_moon);
+        this.sleepingImageView.setColorFilter(getResources().getColor(z2 ? R.color.grey_900 : R.color.grey_200));
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
-    public void setMainBonusProgress(float f2) {
-        this.f7166e.setSecondaryProgress((int) (f2 * 100.0f));
+    @Override
+    public void setMainBonusProgress(float value) {
+        this.distanceProgressBar.setSecondaryProgress((int) (value * 100.0f));
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
-    public void setMainProgress(float f2) {
-        this.f7166e.setProgress((int) (f2 * 100.0f));
+    @Override
+    public void setMainProgress(float value) {
+        this.distanceProgressBar.setProgress((int) (value * 100.0f));
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setMainText(String str) {
-        this.f7168g.setText(str);
+        this.distanceText.setText(str);
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
-    public void setSecondaryProgress(float f2) {
-        this.f7167f.setProgress((int) (f2 * 100.0f));
+    @Override
+    public void setSecondaryProgress(float value) {
+        this.dayProgressBar.setProgress((int) (value * 100.0f));
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setSecondaryText(String str) {
-        this.f7169h.setText(str);
+        this.dayText.setText(str);
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setSleepingIndicatorText(String str) {
-        this.f7170i.setText(str);
+        this.sleepingNoticeText.setText(str);
         invalidate();
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public <T> ViewTarget<ImageView, T> setWeatherDrawable(RequestBuilder<T> glideRequest) {
-        return glideRequest.into(this.f7164c);
+        return glideRequest.into(this.weatherImageView);
     }
 
     public SimpleProgressView(Context context, @Nullable AttributeSet attributeSet) {
@@ -155,48 +144,48 @@ public class SimpleProgressView extends LinearLayout implements ProgressableView
 
     private void b(Context context, AttributeSet attributeSet) {
         View inflate = View.inflate(context, R.layout.view_simple_progress, this);
-        this.f7162a = inflate;
-        this.f7163b = (LinearLayout) inflate.findViewById(R.id.v_progress_root);
-        this.f7166e = (ProgressBar) this.f7162a.findViewById(R.id.v_progress_progress_distance);
-        this.f7167f = (ProgressBar) this.f7162a.findViewById(R.id.v_progress_progress_day);
-        this.f7168g = (TextView) this.f7162a.findViewById(R.id.v_progress_txt_distance);
-        this.f7169h = (TextView) this.f7162a.findViewById(R.id.v_progress_txt_day);
-        this.f7170i = (TextView) this.f7162a.findViewById(R.id.v_progress_txt_sleeping_notice);
-        this.f7164c = (ImageView) this.f7162a.findViewById(R.id.v_progress_img_weather);
-        this.f7165d = (ImageView) this.f7162a.findViewById(R.id.v_progress_img_sleeping);
-        this.f7166e.setMax(100);
-        this.f7167f.setMax(100);
+        this.rootView = inflate;
+        this.progressRootLayout = (LinearLayout) inflate.findViewById(R.id.v_progress_root);
+        this.distanceProgressBar = (ProgressBar) this.rootView.findViewById(R.id.v_progress_progress_distance);
+        this.dayProgressBar = (ProgressBar) this.rootView.findViewById(R.id.v_progress_progress_day);
+        this.distanceText = (TextView) this.rootView.findViewById(R.id.v_progress_txt_distance);
+        this.dayText = (TextView) this.rootView.findViewById(R.id.v_progress_txt_day);
+        this.sleepingNoticeText = (TextView) this.rootView.findViewById(R.id.v_progress_txt_sleeping_notice);
+        this.weatherImageView = (ImageView) this.rootView.findViewById(R.id.v_progress_img_weather);
+        this.sleepingImageView = (ImageView) this.rootView.findViewById(R.id.v_progress_img_sleeping);
+        this.distanceProgressBar.setMax(100);
+        this.dayProgressBar.setMax(100);
         if (attributeSet != null) {
             TypedArray obtainStyledAttributes = context.obtainStyledAttributes(attributeSet, R.styleable.SimpleProgressView);
             int indexCount = obtainStyledAttributes.getIndexCount();
-            for (int i2 = 0; i2 < indexCount; i2++) {
-                switch (obtainStyledAttributes.getIndex(i2)) {
+            for (int index = 0; index < indexCount; index++) {
+                switch (obtainStyledAttributes.getIndex(index)) {
                     case 0:
-                        setActiveMode(obtainStyledAttributes.getBoolean(i2, false));
+                        setActiveMode(obtainStyledAttributes.getBoolean(index, false));
                         break;
                     case 1:
-                        setMainBonusProgress(obtainStyledAttributes.getFloat(i2, BitmapDescriptorFactory.HUE_RED));
+                        setMainBonusProgress(obtainStyledAttributes.getFloat(index, BitmapDescriptorFactory.HUE_RED));
                         break;
                     case 2:
-                        setCollapseMode(obtainStyledAttributes.getBoolean(i2, false));
+                        setCollapseMode(obtainStyledAttributes.getBoolean(index, false));
                         break;
                     case 3:
-                        setSecondaryProgress(obtainStyledAttributes.getFloat(i2, BitmapDescriptorFactory.HUE_RED));
+                        setSecondaryProgress(obtainStyledAttributes.getFloat(index, BitmapDescriptorFactory.HUE_RED));
                         break;
                     case 4:
-                        setSecondaryText(obtainStyledAttributes.getString(i2));
+                        setSecondaryText(obtainStyledAttributes.getString(index));
                         break;
                     case 5:
-                        setDayMode(obtainStyledAttributes.getBoolean(i2, true));
+                        setDayMode(obtainStyledAttributes.getBoolean(index, true));
                         break;
                     case 6:
-                        setMainProgress(obtainStyledAttributes.getFloat(i2, BitmapDescriptorFactory.HUE_RED));
+                        setMainProgress(obtainStyledAttributes.getFloat(index, BitmapDescriptorFactory.HUE_RED));
                         break;
                     case 7:
-                        setMainText(obtainStyledAttributes.getString(i2));
+                        setMainText(obtainStyledAttributes.getString(index));
                         break;
                     case 8:
-                        setSleepingIndicatorText(obtainStyledAttributes.getString(i2));
+                        setSleepingIndicatorText(obtainStyledAttributes.getString(index));
                         break;
                 }
             }
@@ -204,7 +193,7 @@ public class SimpleProgressView extends LinearLayout implements ProgressableView
         }
     }
 
-    @Override // cn.edu.pku.pkurunner.View.ProgressableView
+    @Override
     public void setReferenceTime(Date date) {
         boolean z2;
         int hours = date.getHours();

@@ -21,24 +21,23 @@ public abstract class ClientUpdateNotice {
         context.startActivity(intent);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void f(final Context context, ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(context).setTitle(R.string.a_login_version_dialog_title).setMessage(R.string.a_login_version_dialog_content).setPositiveButton(R.string.a_login_version_dialog_positive_button, new DialogInterface.OnClickListener() { // from class: y.b
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
+        new AlertDialog.Builder(context).setTitle(R.string.a_login_version_dialog_title).setMessage(R.string.a_login_version_dialog_content).setPositiveButton(R.string.a_login_version_dialog_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
                 ClientUpdateNotice.downloadLatestVersion(context, false);
             }
-        }).setNegativeButton(R.string.a_login_version_dialog_negative_button, new DialogInterface.OnClickListener() { // from class: y.c
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
+        }).setNegativeButton(R.string.a_login_version_dialog_negative_button, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
                 PerfectExitUtil.exit();
             }
         }).setCancelable(false).create().show();
     }
 
     public static Observable<Boolean> showVersionLowDialog(final Context context) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: y.a
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 ClientUpdateNotice.f(context, observableEmitter);
             }

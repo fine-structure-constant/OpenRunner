@@ -19,24 +19,22 @@ public abstract class Dropbox {
         public static class DropboxException extends Exception {
             public static final int NO_ACCESS_TOKEN = 1;
 
-            /* renamed from: a, reason: collision with root package name */
-            private int f7086a;
+            private int code;
 
-            public DropboxException(String str, int i2) {
+            public DropboxException(String str, int index) {
                 super(str);
-                this.f7086a = i2;
+                this.code = index;
             }
 
             public int getCode() {
-                return this.f7086a;
+                return this.code;
             }
 
-            public DropboxException(int i2) {
-                this.f7086a = i2;
+            public DropboxException(int index) {
+                this.code = index;
             }
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
         public static /* synthetic */ void b(Context context, ObservableEmitter observableEmitter) {
             SharedPreferences sharedPreferences = context.getSharedPreferences("storage-dropbox", 0);
             String string = sharedPreferences.getString("access-token", null);
@@ -57,8 +55,8 @@ public abstract class Dropbox {
         }
 
         public static Observable<String> getToken(final Context context) {
-            return Observable.create(new ObservableOnSubscribe() { // from class: x.a
-                @Override // io.reactivex.ObservableOnSubscribe
+            return Observable.create(new ObservableOnSubscribe() {
+                @Override
                 public final void subscribe(ObservableEmitter observableEmitter) {
                     Dropbox.APIWrapper.b(context, observableEmitter);
                 }
@@ -72,11 +70,10 @@ public abstract class Dropbox {
 
     public static abstract class ClientFactory {
 
-        /* renamed from: a, reason: collision with root package name */
-        private static DbxClientV2 f7087a;
+        private static DbxClientV2 client;
 
         public static DbxClientV2 getClient() {
-            DbxClientV2 dbxClientV2 = f7087a;
+            DbxClientV2 dbxClientV2 = client;
             if (dbxClientV2 != null) {
                 return dbxClientV2;
             }
@@ -84,8 +81,8 @@ public abstract class Dropbox {
         }
 
         public static void init(String str) {
-            if (f7087a == null) {
-                f7087a = new DbxClientV2(DbxRequestConfig.newBuilder("PKU-Runner-Android-v1.2").withHttpRequestor(new OkHttp3Requestor(OkHttp3Requestor.defaultOkHttpClient())).build(), str);
+            if (client == null) {
+                client = new DbxClientV2(DbxRequestConfig.newBuilder("PKU-Runner-Android-v1.2").withHttpRequestor(new OkHttp3Requestor(OkHttp3Requestor.defaultOkHttpClient())).build(), str);
             }
         }
     }

@@ -8,12 +8,12 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.pku.pkurunner.Data;
+import cn.edu.pku.pkurunner.StackTracePrintingConsumer;
 import cn.edu.pku.pkurunner.Model.Task;
 import cn.edu.pku.pkurunner.Network.Network;
 import cn.edu.pku.pkurunner.R;
 import cn.edu.pku.pkurunner.TaskList.TaskCardAdapter;
 import cn.edu.pku.pkurunner.TaskList.TaskListContract;
-import cn.edu.pku.pkurunner.i1;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import java.util.ArrayList;
@@ -22,81 +22,71 @@ import java.util.Comparator;
 import java.util.Iterator;
 import org.xutils.common.util.LogUtil;
 
-public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.d> {
+public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.BaseTaskViewHolder> {
 
-    /* renamed from: c, reason: collision with root package name */
-    private ArrayList f7096c;
+    private ArrayList tasks;
 
-    /* renamed from: d, reason: collision with root package name */
-    private Boolean f7097d = Boolean.FALSE;
+    private Boolean dataValid = Boolean.FALSE;
 
-    /* renamed from: e, reason: collision with root package name */
-    private TaskListContract.View f7098e;
+    private TaskListContract.View taskListView;
 
-    /* renamed from: f, reason: collision with root package name */
-    private TaskListContract.Presenter f7099f;
+    private TaskListContract.Presenter presenter;
 
-    /* renamed from: g, reason: collision with root package name */
-    private b f7100g;
+    private TaskActionCallback taskCallback;
 
-    interface a {
+    interface TaskFilter {
         boolean test(Object obj);
     }
 
-    interface b {
+    interface TaskActionCallback {
     }
 
-    static class c extends d {
+    static class TaskViewHolder extends BaseTaskViewHolder {
 
-        /* renamed from: x, reason: collision with root package name */
-        Button f7101x;
+        Button redTeamButton;
 
-        /* renamed from: y, reason: collision with root package name */
-        Button f7102y;
+        Button blueTeamButton;
 
-        /* JADX INFO: Access modifiers changed from: private */
         public static /* synthetic */ void P(final TaskListContract.Presenter presenter, View view) {
-            Network.signUpActivity20180420(true).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.TaskList.g
-                @Override // io.reactivex.functions.Consumer
+            Network.signUpActivity20180420(true).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+                @Override
                 public final void accept(Object obj) {
-                    TaskCardAdapter.c.O(presenter, (Boolean) obj);
+                    TaskCardAdapter.TaskViewHolder.O(presenter, (Boolean) obj);
                 }
-            }, new i1());
+            }, new StackTracePrintingConsumer());
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
         public static /* synthetic */ void R(final TaskListContract.Presenter presenter, View view) {
-            Network.signUpActivity20180420(false).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.TaskList.f
-                @Override // io.reactivex.functions.Consumer
+            Network.signUpActivity20180420(false).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+                @Override
                 public final void accept(Object obj) {
-                    TaskCardAdapter.c.Q(presenter, (Boolean) obj);
+                    TaskCardAdapter.TaskViewHolder.Q(presenter, (Boolean) obj);
                 }
-            }, new i1());
+            }, new StackTracePrintingConsumer());
         }
 
-        @Override // cn.edu.pku.pkurunner.TaskList.TaskCardAdapter.d
+        @Override
         void H(Task task, final TaskListContract.Presenter presenter) {
-            this.f7101x.setOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.TaskList.d
-                @Override // android.view.View.OnClickListener
+            this.redTeamButton.setOnClickListener(new View.OnClickListener() {
+                @Override
                 public final void onClick(View view) {
-                    TaskCardAdapter.c.P(presenter, view);
+                    TaskCardAdapter.TaskViewHolder.P(presenter, view);
                 }
             });
-            this.f7102y.setOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.TaskList.e
-                @Override // android.view.View.OnClickListener
+            this.blueTeamButton.setOnClickListener(new View.OnClickListener() {
+                @Override
                 public final void onClick(View view) {
-                    TaskCardAdapter.c.R(presenter, view);
+                    TaskCardAdapter.TaskViewHolder.R(presenter, view);
                 }
             });
         }
 
-        c(View view) {
+        TaskViewHolder(View view) {
             super(view);
-            this.f7101x = (Button) view.findViewById(R.id.v_a_20180420_btn_red);
-            this.f7102y = (Button) view.findViewById(R.id.v_a_20180420_btn_blue);
+            this.redTeamButton = (Button) view.findViewById(R.id.v_a_20180420_btn_red);
+            this.blueTeamButton = (Button) view.findViewById(R.id.v_a_20180420_btn_blue);
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
         public static /* synthetic */ void O(TaskListContract.Presenter presenter, Boolean bool) {
             if (bool.booleanValue()) {
                 presenter.syncData();
@@ -106,7 +96,6 @@ public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.d> {
             }
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
         public static /* synthetic */ void Q(TaskListContract.Presenter presenter, Boolean bool) {
             if (bool.booleanValue()) {
                 presenter.syncData();
@@ -117,70 +106,64 @@ public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.d> {
         }
     }
 
-    static class d extends RecyclerView.ViewHolder {
+    static class BaseTaskViewHolder extends RecyclerView.ViewHolder {
 
-        /* renamed from: s, reason: collision with root package name */
-        TextView f7103s;
+        TextView taskNameText;
 
-        /* renamed from: t, reason: collision with root package name */
-        TextView f7104t;
+        TextView taskDescriptionText;
 
-        /* renamed from: u, reason: collision with root package name */
-        View.OnClickListener f7105u;
+        View.OnClickListener cardClickListener;
 
-        /* renamed from: v, reason: collision with root package name */
-        BadgeView f7106v;
+        BadgeView rewardBadgeView;
 
-        /* renamed from: w, reason: collision with root package name */
-        ConstraintLayout f7107w;
+        ConstraintLayout cardContainer;
 
         void H(Task task, TaskListContract.Presenter presenter) {
         }
 
         void J(View.OnClickListener onClickListener) {
-            this.f7105u = onClickListener;
+            this.cardClickListener = onClickListener;
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
         public /* synthetic */ void I(View view) {
-            this.f7105u.onClick(view);
+            this.cardClickListener.onClick(view);
         }
 
-        d(View view) {
+        BaseTaskViewHolder(View view) {
             super(view);
-            this.f7103s = (TextView) view.findViewById(R.id.v_task_card_txt_name);
-            this.f7104t = (TextView) view.findViewById(R.id.v_task_card_txt_description);
-            this.f7106v = (BadgeView) view.findViewById(R.id.v_task_card_img_reward);
-            this.f7107w = (ConstraintLayout) view.findViewById(R.id.v_task_card_constraintlayout);
-            view.setOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.TaskList.h
-                @Override // android.view.View.OnClickListener
+            this.taskNameText = (TextView) view.findViewById(R.id.v_task_card_txt_name);
+            this.taskDescriptionText = (TextView) view.findViewById(R.id.v_task_card_txt_description);
+            this.rewardBadgeView = (BadgeView) view.findViewById(R.id.v_task_card_img_reward);
+            this.cardContainer = (ConstraintLayout) view.findViewById(R.id.v_task_card_constraintlayout);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
                 public final void onClick(View view2) {
-                    TaskCardAdapter.d.this.I(view2);
+                    TaskCardAdapter.BaseTaskViewHolder.this.I(view2);
                 }
             });
         }
     }
 
-    private int i(int i2) {
-        return i2 != 20180420 ? R.layout.view_task_card : R.layout.view_task_card_20180420;
+    private int i(int index) {
+        return index != 20180420 ? R.layout.view_task_card : R.layout.view_task_card_20180420;
     }
 
     public void notifyDataInvalid() {
-        this.f7097d = Boolean.FALSE;
+        this.dataValid = Boolean.FALSE;
     }
 
-    public void setPresenter(TaskListContract.View view, TaskListContract.Presenter presenter, b bVar) {
-        this.f7098e = view;
-        this.f7099f = presenter;
-        this.f7100g = bVar;
+    public void setPresenter(TaskListContract.View view, TaskListContract.Presenter presenter, TaskActionCallback callback) {
+        this.taskListView = view;
+        this.presenter = presenter;
+        this.taskCallback = callback;
     }
 
-    private ArrayList d(ArrayList arrayList, a aVar) {
+    private ArrayList d(ArrayList arrayList, TaskFilter filter) {
         ArrayList arrayList2 = new ArrayList();
         Iterator it = arrayList.iterator();
         while (it.hasNext()) {
             Object next = it.next();
-            if (aVar.test(next)) {
+            if (filter.test(next)) {
                 arrayList2.add(next);
             }
         }
@@ -188,61 +171,59 @@ public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.d> {
     }
 
     private ArrayList e() {
-        if (!this.f7097d.booleanValue()) {
-            ArrayList d2 = d(Data.getTasks(), new a() { // from class: cn.edu.pku.pkurunner.TaskList.b
-                @Override // cn.edu.pku.pkurunner.TaskList.TaskCardAdapter.a
+        if (!this.dataValid.booleanValue()) {
+            ArrayList value = d(Data.getTasks(), new TaskFilter() {
+                @Override
                 public final boolean test(Object obj) {
-                    boolean f2;
-                    f2 = TaskCardAdapter.f((Task) obj);
-                    return f2;
+                    boolean value2;
+                    value2 = TaskCardAdapter.f((Task) obj);
+                    return value2;
                 }
             });
-            this.f7096c = d2;
-            Collections.sort(d2, new Comparator() { // from class: cn.edu.pku.pkurunner.TaskList.c
-                @Override // java.util.Comparator
+            this.tasks = value;
+            Collections.sort(value, new Comparator() {
+                @Override
                 public final int compare(Object obj, Object obj2) {
                     int g2;
                     g2 = TaskCardAdapter.g((Task) obj, (Task) obj2);
                     return g2;
                 }
             });
-            this.f7097d = Boolean.TRUE;
+            this.dataValid = Boolean.TRUE;
         }
-        return this.f7096c;
+        return this.tasks;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void h(Task task, View view) {
-        this.f7098e.showTaskDetailDialog("Detail", String.format("Id: %d\n%s\n%s\n%s", Integer.valueOf(task.getId()), task.getName(), task.getDescription(), task.getRequirement()));
+        this.taskListView.showTaskDetailDialog("Detail", String.format("Id: %d\n%s\n%s\n%s", Integer.valueOf(task.getId()), task.getName(), task.getDescription(), task.getRequirement()));
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
-    public void onBindViewHolder(d dVar, int i2) {
-        final Task task = (Task) e().get(i2);
-        dVar.f7103s.setText(task.getId() + task.getName());
-        dVar.f7104t.setText(task.getDescription());
-        dVar.J(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.TaskList.a
-            @Override // android.view.View.OnClickListener
+    @Override
+    public void onBindViewHolder(BaseTaskViewHolder holder, int index) {
+        final Task task = (Task) e().get(index);
+        holder.taskNameText.setText(task.getId() + task.getName());
+        holder.taskDescriptionText.setText(task.getDescription());
+        holder.J(new View.OnClickListener() {
+            @Override
             public final void onClick(View view) {
                 TaskCardAdapter.this.h(task, view);
             }
         });
-        dVar.f7106v.setBadgeSeries("daily");
+        holder.rewardBadgeView.setBadgeSeries("daily");
         int status = task.getStatus();
         if (status == 1) {
-            dVar.f7106v.setStatus(false);
+            holder.rewardBadgeView.setStatus(false);
         } else if (status == 2) {
-            dVar.f7106v.setStatus(true);
+            holder.rewardBadgeView.setStatus(true);
         }
-        dVar.H(task, this.f7099f);
+        holder.H(task, this.presenter);
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
-    public d onCreateViewHolder(ViewGroup viewGroup, int i2) {
-        return j(LayoutInflater.from(viewGroup.getContext()).inflate(i(i2), viewGroup, false), i2);
+    @Override
+    public BaseTaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int index) {
+        return j(LayoutInflater.from(viewGroup.getContext()).inflate(i(index), viewGroup, false), index);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ boolean f(Task task) {
         if (task.getStatus() != 0) {
             return true;
@@ -250,7 +231,6 @@ public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.d> {
         return false;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ int g(Task task, Task task2) {
         boolean z2;
         boolean z3 = false;
@@ -271,20 +251,20 @@ public class TaskCardAdapter extends RecyclerView.Adapter<TaskCardAdapter.d> {
         return -1;
     }
 
-    private d j(View view, int i2) {
-        if (i2 != 20180420) {
-            return new d(view);
+    private BaseTaskViewHolder j(View view, int index) {
+        if (index != 20180420) {
+            return new BaseTaskViewHolder(view);
         }
-        return new c(view);
+        return new TaskViewHolder(view);
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
+    @Override
     public int getItemCount() {
         return e().size();
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
-    public int getItemViewType(int i2) {
-        return ((Task) e().get(i2)).getActivityId();
+    @Override
+    public int getItemViewType(int index) {
+        return ((Task) e().get(index)).getActivityId();
     }
 }

@@ -43,58 +43,45 @@ import org.xutils.ex.DbException;
 
 public class Data {
 
-    /* renamed from: a, reason: collision with root package name */
-    private static User f6851a;
+    private static User currentUser;
 
-    /* renamed from: b, reason: collision with root package name */
-    private static UserStatus f6852b;
+    private static UserStatus userStatus;
 
-    /* renamed from: c, reason: collision with root package name */
-    private static ArrayList f6853c = new ArrayList();
+    private static ArrayList partialRecords = new ArrayList();
 
-    /* renamed from: d, reason: collision with root package name */
-    private static boolean f6854d = false;
+    private static boolean initialized = false;
 
-    /* renamed from: e, reason: collision with root package name */
-    private static final Function f6855e = new Function() { // from class: cn.edu.pku.pkurunner.z
-        @Override // io.reactivex.functions.Function
+    private static final Function FILES_DIR_MAPPER = new Function() {
+        @Override
         public final Object apply(Object obj) {
             return ((Context) obj).getFilesDir();
         }
     };
 
-    /* renamed from: f, reason: collision with root package name */
-    private static DbManager.DaoConfig f6856f;
+    private static DbManager.DaoConfig daoConfig;
 
-    /* renamed from: g, reason: collision with root package name */
-    private static DbManager f6857g;
+    private static DbManager dbManager;
 
-    /* renamed from: h, reason: collision with root package name */
-    private static SharedPreferences f6858h;
+    private static SharedPreferences userPreferences;
 
-    /* renamed from: i, reason: collision with root package name */
-    private static File f6859i;
+    private static File filesDir;
 
-    /* renamed from: j, reason: collision with root package name */
-    private static SharedPreferences f6860j;
+    private static SharedPreferences photoPreferences;
 
-    /* renamed from: k, reason: collision with root package name */
-    private static SharedPreferences f6861k;
+    private static SharedPreferences speedUnitPreferences;
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void M(ObservableEmitter observableEmitter, Boolean bool) {
-        f6854d = true;
+        initialized = true;
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ ObservableSource a0(Record record, int i2, Record record2) {
+    public static /* synthetic */ ObservableSource a0(Record record, int index, Record record2) {
         record2.setDetailed(true);
         record2.setTrack(record.getTrack());
-        record2.setId(i2);
-        f6851a.setRecordById(i2, record2);
+        record2.setId(index);
+        currentUser.setRecordById(index, record2);
         try {
-            f6857g.update(record2, new String[0]);
+            dbManager.update(record2, new String[0]);
             return Observable.just(record2);
         } catch (DbException e2) {
             e2.printStackTrace();
@@ -103,47 +90,46 @@ public class Data {
     }
 
     public static ArrayList<Task> getTasks() {
-        return f6853c;
+        return partialRecords;
     }
 
     public static User getUser() {
-        return f6851a;
+        return currentUser;
     }
 
     public static UserStatus getUserStatus() {
-        return f6852b;
+        return userStatus;
     }
 
     public static boolean isValid() {
-        return f6854d;
+        return initialized;
     }
 
     public static void setUser(User user) {
-        f6851a = user;
+        currentUser = user;
     }
 
     public static void setUserStatus(UserStatus userStatus) {
-        f6852b = userStatus;
+        Data.userStatus = userStatus;
     }
 
     public static void setValid(boolean z2) {
-        f6854d = z2;
+        initialized = z2;
     }
 
     private static void A() {
         try {
-            f6857g.close();
+            dbManager.close();
         } catch (java.io.IOException e) {
             e.printStackTrace();
         }
-        f6857g = null;
+        dbManager = null;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void B(String str, ObservableEmitter observableEmitter) {
-        f6851a.setToken(str);
+        currentUser.setToken(str);
         try {
-            f6857g.update(f6851a, new String[0]);
+            dbManager.update(currentUser, new String[0]);
         } catch (DbException e2) {
             e2.printStackTrace();
             observableEmitter.onError(new DataException(2, e2.getMessage()));
@@ -151,55 +137,52 @@ public class Data {
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void C(int i2, ObservableEmitter observableEmitter) {
-        GymRecord gymRecordById = f6851a.getGymRecordById(i2);
+    public static /* synthetic */ void C(int index, ObservableEmitter observableEmitter) {
+        GymRecord gymRecordById = currentUser.getGymRecordById(index);
         if (gymRecordById == null) {
-            observableEmitter.onError(new DataException(32, "Cannot find GymRecord with id " + i2));
+            observableEmitter.onError(new DataException(32, "Cannot find GymRecord with id " + index));
             return;
         }
         if (gymRecordById.isUploaded().booleanValue()) {
             observableEmitter.onNext(Boolean.FALSE);
         }
         try {
-            f6857g.delete(gymRecordById);
+            dbManager.delete(gymRecordById);
         } catch (DbException e2) {
             e2.printStackTrace();
             observableEmitter.onError(new DataException(8, "Delete gymRecord failed", e2));
         }
-        if (f6851a.deleteGymRecordById(i2).booleanValue()) {
+        if (currentUser.deleteGymRecordById(index).booleanValue()) {
             observableEmitter.onNext(Boolean.TRUE);
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void D(int i2, ObservableEmitter observableEmitter) {
-        Record recordById = f6851a.getRecordById(i2);
+    public static /* synthetic */ void D(int index, ObservableEmitter observableEmitter) {
+        Record recordById = currentUser.getRecordById(index);
         if (recordById == null) {
-            observableEmitter.onError(new DataException(32, "Cannot find Record with id " + i2));
+            observableEmitter.onError(new DataException(32, "Cannot find Record with id " + index));
             return;
         }
         if (recordById.isUploaded()) {
             observableEmitter.onError(new DataException(64, "记录已上传！"));
         }
         try {
-            f6857g.delete(recordById);
-            f6857g.delete(Point.class, WhereBuilder.b("recordDbId", "=", Integer.valueOf(i2)));
+            dbManager.delete(recordById);
+            dbManager.delete(Point.class, WhereBuilder.b("recordDbId", "=", Integer.valueOf(index)));
         } catch (DbException e2) {
             e2.printStackTrace();
             observableEmitter.onError(new DataException(8, "Delete record failed", e2));
         }
-        if (f6851a.deleteRecord(recordById).booleanValue()) {
+        if (currentUser.deleteRecord(recordById).booleanValue()) {
             observableEmitter.onNext(Boolean.TRUE);
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource E(ArrayList arrayList) {
         try {
-            f6857g.delete(GymRecord.class, WhereBuilder.b("userId", "=", f6851a.getId()));
-            f6857g.saveBindingId(arrayList);
-            f6851a.setGymRecords(arrayList);
+            dbManager.delete(GymRecord.class, WhereBuilder.b("userId", "=", currentUser.getId()));
+            dbManager.saveBindingId(arrayList);
+            currentUser.setGymRecords(arrayList);
             return Observable.just(arrayList);
         } catch (DbException e2) {
             e2.printStackTrace();
@@ -207,9 +190,8 @@ public class Data {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource G(ArrayList arrayList) {
-        ArrayList<Record> records = f6851a.getRecords();
+        ArrayList<Record> records = currentUser.getRecords();
         HashSet hashSet = new HashSet();
         Iterator<Record> it = records.iterator();
         while (it.hasNext()) {
@@ -220,16 +202,16 @@ public class Data {
             while (it2.hasNext()) {
                 Record record = (Record) it2.next();
                 if (!hashSet.contains(Integer.valueOf(record.getRecordId()))) {
-                    f6857g.saveBindingId(record);
+                    dbManager.saveBindingId(record);
                     if (record.isDetailed()) {
                         Iterator<Point> it3 = record.getTrack().iterator();
                         while (it3.hasNext()) {
                             Point next = it3.next();
                             next.setRecordDbId(record.getId());
-                            f6857g.saveBindingId(next);
+                            dbManager.saveBindingId(next);
                         }
                     }
-                    f6851a.addRecord(record);
+                    currentUser.addRecord(record);
                 }
             }
             return Observable.just(arrayList);
@@ -240,9 +222,8 @@ public class Data {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void K(DbManager dbManager, int i2, int i3) {
-        switch (i2) {
+    public static /* synthetic */ void K(DbManager dbManager, int index, int index2) {
+        switch (index) {
             case 1:
             case 2:
             case 3:
@@ -279,40 +260,38 @@ public class Data {
                     break;
                 }
         }
-        LogUtil.e("Updated from " + i2 + " to " + i3);
+        LogUtil.e("Updated from " + index + " to " + index2);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void N(final ObservableEmitter observableEmitter) {
-        if (f6851a == null) {
+        if (currentUser == null) {
             observableEmitter.onNext(Boolean.FALSE);
             return;
         }
         Observable b02 = b0();
-        Consumer consumer = new Consumer() { // from class: cn.edu.pku.pkurunner.k
-            @Override // io.reactivex.functions.Consumer
+        Consumer consumer = new Consumer() {
+            @Override
             public final void accept(Object obj) {
                 Data.M(observableEmitter, (Boolean) obj);
             }
         };
         Objects.requireNonNull(observableEmitter);
-        b02.subscribe(consumer, new m(observableEmitter));
+        b02.subscribe(consumer, new EmitterErrorConsumer(observableEmitter));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void R(final ObservableEmitter observableEmitter) {
         try {
-            List findAll = f6857g.selector(Record.class).where("userId", "=", f6851a.getId()).findAll();
+            List findAll = dbManager.selector(Record.class).where("userId", "=", currentUser.getId()).findAll();
             if (findAll != null) {
                 ArrayList<Record> arrayList = new ArrayList<>(findAll);
-                f6851a.setRecords(arrayList);
+                currentUser.setRecords(arrayList);
                 Iterator<Record> it = arrayList.iterator();
                 while (it.hasNext()) {
                     Record next = it.next();
-                    List findAll2 = f6857g.selector(Point.class).where("recordDbId", "=", Integer.valueOf(next.getId())).findAll();
+                    List findAll2 = dbManager.selector(Point.class).where("recordDbId", "=", Integer.valueOf(next.getId())).findAll();
                     if (findAll2 != null) {
-                        Collections.sort(findAll2, new Comparator() { // from class: cn.edu.pku.pkurunner.q
-                            @Override // java.util.Comparator
+                        Collections.sort(findAll2, new Comparator() {
+                            @Override
                             public final int compare(Object obj, Object obj2) {
                                 int S;
                                 S = Data.S((Point) obj, (Point) obj2);
@@ -323,34 +302,34 @@ public class Data {
                     }
                 }
             } else {
-                f6851a.setRecords(new ArrayList<>());
+                currentUser.setRecords(new ArrayList<>());
             }
-            List findAll3 = f6857g.selector(GymRecord.class).where("userId", "=", f6851a.getId()).findAll();
+            List findAll3 = dbManager.selector(GymRecord.class).where("userId", "=", currentUser.getId()).findAll();
             if (findAll3 != null) {
-                f6851a.setGymRecords(new ArrayList<>(findAll3));
+                currentUser.setGymRecords(new ArrayList<>(findAll3));
             } else {
-                f6851a.setGymRecords(new ArrayList<>());
+                currentUser.setGymRecords(new ArrayList<>());
             }
-            List findAll4 = f6857g.selector(PartialRecord.class).findAll();
+            List findAll4 = dbManager.selector(PartialRecord.class).findAll();
             if (findAll4 == null || findAll4.size() == 0) {
                 observableEmitter.onNext(Boolean.TRUE);
                 return;
             }
-            Collections.sort(findAll4, new Comparator() { // from class: cn.edu.pku.pkurunner.s
-                @Override // java.util.Comparator
+            Collections.sort(findAll4, new Comparator() {
+                @Override
                 public final int compare(Object obj, Object obj2) {
                     int O;
                     O = Data.O((PartialRecord) obj, (PartialRecord) obj2);
                     return O;
                 }
             });
-            int saveRecordToDatabase = saveRecordToDatabase(((PartialRecord) findAll4.get(findAll4.size() - 1)).toRecord(f6851a.getId()));
+            int saveRecordToDatabase = saveRecordToDatabase(((PartialRecord) findAll4.get(findAll4.size() - 1)).toRecord(currentUser.getId()));
             ArrayList arrayList2 = new ArrayList();
             Iterator it2 = findAll4.iterator();
             while (it2.hasNext()) {
-                List findAll5 = f6857g.selector(PartialPoint.class).where("recordDbId", "=", Integer.valueOf(((PartialRecord) it2.next()).getId())).findAll();
-                Collections.sort(findAll5, new Comparator() { // from class: cn.edu.pku.pkurunner.t
-                    @Override // java.util.Comparator
+                List findAll5 = dbManager.selector(PartialPoint.class).where("recordDbId", "=", Integer.valueOf(((PartialRecord) it2.next()).getId())).findAll();
+                Collections.sort(findAll5, new Comparator() {
+                    @Override
                     public final int compare(Object obj, Object obj2) {
                         int P;
                         P = Data.P((PartialPoint) obj, (PartialPoint) obj2);
@@ -363,43 +342,41 @@ public class Data {
                 }
             }
             Observable<Boolean> provideTrackForRecord = provideTrackForRecord(saveRecordToDatabase, arrayList2);
-            Consumer<? super Boolean> consumer = new Consumer() { // from class: cn.edu.pku.pkurunner.u
-                @Override // io.reactivex.functions.Consumer
+            Consumer<? super Boolean> consumer = new Consumer() {
+                @Override
                 public final void accept(Object obj) {
                     Data.Q(observableEmitter, (Boolean) obj);
                 }
             };
             Objects.requireNonNull(observableEmitter);
-            provideTrackForRecord.subscribe(consumer, new m(observableEmitter));
+            provideTrackForRecord.subscribe(consumer, new EmitterErrorConsumer(observableEmitter));
         } catch (DbException e2) {
             e2.printStackTrace();
             observableEmitter.onError(new DataException(1, e2.getMessage()));
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource T(User user) {
-        user.setRecords(f6851a.getRecords());
-        user.setGymRecords(f6851a.getGymRecords());
-        f6851a = user;
+        user.setRecords(currentUser.getRecords());
+        user.setGymRecords(currentUser.getGymRecords());
+        currentUser = user;
         saveCurrentUserIdToFile();
         try {
-            f6857g.saveOrUpdate(f6851a);
+            dbManager.saveOrUpdate(currentUser);
             return Observable.just(Boolean.TRUE);
         } catch (DbException e2) {
             return Observable.error(e2);
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void V(int i2, ArrayList arrayList, ObservableEmitter observableEmitter) {
-        if (!f6851a.provideTrackForRecord(i2, arrayList).booleanValue()) {
-            observableEmitter.onError(new DataException(32, "Cannot find Record with id " + i2));
+    public static /* synthetic */ void V(int index, ArrayList arrayList, ObservableEmitter observableEmitter) {
+        if (!currentUser.provideTrackForRecord(index, arrayList).booleanValue()) {
+            observableEmitter.onError(new DataException(32, "Cannot find Record with id " + index));
         }
         try {
-            Record recordById = f6851a.getRecordById(i2);
-            f6857g.update(recordById, new String[0]);
-            f6857g.saveBindingId(recordById.getTrack());
+            Record recordById = currentUser.getRecordById(index);
+            dbManager.update(recordById, new String[0]);
+            dbManager.saveBindingId(recordById.getTrack());
         } catch (DbException e2) {
             e2.printStackTrace();
             observableEmitter.onError(new DataException(6, "Update record/Save track failed!" + e2.toString()));
@@ -407,16 +384,15 @@ public class Data {
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource W(UserStatus userStatus) {
-        f6852b = userStatus;
+        Data.userStatus = userStatus;
         return Observable.just(userStatus);
     }
 
     public static int addGymRecord(GymRecord gymRecord) throws DataException {
         try {
-            f6857g.saveBindingId(gymRecord);
-            return f6851a.addGymRecord(gymRecord);
+            dbManager.saveBindingId(gymRecord);
+            return currentUser.addGymRecord(gymRecord);
         } catch (DbException e2) {
             e2.printStackTrace();
             throw new DataException(2, "Add record failed!", e2);
@@ -424,8 +400,8 @@ public class Data {
     }
 
     private static Observable b0() {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.p
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 Data.R(observableEmitter);
             }
@@ -433,8 +409,8 @@ public class Data {
     }
 
     public static Observable<Boolean> changeUserToken(final String str) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.g
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 Data.B(str, observableEmitter);
             }
@@ -443,8 +419,8 @@ public class Data {
 
     public static void clearPartialData() throws DataException {
         try {
-            f6857g.delete(PartialRecord.class);
-            f6857g.delete(PartialPoint.class);
+            dbManager.delete(PartialRecord.class);
+            dbManager.delete(PartialPoint.class);
         } catch (DbException e2) {
             e2.printStackTrace();
             throw new DataException(8, e2.getMessage());
@@ -453,46 +429,46 @@ public class Data {
 
     private static void d0() {
         try {
-            f6857g = org.xutils.x.getDb(f6856f);
+            dbManager = org.xutils.x.getDb(daoConfig);
         } catch (DbException e) {
             throw new DataException(1, e.getMessage(), e);
         }
     }
 
-    public static Observable<Boolean> deleteGymRecordById(final int i2) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.h
-            @Override // io.reactivex.ObservableOnSubscribe
+    public static Observable<Boolean> deleteGymRecordById(final int index) {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                Data.C(i2, observableEmitter);
+                Data.C(index, observableEmitter);
             }
         }).subscribeOn(Schedulers.io());
     }
 
-    public static Observable<Boolean> deleteRecordById(final int i2) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.v
-            @Override // io.reactivex.ObservableOnSubscribe
+    public static Observable<Boolean> deleteRecordById(final int index) {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                Data.D(i2, observableEmitter);
+                Data.D(index, observableEmitter);
             }
         }).subscribeOn(Schedulers.io());
     }
 
     private static void e0(String str) {
-        SharedPreferences.Editor edit = f6860j.edit();
+        SharedPreferences.Editor edit = photoPreferences.edit();
         StringBuilder sb = new StringBuilder();
         sb.append("lastUsed");
-        User user = f6851a;
+        User user = currentUser;
         sb.append(user != null ? user.getId() : "");
         edit.putString(sb.toString(), str).commit();
     }
 
     public static String getCurrentUserIdFromFile() {
-        return f6858h.getString("id", null);
+        return userPreferences.getString("id", null);
     }
 
     public static List<User> getDatabaseUsers() throws DataException {
         try {
-            return f6857g.findAll(User.class);
+            return dbManager.findAll(User.class);
         } catch (DbException e2) {
             e2.printStackTrace();
             throw new DataException(1, e2.getMessage());
@@ -500,28 +476,28 @@ public class Data {
     }
 
     public static ArrayList<GymRecord> getGymRecords() {
-        return f6851a.getGymRecords();
+        return currentUser.getGymRecords();
     }
 
     public static String getLastUsedPhoto() {
-        if (f6851a != null && f6860j.getString("lastUsed", null) != null) {
-            f6860j.edit().putString("lastUsed" + f6851a.getId(), f6860j.getString("lastUsed", null)).remove("lastUsed").commit();
+        if (currentUser != null && photoPreferences.getString("lastUsed", null) != null) {
+            photoPreferences.edit().putString("lastUsed" + currentUser.getId(), photoPreferences.getString("lastUsed", null)).remove("lastUsed").commit();
         }
-        SharedPreferences sharedPreferences = f6860j;
+        SharedPreferences sharedPreferences = photoPreferences;
         StringBuilder sb = new StringBuilder();
         sb.append("lastUsed");
-        User user = f6851a;
+        User user = currentUser;
         sb.append(user != null ? user.getId() : "");
         return sharedPreferences.getString(sb.toString(), "");
     }
 
     public static ArrayList<Record> getRecords() {
-        return f6851a.getRecords();
+        return currentUser.getRecords();
     }
 
     public static Observable<ArrayList<Record>> getRecordsFromServer() {
-        return Network.getRecords(f6851a.getId()).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.w
-            @Override // io.reactivex.functions.Function
+        return Network.getRecords(currentUser.getId()).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource G;
                 G = Data.G((ArrayList) obj);
@@ -530,34 +506,34 @@ public class Data {
         });
     }
 
-    public static Record getSingleRecord(int i2) {
-        return f6851a.getRecordById(i2);
+    public static Record getSingleRecord(int index) {
+        return currentUser.getRecordById(index);
     }
 
-    public static Observable<Record> getSingleRecordFromServer(final int i2) {
-        Record recordById = f6851a.getRecordById(i2);
-        return recordById.isUploaded() ? Network.getSingleRecord(f6851a.getId(), recordById.getRecordId()).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.x
-            @Override // io.reactivex.functions.Function
+    public static Observable<Record> getSingleRecordFromServer(final int index) {
+        Record recordById = currentUser.getRecordById(index);
+        return recordById.isUploaded() ? Network.getSingleRecord(currentUser.getId(), recordById.getRecordId()).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource H;
-                H = Data.H(i2, (Record) obj);
+                H = Data.H(index, (Record) obj);
                 return H;
             }
         }) : Observable.error(new DataException(16));
     }
 
     public static SpeedHelper.SPEED_UNIT getSpeedUnitPreference() {
-        if (!f6861k.contains("unit")) {
+        if (!speedUnitPreferences.contains("unit")) {
             return SpeedHelper.SPEED_UNIT.MinutePerKilometer;
         }
-        int i2 = f6861k.getInt("unit", 0);
+        int index = speedUnitPreferences.getInt("unit", 0);
         SpeedHelper.SPEED_UNIT[] values = SpeedHelper.SPEED_UNIT.values();
-        return (i2 < 0 || i2 >= values.length) ? SpeedHelper.SPEED_UNIT.KilometerPerHour : values[i2];
+        return (index < 0 || index >= values.length) ? SpeedHelper.SPEED_UNIT.KilometerPerHour : values[index];
     }
 
     public static Observable<Boolean> init(final Context context) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.l
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 Data.L(context, observableEmitter);
             }
@@ -565,8 +541,8 @@ public class Data {
     }
 
     public static Observable<Boolean> loadByUser() {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.a0
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 Data.N(observableEmitter);
             }
@@ -575,7 +551,7 @@ public class Data {
 
     public static void loadSpecificUser(String str) throws DataException {
         try {
-            f6851a = (User) f6857g.findById(User.class, str);
+            currentUser = (User) dbManager.findById(User.class, str);
             saveCurrentUserIdToFile();
         } catch (DbException e2) {
             e2.printStackTrace();
@@ -584,8 +560,8 @@ public class Data {
     }
 
     public static Observable<Boolean> login() {
-        return Network.loginNew(f6851a.getToken()).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.i
-            @Override // io.reactivex.functions.Function
+        return Network.loginNew(currentUser.getToken()).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource T;
                 T = Data.T((User) obj);
@@ -594,35 +570,35 @@ public class Data {
         });
     }
 
-    public static Observable<Boolean> provideTrackForPartialRecord(final int i2, final List<Point> list) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.f
-            @Override // io.reactivex.ObservableOnSubscribe
+    public static Observable<Boolean> provideTrackForPartialRecord(final int index, final List<Point> list) {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                Data.U(i2, list, observableEmitter);
+                Data.U(index, list, observableEmitter);
             }
         }).subscribeOn(Schedulers.io());
     }
 
-    public static Observable<Boolean> provideTrackForRecord(final int i2, final ArrayList<Point> arrayList) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.a
-            @Override // io.reactivex.ObservableOnSubscribe
+    public static Observable<Boolean> provideTrackForRecord(final int index, final ArrayList<Point> arrayList) {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                Data.V(i2, arrayList, observableEmitter);
+                Data.V(index, arrayList, observableEmitter);
             }
         }).subscribeOn(Schedulers.io());
     }
 
     public static void saveCurrentUserIdToFile() {
-        if (f6851a == null) {
-            f6858h.edit().putString("id", null).apply();
+        if (currentUser == null) {
+            userPreferences.edit().putString("id", null).apply();
         } else {
-            f6858h.edit().putString("id", f6851a.getId()).apply();
+            userPreferences.edit().putString("id", currentUser.getId()).apply();
         }
     }
 
     public static int savePartialRecordToDatabase(PartialRecord partialRecord) throws DataException {
         try {
-            f6857g.saveBindingId(partialRecord);
+            dbManager.saveBindingId(partialRecord);
             return partialRecord.getId();
         } catch (DbException e2) {
             e2.printStackTrace();
@@ -632,8 +608,8 @@ public class Data {
 
     public static int saveRecordToDatabase(Record record) throws DataException {
         try {
-            f6857g.saveBindingId(record);
-            return f6851a.addRecord(record);
+            dbManager.saveBindingId(record);
+            return currentUser.addRecord(record);
         } catch (DbException e2) {
             e2.printStackTrace();
             throw new DataException(2, "Add record failed!", e2);
@@ -641,8 +617,8 @@ public class Data {
     }
 
     public static Observable<Boolean> saveUserToDatabase() {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.y
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 Data.X(observableEmitter);
             }
@@ -650,8 +626,8 @@ public class Data {
     }
 
     public static Observable<Boolean> setPhotoForRecord(final Record record, final String str) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.c
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 Data.Y(record, str, observableEmitter);
             }
@@ -659,59 +635,57 @@ public class Data {
     }
 
     public static void setSpeedUnitPreference(SpeedHelper.SPEED_UNIT speed_unit) {
-        f6861k.edit().putInt("unit", speed_unit.ordinal()).commit();
+        speedUnitPreferences.edit().putInt("unit", speed_unit.ordinal()).commit();
     }
 
-    public static Observable<Integer> uploadGymRecordGetOut(final int i2, String str) {
-        return Network.uploadGymRecordGetOut(f6851a.getGymRecordById(i2).getRecordId(), str).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.c0
-            @Override // io.reactivex.functions.Function
+    public static Observable<Integer> uploadGymRecordGetOut(final int index, String str) {
+        return Network.uploadGymRecordGetOut(currentUser.getGymRecordById(index).getRecordId(), str).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource Z;
-                Z = Data.Z(i2, (GymRecord) obj);
+                Z = Data.Z(index, (GymRecord) obj);
                 return Z;
             }
         });
     }
 
-    public static Observable<Record> uploadRecordToServer(final int i2) {
-        final Record recordById = f6851a.getRecordById(i2);
+    public static Observable<Record> uploadRecordToServer(final int index) {
+        final Record recordById = currentUser.getRecordById(index);
         String photoName = recordById.getPhotoName();
-        return Network.uploadRecord(recordById, (photoName == null || "".equals(photoName)) ? null : new File(PhotoFile.getCompressedPhotoDir(f6859i), photoName)).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.e
-            @Override // io.reactivex.functions.Function
+        return Network.uploadRecord(recordById, (photoName == null || "".equals(photoName)) ? null : new File(PhotoFile.getCompressedPhotoDir(filesDir), photoName)).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource a02;
-                a02 = Data.a0(recordById, i2, (Record) obj);
+                a02 = Data.a0(recordById, index, (Record) obj);
                 return a02;
             }
         });
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource F(Record record, String str) {
         record.setPlaceHint(str);
         try {
-            f6857g.update(record, new String[0]);
+            dbManager.update(record, new String[0]);
             return Observable.just(str);
         } catch (DbException e2) {
             return Observable.error(e2);
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ ObservableSource H(int i2, Record record) {
-        record.setId(i2);
-        f6851a.setRecordById(i2, record);
+    public static /* synthetic */ ObservableSource H(int index, Record record) {
+        record.setId(index);
+        currentUser.setRecordById(index, record);
         if (record.isDetailed()) {
             Iterator<Point> it = record.getTrack().iterator();
             while (it.hasNext()) {
-                it.next().setRecordDbId(i2);
+                it.next().setRecordDbId(index);
             }
         }
         try {
-            f6857g.update(record, new String[0]);
-            f6857g.delete(Point.class, WhereBuilder.b("recordDbId", "=", Integer.valueOf(i2)));
+            dbManager.update(record, new String[0]);
+            dbManager.delete(Point.class, WhereBuilder.b("recordDbId", "=", Integer.valueOf(index)));
             if (record.getTrack() != null) {
-                f6857g.saveBindingId(record.getTrack());
+                dbManager.saveBindingId(record.getTrack());
             }
             return Observable.just(record);
         } catch (DbException e2) {
@@ -719,28 +693,26 @@ public class Data {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void J(DbManager dbManager) {
         dbManager.getDatabase().enableWriteAheadLogging();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void L(Context context, ObservableEmitter observableEmitter) {
         Context applicationContext = context.getApplicationContext();
-        f6860j = applicationContext.getSharedPreferences("photo", 0);
-        f6858h = applicationContext.getSharedPreferences("user", 0);
-        f6861k = applicationContext.getSharedPreferences("speed-unit", 0);
-        f6859i = context.getExternalFilesDir(PhotoFile.PicutreType);
+        photoPreferences = applicationContext.getSharedPreferences("photo", 0);
+        userPreferences = applicationContext.getSharedPreferences("user", 0);
+        speedUnitPreferences = applicationContext.getSharedPreferences("speed-unit", 0);
+        filesDir = context.getExternalFilesDir(PhotoFile.PicutreType);
         try {
-            f6856f = new DbManager.DaoConfig().setDbName("data.db").setDbDir((File) f6855e.apply(context)).setDbVersion(8).setDbOpenListener(new DbManager.DbOpenListener() { // from class: cn.edu.pku.pkurunner.n
-            @Override // org.xutils.DbManager.DbOpenListener
+            daoConfig = new DbManager.DaoConfig().setDbName("data.db").setDbDir((File) FILES_DIR_MAPPER.apply(context)).setDbVersion(8).setDbOpenListener(new DbManager.DbOpenListener() {
+            @Override
             public final void onDbOpened(DbManager dbManager) {
                 Data.J(dbManager);
             }
-            }).setDbUpgradeListener(new DbManager.DbUpgradeListener() { // from class: cn.edu.pku.pkurunner.o
-            @Override // org.xutils.DbManager.DbUpgradeListener
-            public final void onUpgrade(DbManager dbManager, int i2, int i3) {
-                Data.K(dbManager, i2, i3);
+            }).setDbUpgradeListener(new DbManager.DbUpgradeListener() {
+            @Override
+            public final void onUpgrade(DbManager dbManager, int index, int index2) {
+                Data.K(dbManager, index, index2);
             }
             });
         } catch (Exception e) {
@@ -757,31 +729,26 @@ public class Data {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ int O(PartialRecord partialRecord, PartialRecord partialRecord2) {
         return partialRecord.getDate().compareTo(partialRecord2.getDate());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ int P(PartialPoint partialPoint, PartialPoint partialPoint2) {
         return partialPoint.getSequence() - partialPoint2.getSequence();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void Q(ObservableEmitter observableEmitter, Boolean bool) {
         clearPartialData();
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ int S(Point point, Point point2) {
         return point.getSequence() - point2.getSequence();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void U(int i2, List list, ObservableEmitter observableEmitter) {
+    public static /* synthetic */ void U(int index, List list, ObservableEmitter observableEmitter) {
         try {
-            f6857g.saveBindingId(PartialPoint.assignInfoToTrack(i2, list));
+            dbManager.saveBindingId(PartialPoint.assignInfoToTrack(index, list));
         } catch (DbException e2) {
             e2.printStackTrace();
             observableEmitter.onError(new DataException(2, "Save partialTrack failed!" + e2.toString()));
@@ -789,35 +756,32 @@ public class Data {
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void X(ObservableEmitter observableEmitter) {
         saveCurrentUserIdToFile();
         try {
-            f6857g.saveOrUpdate(f6851a);
+            dbManager.saveOrUpdate(currentUser);
         } catch (DbException e2) {
             observableEmitter.onError(e2);
         }
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void Y(Record record, String str, ObservableEmitter observableEmitter) {
         record.setPhotoName(str);
         e0(str);
         try {
-            f6857g.update(record, new String[0]);
+            dbManager.update(record, new String[0]);
         } catch (DbException e2) {
             observableEmitter.onError(e2);
         }
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ ObservableSource Z(int i2, GymRecord gymRecord) {
-        gymRecord.setId(i2);
-        f6851a.setGymRecordById(i2, gymRecord);
+    public static /* synthetic */ ObservableSource Z(int index, GymRecord gymRecord) {
+        gymRecord.setId(index);
+        currentUser.setGymRecordById(index, gymRecord);
         try {
-            f6857g.update(gymRecord, new String[0]);
+            dbManager.update(gymRecord, new String[0]);
             return Observable.just(Integer.valueOf(gymRecord.getId()));
         } catch (DbException e2) {
             e2.printStackTrace();
@@ -829,10 +793,10 @@ public class Data {
         try {
             String currentUserIdFromFile = getCurrentUserIdFromFile();
             if (currentUserIdFromFile != null && !"".equals(currentUserIdFromFile)) {
-                f6851a = (User) f6857g.findById(User.class, currentUserIdFromFile);
+                currentUser = (User) dbManager.findById(User.class, currentUserIdFromFile);
                 return;
             }
-            f6851a = null;
+            currentUser = null;
         } catch (DbException e2) {
             e2.printStackTrace();
             throw new DataException(1, e2.getMessage());
@@ -840,8 +804,8 @@ public class Data {
     }
 
     public static Observable<ArrayList<GymRecord>> getGymRecordsFromServer() {
-        return Network.getGymRecords().observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.d
-            @Override // io.reactivex.functions.Function
+        return Network.getGymRecords().observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource E;
                 E = Data.E((ArrayList) obj);
@@ -854,8 +818,8 @@ public class Data {
         if (record.isPlaceHintAvailable()) {
             return Observable.just(record.getPlaceHint());
         }
-        return Network.getReverseEncoding(record.getTrack().get(0)).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.b
-            @Override // io.reactivex.functions.Function
+        return Network.getReverseEncoding(record.getTrack().get(0)).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource F;
                 F = Data.F(record, (String) obj);
@@ -865,17 +829,17 @@ public class Data {
     }
 
     public static Observable<ArrayList<Task>> getTasksFromServer() {
-        return Network.getTasks().observeOn(Schedulers.io()).doOnNext(new Consumer() { // from class: cn.edu.pku.pkurunner.j
-            @Override // io.reactivex.functions.Consumer
+        return Network.getTasks().observeOn(Schedulers.io()).doOnNext(new Consumer() {
+            @Override
             public final void accept(Object obj) {
-                Data.f6853c = (ArrayList) obj;
+                Data.partialRecords = (ArrayList) obj;
             }
         });
     }
 
     public static Observable<UserStatus> refreshUserStatus() {
-        return Network.getUserStatus().observeOn(AndroidSchedulers.mainThread()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.b0
-            @Override // io.reactivex.functions.Function
+        return Network.getUserStatus().observeOn(AndroidSchedulers.mainThread()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource W;
                 W = Data.W((UserStatus) obj);

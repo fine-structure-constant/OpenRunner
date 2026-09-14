@@ -22,7 +22,7 @@ public class IntroActivity extends AppIntro {
         finish();
     }
 
-    @Override // com.github.paolorotolo.appintro.AppIntroBase, androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
+    @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         int color = getResources().getColor(R.color.grey_700);
@@ -30,8 +30,8 @@ public class IntroActivity extends AppIntro {
         String[] stringArray2 = getResources().getStringArray(R.array.a_intro_content);
         int[] iArr = {R.drawable.guide_running, R.drawable.guide_calendar, R.drawable.guide_permission, R.drawable.anim_icon};
         int length = stringArray.length;
-        for (int i2 = 0; i2 < length; i2++) {
-            addSlide(AnimatableAppIntroFragment.newInstance(stringArray[i2], stringArray2[i2], iArr[i2], color));
+        for (int index = 0; index < length; index++) {
+            addSlide(AnimatableAppIntroFragment.newInstance(stringArray[index], stringArray2[index], iArr[index], color));
         }
         showStatusBar(false);
         setNavBarColor(R.color.grey_700);
@@ -41,7 +41,7 @@ public class IntroActivity extends AppIntro {
         askForPermissions(new String[]{"android.permission.READ_PHONE_STATE", "android.permission.WRITE_EXTERNAL_STORAGE", "android.permission.ACCESS_FINE_LOCATION"}, 3);
     }
 
-    @Override // com.github.paolorotolo.appintro.AppIntroBase
+    @Override
     public void onDonePressed(Fragment fragment) {
         super.onDonePressed(fragment);
         enterApp();

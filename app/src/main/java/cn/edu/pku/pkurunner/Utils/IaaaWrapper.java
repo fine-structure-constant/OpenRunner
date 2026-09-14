@@ -33,15 +33,14 @@ public abstract class IaaaWrapper {
     }
 
     public static Observable<Pair<String, String>> HandleIaaaResult(final Context context, final ActivityResult activityResult) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: y.e
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 IaaaWrapper.b(context, activityResult, observableEmitter);
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void b(Context context, ActivityResult activityResult, ObservableEmitter observableEmitter) {
         if (activityResult.getResultCode() != -1) {
             observableEmitter.onError(new IAAAException(context.getString(R.string.a_login_fail)));

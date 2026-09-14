@@ -13,14 +13,12 @@ import org.xutils.x;
 
 public class MainApplication extends Application {
 
-    /* renamed from: a, reason: collision with root package name */
-    private static MainApplication f6888a;
+    private static MainApplication instance;
 
     public static MainApplication getContext() {
-        return f6888a;
+        return instance;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void b() {
         try {
             TrueTime.build().initialize();
@@ -29,10 +27,10 @@ public class MainApplication extends Application {
         }
     }
 
-    @Override // android.app.Application
+    @Override
     public void onCreate() {
         super.onCreate();
-        f6888a = this;
+        instance = this;
         SharedPreferences appearance = getSharedPreferences("appearance", MODE_PRIVATE);
         String theme = appearance.getString("theme", "system");
         AppCompatDelegate.setDefaultNightMode("dark".equals(theme)
@@ -45,8 +43,8 @@ public class MainApplication extends Application {
         UMConfigure.preInit(this, BuildConfig.UMENG_APP_KEY, "Umeng");
         UMConfigure.init(this, BuildConfig.UMENG_APP_KEY, "Umeng", 1, "");
         PerfectExitUtil.init(this);
-        new Thread(new Runnable() { // from class: cn.edu.pku.pkurunner.q1
-            @Override // java.lang.Runnable
+        new Thread(new Runnable() {
+            @Override
             public final void run() {
                 MainApplication.b();
             }

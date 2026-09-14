@@ -15,7 +15,7 @@ import cn.edu.pku.pkurunner.Utils.KeepAliveUtil;
 import org.xutils.common.util.LogUtil;
 
 public class NotificationDisplayService extends Service {
-    @Override // android.app.Service
+    @Override
     public void onDestroy() {
         stopForeground(true);
         KeepAliveUtil.WakeAndWifiLocker.release();
@@ -36,14 +36,14 @@ public class NotificationDisplayService extends Service {
         return "PKURunner";
     }
 
-    @Override // android.app.Service
+    @Override
     public IBinder onBind(Intent intent) {
         LogUtil.d("onBind()");
         return null;
     }
 
-    @Override // android.app.Service
-    public int onStartCommand(Intent intent, int i2, int i3) {
+    @Override
+    public int onStartCommand(Intent intent, int index, int index2) {
         Notification.Builder builder;
         LogUtil.d("onStartCommand()");
         if (Build.VERSION.SDK_INT >= 26) {
@@ -60,7 +60,7 @@ public class NotificationDisplayService extends Service {
         return 1;
     }
 
-    @Override // android.app.Service
+    @Override
     public void onCreate() {
         super.onCreate();
         LogUtil.d("onCreate()");

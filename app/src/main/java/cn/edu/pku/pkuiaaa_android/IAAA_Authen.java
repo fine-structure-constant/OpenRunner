@@ -25,96 +25,77 @@ import java.util.TimerTask;
 
 public class IAAA_Authen extends AppCompatActivity {
 
-    /* renamed from: s, reason: collision with root package name */
-    static String f6819s;
+    static String appId;
 
-    /* renamed from: t, reason: collision with root package name */
-    static Timer f6820t = new Timer();
+    static Timer countdownTimer = new Timer();
 
-    /* renamed from: b, reason: collision with root package name */
-    int f6821b = 0;
+    int countdownSeconds = 0;
 
-    /* renamed from: c, reason: collision with root package name */
-    boolean f6822c = false;
+    boolean loginSucceeded = false;
 
-    /* renamed from: d, reason: collision with root package name */
-    boolean f6823d = false;
+    boolean secondFactorRequired = false;
 
-    /* renamed from: e, reason: collision with root package name */
-    final int f6824e = 2000;
+    final int RETRY_INTERVAL_MILLIS = 2000;
 
-    /* renamed from: f, reason: collision with root package name */
-    final int f6825f = 60;
+    final int COUNTDOWN_SECONDS = 60;
 
-    /* renamed from: g, reason: collision with root package name */
-    boolean f6826g = false;
+    boolean smsMode = false;
 
-    /* renamed from: h, reason: collision with root package name */
-    boolean f6827h = false;
+    boolean otpMode = false;
 
-    /* renamed from: i, reason: collision with root package name */
-    TextView f6828i;
+    TextView loginButton;
 
-    /* renamed from: j, reason: collision with root package name */
-    TextView f6829j;
+    TextView cancelButton;
 
-    /* renamed from: k, reason: collision with root package name */
-    TextView f6830k;
+    TextView sendCodeButton;
 
-    /* renamed from: l, reason: collision with root package name */
-    EditText f6831l;
+    EditText usernameEdit;
 
-    /* renamed from: m, reason: collision with root package name */
-    EditText f6832m;
+    EditText passwordEdit;
 
-    /* renamed from: n, reason: collision with root package name */
-    EditText f6833n;
+    EditText verificationCodeEdit;
 
-    /* renamed from: o, reason: collision with root package name */
-    LinearLayout f6834o;
+    LinearLayout verificationCodeContainer;
 
-    /* renamed from: p, reason: collision with root package name */
-    String f6835p;
+    String username;
 
-    /* renamed from: q, reason: collision with root package name */
-    String f6836q;
+    String password;
 
-    /* renamed from: r, reason: collision with root package name */
-    String f6837r;
+    String verificationCode;
 
-    final class a implements Runnable {
-        a() {
+    final class ShowSendCodeWaitRunnable implements Runnable {
+        ShowSendCodeWaitRunnable() {
         }
 
-        @Override // java.lang.Runnable
+        @Override
         public final void run() {
-            IAAA_Authen.this.f6830k.setEnabled(false);
+            IAAA_Authen.this.sendCodeButton.setEnabled(false);
             IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-            iAAA_Authen.f6830k.setTextColor(ContextCompat.getColor(iAAA_Authen.getApplicationContext(), R.color.colorIPGWGray));
-            IAAA_Authen.this.f6830k.setText(IAAA_Authen.this.getResources().getString(R.string.sendcode_wait) + IAAA_Authen.this.f6821b);
+            iAAA_Authen.sendCodeButton.setTextColor(ContextCompat.getColor(iAAA_Authen.getApplicationContext(), R.color.colorIPGWGray));
+            IAAA_Authen.this.sendCodeButton.setText(IAAA_Authen.this.getResources().getString(R.string.sendcode_wait) + IAAA_Authen.this.countdownSeconds);
         }
     }
 
-    final class b extends TimerTask {
-        b() {
+    final class SendCodeCountdownTask extends TimerTask {
+        SendCodeCountdownTask() {
         }
 
-        @Override // java.util.TimerTask, java.lang.Runnable
+        @Override
         public final void run() {
             IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-            iAAA_Authen.g(iAAA_Authen.f6830k);
+            iAAA_Authen.g(iAAA_Authen.sendCodeButton);
         }
     }
 
-    final class c implements View.OnClickListener {
-        c() {
+    final class LoginClickListener implements View.OnClickListener {
+        LoginClickListener() {
         }
 
-        @Override // android.view.View.OnClickListener
+        @Override
         public final void onClick(View view) {
             IAAA_Authen.a(IAAA_Authen.this);
-            String username = IAAA_Authen.this.f6831l.getText().toString().trim();
-            String password = IAAA_Authen.this.f6832m.getText().toString().trim();
+            String username = IAAA_Authen.this.usernameEdit.getText().toString().trim();
+            String password = IAAA_Authen.this.passwordEdit.getText().toString().trim();
             View root = IAAA_Authen.this.getWindow().getDecorView().getRootView();
             if (username.length() == 0 || password.length() == 0) {
                 IAAA_Authen.f(root, IAAA_Authen.this.getResources().getString(R.string.enter_username_passwd)).show();
@@ -124,53 +105,53 @@ public class IAAA_Authen extends AppCompatActivity {
                 IAAA_Authen.f(root, IAAA_Authen.this.getResources().getString(R.string.wrong_username_passwd)).show();
                 return;
             }
-            if (!username.equals(IAAA_Authen.this.f6835p)) {
-                IAAA_Authen.this.f6823d = false;
-                IAAA_Authen.this.f6826g = false;
-                IAAA_Authen.this.f6827h = false;
+            if (!username.equals(IAAA_Authen.this.username)) {
+                IAAA_Authen.this.secondFactorRequired = false;
+                IAAA_Authen.this.smsMode = false;
+                IAAA_Authen.this.otpMode = false;
             }
             String code = "";
-            if (IAAA_Authen.this.f6826g || IAAA_Authen.this.f6827h) {
-                code = IAAA_Authen.this.f6833n.getText().toString().trim();
+            if (IAAA_Authen.this.smsMode || IAAA_Authen.this.otpMode) {
+                code = IAAA_Authen.this.verificationCodeEdit.getText().toString().trim();
                 if (code.length() == 0) {
-                    int message = IAAA_Authen.this.f6826g ? R.string.enter_msgcode : R.string.enter_otpcode;
+                    int message = IAAA_Authen.this.smsMode ? R.string.enter_msgcode : R.string.enter_otpcode;
                     IAAA_Authen.f(root, IAAA_Authen.this.getResources().getString(message)).show();
                     return;
                 }
                 if (code.length() < 4 || code.length() > 6) {
-                    int message = IAAA_Authen.this.f6826g ? R.string.wrong_msgcode : R.string.wrong_otpcode;
+                    int message = IAAA_Authen.this.smsMode ? R.string.wrong_msgcode : R.string.wrong_otpcode;
                     IAAA_Authen.f(root, IAAA_Authen.this.getResources().getString(message)).show();
                     return;
                 }
                 try {
                     Integer.parseInt(code);
                 } catch (Exception ignored) {
-                    int message = IAAA_Authen.this.f6826g ? R.string.wrong_msgcode : R.string.wrong_otpcode;
+                    int message = IAAA_Authen.this.smsMode ? R.string.wrong_msgcode : R.string.wrong_otpcode;
                     IAAA_Authen.f(root, IAAA_Authen.this.getResources().getString(message)).show();
                     return;
                 }
             }
-            IAAA_Authen.this.f6835p = username;
-            IAAA_Authen.this.f6836q = password;
-            IAAA_Authen.this.f6837r = code;
+            IAAA_Authen.this.username = username;
+            IAAA_Authen.this.password = password;
+            IAAA_Authen.this.verificationCode = code;
             IAAA_Authen.this.h(false);
             ProgressDialog progress = IAAA_Authen.i(IAAA_Authen.this);
             progress.show();
             try {
-                String mode = IAAA_Authen.this.f6823d
-                        ? (IAAA_Authen.this.f6826g ? "SMS" : "OTP")
-                        : cn.edu.pku.pkuiaaa_android.a.e(username, IAAA_Authen.f6819s);
+                String mode = IAAA_Authen.this.secondFactorRequired
+                        ? (IAAA_Authen.this.smsMode ? "SMS" : "OTP")
+                        : IaaaApi.getAuthMode(username, IAAA_Authen.appId);
                 if (mode == null) mode = "";
-                if (!IAAA_Authen.this.f6823d && mode.length() != 0) {
-                    IAAA_Authen.this.f6826g = "SMS".equals(mode);
-                    IAAA_Authen.this.f6827h = !IAAA_Authen.this.f6826g;
-                    IAAA_Authen.this.f6823d = true;
+                if (!IAAA_Authen.this.secondFactorRequired && mode.length() != 0) {
+                    IAAA_Authen.this.smsMode = "SMS".equals(mode);
+                    IAAA_Authen.this.otpMode = !IAAA_Authen.this.smsMode;
+                    IAAA_Authen.this.secondFactorRequired = true;
                     IAAA_Authen.this.h(true);
                     progress.dismiss();
                     IAAA_Authen.j(root, "请输入验证码后再次登录").show();
                     return;
                 }
-                String token = cn.edu.pku.pkuiaaa_android.a.d(username, password, code, IAAA_Authen.f6819s, mode);
+                String token = IaaaApi.login(username, password, code, IAAA_Authen.appId, mode);
                 Intent result = new Intent();
                 result.putExtra(IaaaWrapper.EXTRA_iAAA_RESULT, IaaaWrapper.RESULT_SUCCESS);
                 result.putExtra(IaaaWrapper.EXTRA_iAAA_UID, username);
@@ -189,11 +170,11 @@ public class IAAA_Authen extends AppCompatActivity {
         }
     }
 
-    final class d implements View.OnClickListener {
-        d() {
+    final class CancelClickListener implements View.OnClickListener {
+        CancelClickListener() {
         }
 
-        @Override // android.view.View.OnClickListener
+        @Override
         public final void onClick(View view) {
             IAAA_Authen.a(IAAA_Authen.this);
             Intent intent = new Intent();
@@ -205,164 +186,162 @@ public class IAAA_Authen extends AppCompatActivity {
         }
     }
 
-    final class e implements View.OnClickListener {
+    final class SendCodeClickListener implements View.OnClickListener {
 
-        final class a implements Runnable {
-            a() {
+        final class DisableSendCodeRunnable implements Runnable {
+            DisableSendCodeRunnable() {
             }
 
-            @Override // java.lang.Runnable
+            @Override
             public final void run() {
-                IAAA_Authen.this.f6830k.setEnabled(false);
+                IAAA_Authen.this.sendCodeButton.setEnabled(false);
                 IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-                iAAA_Authen.f6830k.setTextColor(ContextCompat.getColor(iAAA_Authen.getApplicationContext(), R.color.colorIPGWGray));
+                iAAA_Authen.sendCodeButton.setTextColor(ContextCompat.getColor(iAAA_Authen.getApplicationContext(), R.color.colorIPGWGray));
             }
         }
 
-        final class b extends TimerTask {
-            b() {
+        final class SendCodeCountdownTask extends TimerTask {
+            SendCodeCountdownTask() {
             }
 
-            @Override // java.util.TimerTask, java.lang.Runnable
+            @Override
             public final void run() {
                 IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-                iAAA_Authen.g(iAAA_Authen.f6830k);
+                iAAA_Authen.g(iAAA_Authen.sendCodeButton);
             }
         }
 
-        e() {
+        SendCodeClickListener() {
         }
 
-        @Override // android.view.View.OnClickListener
+        @Override
         public final void onClick(View view) {
             View rootView;
             Resources resources = IAAA_Authen.this.getResources();
-            int i2 = R.string.enter_username_passwd;
+            int index = R.string.enter_username_passwd;
             String string;
             String str;
             IAAA_Authen.a(IAAA_Authen.this);
             IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-            if (iAAA_Authen.f6826g) {
-                String trim = iAAA_Authen.f6831l.getText().toString().trim();
-                String trim2 = IAAA_Authen.this.f6832m.getText().toString().trim();
+            if (iAAA_Authen.smsMode) {
+                String trim = iAAA_Authen.usernameEdit.getText().toString().trim();
+                String trim2 = IAAA_Authen.this.passwordEdit.getText().toString().trim();
                 if (trim.length() == 0 || trim2.length() == 0) {
                     rootView = IAAA_Authen.this.getWindow().getDecorView().getRootView();
                     resources = IAAA_Authen.this.getResources();
-                    i2 = R.string.enter_username_passwd;
+                    index = R.string.enter_username_passwd;
                 } else if (trim.length() < 2 || trim2.length() < 8) {
                     rootView = IAAA_Authen.this.getWindow().getDecorView().getRootView();
                     resources = IAAA_Authen.this.getResources();
-                    i2 = R.string.wrong_username_passwd;
+                    index = R.string.wrong_username_passwd;
                 } else {
                     IAAA_Authen iAAA_Authen2 = IAAA_Authen.this;
-                    iAAA_Authen2.f6835p = trim;
-                    iAAA_Authen2.f6836q = trim2;
-                    iAAA_Authen2.f6822c = true;
-                    new Handler(Looper.getMainLooper()).post(new a());
-                    IAAA_Authen.this.f6821b = 60;
-                    if (IAAA_Authen.f6820t == null) {
-                        IAAA_Authen.f6820t = new Timer();
+                    iAAA_Authen2.username = trim;
+                    iAAA_Authen2.password = trim2;
+                    iAAA_Authen2.loginSucceeded = true;
+                    new Handler(Looper.getMainLooper()).post(new DisableSendCodeRunnable());
+                    IAAA_Authen.this.countdownSeconds = 60;
+                    if (IAAA_Authen.countdownTimer == null) {
+                        IAAA_Authen.countdownTimer = new Timer();
                     }
-                    IAAA_Authen.f6820t.schedule(new b(), 0L, 2000L);
+                    IAAA_Authen.countdownTimer.schedule(new SendCodeCountdownTask(), 0L, 2000L);
                     IAAA_Authen.this.h(true);
-                    ProgressDialog i3 = IAAA_Authen.i(IAAA_Authen.this);
-                    i3.show();
+                    ProgressDialog progressDialog = IAAA_Authen.i(IAAA_Authen.this);
+                    progressDialog.show();
                     try {
-                        String c2 = cn.edu.pku.pkuiaaa_android.a.c(IAAA_Authen.this.f6835p, IAAA_Authen.f6819s);
-                        if (c2.equals("")) {
+                        String mobileMask = IaaaApi.requestSmsCode(IAAA_Authen.this.username, IAAA_Authen.appId);
+                        if (mobileMask.equals("")) {
                             str = "验证码已经发送到您的手机！";
                         } else {
-                            str = "验证码已经发送到您的手机: " + c2;
+                            str = "验证码已经发送到您的手机: " + mobileMask;
                         }
                         IAAA_Authen.this.h(true);
-                        i3.dismiss();
+                        progressDialog.dismiss();
                         IAAA_Authen.j(IAAA_Authen.this.getWindow().getDecorView().getRootView(), str).show();
                         return;
                     } catch (Exception e2) {
                         IAAA_Authen.this.h(true);
-                        i3.dismiss();
+                        progressDialog.dismiss();
                         rootView = IAAA_Authen.this.getWindow().getDecorView().getRootView();
                         string = e2.getMessage();
                     }
                 }
-                string = resources.getString(i2);
+                string = resources.getString(index);
                 IAAA_Authen.f(rootView, string).show();
             }
         }
     }
 
-    final class f implements View.OnClickListener {
-        f() {
+    final class CopyrightLinkClickListener implements View.OnClickListener {
+        CopyrightLinkClickListener() {
         }
 
-        @Override // android.view.View.OnClickListener
+        @Override
         public final void onClick(View view) {
             IAAA_Authen.this.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("http://cc.pku.edu.cn")));
         }
     }
 
-    final class g implements Runnable {
+    final class SetInputsEnabledRunnable implements Runnable {
 
-        /* renamed from: a, reason: collision with root package name */
-        final /* synthetic */ boolean f6846a;
+        final /* synthetic */ boolean enabled;
 
-        g(boolean z2) {
-            this.f6846a = z2;
+        SetInputsEnabledRunnable(boolean z2) {
+            this.enabled = z2;
         }
 
-        @Override // java.lang.Runnable
+        @Override
         public final void run() {
-            IAAA_Authen.this.f6831l.setEnabled(this.f6846a);
-            IAAA_Authen.this.f6832m.setEnabled(this.f6846a);
-            IAAA_Authen.this.f6833n.setEnabled(this.f6846a);
-            IAAA_Authen.this.f6830k.setEnabled(this.f6846a);
-            IAAA_Authen.this.f6828i.setEnabled(this.f6846a);
-            IAAA_Authen.this.f6829j.setEnabled(this.f6846a);
+            IAAA_Authen.this.usernameEdit.setEnabled(this.enabled);
+            IAAA_Authen.this.passwordEdit.setEnabled(this.enabled);
+            IAAA_Authen.this.verificationCodeEdit.setEnabled(this.enabled);
+            IAAA_Authen.this.sendCodeButton.setEnabled(this.enabled);
+            IAAA_Authen.this.loginButton.setEnabled(this.enabled);
+            IAAA_Authen.this.cancelButton.setEnabled(this.enabled);
             IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-            if (!iAAA_Authen.f6826g && !iAAA_Authen.f6827h) {
-                iAAA_Authen.f6834o.setVisibility(8);
+            if (!iAAA_Authen.smsMode && !iAAA_Authen.otpMode) {
+                iAAA_Authen.verificationCodeContainer.setVisibility(8);
                 return;
             }
-            iAAA_Authen.f6834o.setVisibility(0);
+            iAAA_Authen.verificationCodeContainer.setVisibility(0);
             IAAA_Authen iAAA_Authen2 = IAAA_Authen.this;
-            boolean z2 = iAAA_Authen2.f6826g;
-            TextView textView = iAAA_Authen2.f6830k;
+            boolean z2 = iAAA_Authen2.smsMode;
+            TextView textView = iAAA_Authen2.sendCodeButton;
             if (z2) {
                 textView.setVisibility(0);
                 IAAA_Authen iAAA_Authen3 = IAAA_Authen.this;
-                iAAA_Authen3.f6833n.setHint(iAAA_Authen3.getResources().getString(R.string.hint_msgcode));
+                iAAA_Authen3.verificationCodeEdit.setHint(iAAA_Authen3.getResources().getString(R.string.hint_msgcode));
             } else {
                 textView.setVisibility(4);
                 IAAA_Authen iAAA_Authen4 = IAAA_Authen.this;
-                iAAA_Authen4.f6833n.setHint(iAAA_Authen4.getResources().getString(R.string.hint_otpcode));
+                iAAA_Authen4.verificationCodeEdit.setHint(iAAA_Authen4.getResources().getString(R.string.hint_otpcode));
             }
         }
     }
 
-    final class h implements Runnable {
+    final class UpdateSendCodeTextRunnable implements Runnable {
 
-        /* renamed from: a, reason: collision with root package name */
-        final /* synthetic */ TextView f6848a;
+        final /* synthetic */ TextView sendCodeText;
 
-        h(TextView textView) {
-            this.f6848a = textView;
+        UpdateSendCodeTextRunnable(TextView textView) {
+            this.sendCodeText = textView;
         }
 
-        @Override // java.lang.Runnable
+        @Override
         public final void run() {
             IAAA_Authen iAAA_Authen = IAAA_Authen.this;
-            int i2 = iAAA_Authen.f6821b;
-            if (i2 <= 0) {
-                this.f6848a.setText(iAAA_Authen.getResources().getString(R.string.sendcode));
-                this.f6848a.setTextColor(ContextCompat.getColor(IAAA_Authen.this.getApplicationContext(), R.color.black1));
-                this.f6848a.setEnabled(true);
-                IAAA_Authen.f6820t.cancel();
-                IAAA_Authen.f6820t = null;
-                IAAA_Authen.this.f6822c = false;
+            int index = iAAA_Authen.countdownSeconds;
+            if (index <= 0) {
+                this.sendCodeText.setText(iAAA_Authen.getResources().getString(R.string.sendcode));
+                this.sendCodeText.setTextColor(ContextCompat.getColor(IAAA_Authen.this.getApplicationContext(), R.color.black1));
+                this.sendCodeText.setEnabled(true);
+                IAAA_Authen.countdownTimer.cancel();
+                IAAA_Authen.countdownTimer = null;
+                IAAA_Authen.this.loginSucceeded = false;
                 return;
             }
-            iAAA_Authen.f6821b = i2 - 2;
-            this.f6848a.setText(IAAA_Authen.this.getResources().getString(R.string.sendcode_wait) + IAAA_Authen.this.f6821b);
+            iAAA_Authen.countdownSeconds = index - 2;
+            this.sendCodeText.setText(IAAA_Authen.this.getResources().getString(R.string.sendcode_wait) + IAAA_Authen.this.countdownSeconds);
         }
     }
 
@@ -391,76 +370,76 @@ public class IAAA_Authen extends AppCompatActivity {
     }
 
     final void g(TextView textView) {
-        new Handler(Looper.getMainLooper()).post(new h(textView));
+        new Handler(Looper.getMainLooper()).post(new UpdateSendCodeTextRunnable(textView));
     }
 
     final void h(boolean z2) {
-        new Handler(Looper.getMainLooper()).post(new g(z2));
+        new Handler(Looper.getMainLooper()).post(new SetInputsEnabledRunnable(z2));
     }
 
-    @Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
+    @Override
     protected void onCreate(Bundle bundle) {
         EditText editText;
         Resources resources;
-        int i2;
+        int index;
         super.onCreate(bundle);
         setContentView(R.layout.activity_login);
         Intent intent = getIntent();
-        f6819s = intent.getStringExtra(IaaaWrapper.EXTRA_iAAA_APPID);
-        this.f6835p = intent.getStringExtra(IaaaWrapper.EXTRA_iAAA_UID);
-        String str = f6819s;
+        appId = intent.getStringExtra(IaaaWrapper.EXTRA_iAAA_APPID);
+        this.username = intent.getStringExtra(IaaaWrapper.EXTRA_iAAA_UID);
+        String str = appId;
         if (str == null || str.equals("")) {
-            f6819s = "NA";
+            appId = "NA";
         }
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().permitAll().build());
-        this.f6826g = false;
-        this.f6827h = false;
-        this.f6823d = false;
-        if (this.f6835p == null) {
-            this.f6835p = "";
+        this.smsMode = false;
+        this.otpMode = false;
+        this.secondFactorRequired = false;
+        if (this.username == null) {
+            this.username = "";
         }
-        this.f6836q = "";
-        this.f6837r = "";
-        this.f6828i = (TextView) findViewById(R.id.login);
-        this.f6829j = (TextView) findViewById(R.id.cancel);
-        this.f6830k = (TextView) findViewById(R.id.sendcodes);
-        this.f6831l = (EditText) findViewById(R.id.userName);
-        if (!this.f6835p.equals("")) {
-            this.f6831l.setText(this.f6835p);
+        this.password = "";
+        this.verificationCode = "";
+        this.loginButton = (TextView) findViewById(R.id.login);
+        this.cancelButton = (TextView) findViewById(R.id.cancel);
+        this.sendCodeButton = (TextView) findViewById(R.id.sendcodes);
+        this.usernameEdit = (EditText) findViewById(R.id.userName);
+        if (!this.username.equals("")) {
+            this.usernameEdit.setText(this.username);
         }
-        this.f6832m = (EditText) findViewById(R.id.passwd);
-        this.f6833n = (EditText) findViewById(R.id.msgcodes);
+        this.passwordEdit = (EditText) findViewById(R.id.passwd);
+        this.verificationCodeEdit = (EditText) findViewById(R.id.msgcodes);
         LinearLayout linearLayout = (LinearLayout) findViewById(R.id.msgcodecontainer);
-        this.f6834o = linearLayout;
-        if (this.f6826g || this.f6827h) {
+        this.verificationCodeContainer = linearLayout;
+        if (this.smsMode || this.otpMode) {
             linearLayout.setVisibility(0);
-            if (this.f6826g) {
-                this.f6830k.setVisibility(0);
-                editText = this.f6833n;
+            if (this.smsMode) {
+                this.sendCodeButton.setVisibility(0);
+                editText = this.verificationCodeEdit;
                 resources = getResources();
-                i2 = R.string.hint_msgcode;
+                index = R.string.hint_msgcode;
             } else {
-                this.f6830k.setVisibility(4);
-                editText = this.f6833n;
+                this.sendCodeButton.setVisibility(4);
+                editText = this.verificationCodeEdit;
                 resources = getResources();
-                i2 = R.string.hint_otpcode;
+                index = R.string.hint_otpcode;
             }
-            editText.setHint(resources.getString(i2));
+            editText.setHint(resources.getString(index));
         } else {
             linearLayout.setVisibility(8);
         }
-        if (this.f6822c) {
-            new Handler(Looper.getMainLooper()).post(new a());
-            Timer timer = f6820t;
+        if (this.loginSucceeded) {
+            new Handler(Looper.getMainLooper()).post(new ShowSendCodeWaitRunnable());
+            Timer timer = countdownTimer;
             if (timer != null) {
                 timer.cancel();
             }
-            f6820t = new Timer();
-            f6820t.schedule(new b(), 0L, 2000L);
+            countdownTimer = new Timer();
+            countdownTimer.schedule(new SendCodeCountdownTask(), 0L, 2000L);
         }
-        this.f6828i.setOnClickListener(new c());
-        this.f6829j.setOnClickListener(new d());
-        this.f6830k.setOnClickListener(new e());
-        ((TextView) findViewById(R.id.cc_link)).setOnClickListener(new f());
+        this.loginButton.setOnClickListener(new LoginClickListener());
+        this.cancelButton.setOnClickListener(new CancelClickListener());
+        this.sendCodeButton.setOnClickListener(new SendCodeClickListener());
+        ((TextView) findViewById(R.id.cc_link)).setOnClickListener(new CopyrightLinkClickListener());
     }
 }

@@ -10,5 +10,5 @@ public interface ActivityService {
     Observable<DataPack> clear20180420(@Path("userId") String str);
 
     @POST("activity/{activityId}/user/{userId}/team/{color}")
-    Observable<DataPack> signUp20180420(@Path("activityId") int i2, @Path("userId") String str, @Path("color") String str2);
+    Observable<DataPack> signUp20180420(@Path("activityId") int index, @Path("userId") String str, @Path("color") String str2);
 }

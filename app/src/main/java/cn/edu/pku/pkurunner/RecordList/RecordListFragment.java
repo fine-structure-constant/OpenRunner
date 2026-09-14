@@ -60,82 +60,67 @@ import java.util.concurrent.TimeUnit;
 
 public class RecordListFragment extends Fragment implements RecordListContract.View {
 
-    /* renamed from: d, reason: collision with root package name */
-    private View f7022d;
+    private View rootView;
 
-    /* renamed from: e, reason: collision with root package name */
-    private SwipeRefreshLayout f7023e;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
-    /* renamed from: f, reason: collision with root package name */
-    private RecordCardAdapter f7024f;
+    private RecordCardAdapter recordCardAdapter;
 
-    /* renamed from: g, reason: collision with root package name */
-    private TextView f7025g;
+    private TextView noticeText;
 
-    /* renamed from: h, reason: collision with root package name */
-    private TextView f7026h;
+    private TextView emptyHintText;
 
-    /* renamed from: i, reason: collision with root package name */
-    private ImageView f7027i;
+    private ImageView emptyImageView;
 
-    /* renamed from: j, reason: collision with root package name */
-    private ProgressDialog f7028j;
+    private ProgressDialog progressDialog;
 
-    /* renamed from: k, reason: collision with root package name */
-    private boolean f7029k;
+    private boolean appBarExpanded;
 
-    /* renamed from: l, reason: collision with root package name */
-    private FloatingActionButton f7030l;
+    private FloatingActionButton startRunningFab;
 
-    /* renamed from: m, reason: collision with root package name */
-    private RecordListContract.Presenter f7031m;
+    private RecordListContract.Presenter presenter;
 
-    /* renamed from: n, reason: collision with root package name */
-    private ObservableEmitter f7032n;
+    private ObservableEmitter photoResultEmitter;
 
-    /* renamed from: o, reason: collision with root package name */
-    private ObservableEmitter f7033o;
+    private ObservableEmitter loginResultEmitter;
 
-    /* renamed from: p, reason: collision with root package name */
-    private SharedPreferences f7034p;
+    private SharedPreferences sharedPreferences;
 
-    private final ActivityResultLauncher<Uri> f7036r = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
-        @Override // androidx.activity.result.ActivityResultCallback
+    private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
+        @Override
         public void onActivityResult(Boolean bool) {
-            if (RecordListFragment.this.f7032n != null) {
-                RecordListFragment.this.f7032n.onNext(bool);
-                RecordListFragment.this.f7032n = null;
+            if (RecordListFragment.this.photoResultEmitter != null) {
+                RecordListFragment.this.photoResultEmitter.onNext(bool);
+                RecordListFragment.this.photoResultEmitter = null;
             }
         }
     });
 
-    private final ActivityResultLauncher<Intent> f7037s = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-        @Override // androidx.activity.result.ActivityResultCallback
+    private final ActivityResultLauncher<Intent> iaaaLoginLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
         public void onActivityResult(ActivityResult activityResult) {
-            if (RecordListFragment.this.f7033o == null) {
+            if (RecordListFragment.this.loginResultEmitter == null) {
                 return;
             }
             if (activityResult.getResultCode() == -1 && activityResult.getData() != null) {
                 Bundle extras = activityResult.getData().getExtras();
                 if (IaaaWrapper.RESULT_CANCEL.equals(extras.getString(IaaaWrapper.EXTRA_iAAA_RESULT))) {
-                    RecordListFragment.this.f7033o.onError(new Throwable(getString(R.string.f_record_error_login_cancelled)));
+                    RecordListFragment.this.loginResultEmitter.onError(new Throwable(getString(R.string.f_record_error_login_cancelled)));
                 } else {
-                    RecordListFragment.this.f7033o.onNext(new Pair(extras.getString(IaaaWrapper.EXTRA_iAAA_UID), extras.getString(IaaaWrapper.EXTRA_iAAA_TOKEN)));
+                    RecordListFragment.this.loginResultEmitter.onNext(new Pair(extras.getString(IaaaWrapper.EXTRA_iAAA_UID), extras.getString(IaaaWrapper.EXTRA_iAAA_TOKEN)));
                 }
             } else {
-                RecordListFragment.this.f7033o.onError(new Throwable(getString(R.string.f_record_error_login_fail)));
+                RecordListFragment.this.loginResultEmitter.onError(new Throwable(getString(R.string.f_record_error_login_fail)));
             }
-            RecordListFragment.this.f7033o = null;
+            RecordListFragment.this.loginResultEmitter = null;
         }
     });
 
     static class AppBarStateChangeWrapper implements AppBarLayout.OnOffsetChangedListener {
 
-        /* renamed from: a, reason: collision with root package name */
-        private State f7035a = State.IDLE;
+        private State currentState = State.IDLE;
 
-        /* renamed from: b, reason: collision with root package name */
-        private a f7036b;
+        private OnAppBarStateChanged stateChangeListener;
 
         public enum State {
             EXPANDED,
@@ -143,187 +128,173 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
             IDLE
         }
 
-        interface a {
-            void a(AppBarLayout appBarLayout, State state);
+        interface OnAppBarStateChanged {
+            void onStateChanged(AppBarLayout appBarLayout, State state);
         }
 
-        @Override // com.google.android.material.appbar.AppBarLayout.OnOffsetChangedListener, com.google.android.material.appbar.AppBarLayout.BaseOnOffsetChangedListener
-        public void onOffsetChanged(AppBarLayout appBarLayout, int i2) {
-            if (i2 == 0) {
-                State state = this.f7035a;
+        @Override
+        public void onOffsetChanged(AppBarLayout appBarLayout, int index) {
+            if (index == 0) {
+                State state = this.currentState;
                 State state2 = State.EXPANDED;
                 if (state != state2) {
-                    this.f7036b.a(appBarLayout, state2);
+                    this.stateChangeListener.onStateChanged(appBarLayout, state2);
                 }
-                this.f7035a = state2;
+                this.currentState = state2;
                 return;
             }
-            if (Math.abs(i2) >= appBarLayout.getTotalScrollRange() * 0.6d) {
-                State state3 = this.f7035a;
+            if (Math.abs(index) >= appBarLayout.getTotalScrollRange() * 0.6d) {
+                State state3 = this.currentState;
                 State state4 = State.COLLAPSED;
                 if (state3 != state4) {
-                    this.f7036b.a(appBarLayout, state4);
+                    this.stateChangeListener.onStateChanged(appBarLayout, state4);
                 }
-                this.f7035a = state4;
+                this.currentState = state4;
                 return;
             }
-            State state5 = this.f7035a;
+            State state5 = this.currentState;
             State state6 = State.IDLE;
             if (state5 != state6) {
-                this.f7036b.a(appBarLayout, state6);
+                this.stateChangeListener.onStateChanged(appBarLayout, state6);
             }
-            this.f7035a = state6;
+            this.currentState = state6;
         }
 
-        public AppBarStateChangeWrapper(a aVar) {
-            this.f7036b = aVar;
+        public AppBarStateChangeWrapper(OnAppBarStateChanged stateChangeListener) {
+            this.stateChangeListener = stateChangeListener;
         }
     }
 
-    class a extends RecyclerView.OnScrollListener {
-        a() {
+    class ScrollStateResetListener extends RecyclerView.OnScrollListener {
+        ScrollStateResetListener() {
         }
 
-        @Override // androidx.recyclerview.widget.RecyclerView.OnScrollListener
-        public void onScrollStateChanged(RecyclerView recyclerView, int i2) {
-            super.onScrollStateChanged(recyclerView, i2);
-            if (i2 == 0) {
-                RecordListFragment.this.f7029k = false;
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int index) {
+            super.onScrollStateChanged(recyclerView, index);
+            if (index == 0) {
+                RecordListFragment.this.appBarExpanded = false;
             }
         }
 
-        @Override // androidx.recyclerview.widget.RecyclerView.OnScrollListener
-        public void onScrolled(RecyclerView recyclerView, int i2, int i3) {
-            super.onScrolled(recyclerView, i2, i3);
-            RecordListFragment.this.f7029k = true;
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int index, int index2) {
+            super.onScrolled(recyclerView, index, index2);
+            RecordListFragment.this.appBarExpanded = true;
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean C(SwipeRefreshLayout swipeRefreshLayout, View view) {
-        return this.f7029k;
+        return this.appBarExpanded;
     }
 
     private Rect y(View view) {
         int[] iArr = new int[2];
         view.getLocationInWindow(iArr);
-        int i2 = iArr[0];
-        int width = view.getWidth() + i2;
-        int i3 = iArr[1];
-        return new Rect(i2, i3, width, view.getHeight() + i3);
+        int index = iArr[0];
+        int width = view.getWidth() + index;
+        int index2 = iArr[1];
+        return new Rect(index, index2, width, view.getHeight() + index2);
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public RecordCardAdapter getRecordCardAdapter() {
-        return this.f7024f;
+        return this.recordCardAdapter;
     }
 
-    @Override // cn.edu.pku.pkurunner.Contract.BaseView
+    @Override
     public void setPresenter(@NonNull RecordListContract.Presenter presenter) {
-        this.f7031m = presenter;
+        this.presenter = presenter;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void A(ObservableEmitter observableEmitter) {
-        this.f7033o = observableEmitter;
-        this.f7037s.launch(IaaaWrapper.createIaaaIntent(getActivity()));
+        this.loginResultEmitter = observableEmitter;
+        this.iaaaLoginLauncher.launch(IaaaWrapper.createIaaaIntent(getActivity()));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void B() {
-        this.f7031m.syncData();
+        this.presenter.syncData();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void D(boolean z2) {
-        this.f7023e.setEnabled(z2);
+        this.swipeRefreshLayout.setEnabled(z2);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void F(AppBarLayout appBarLayout, AppBarStateChangeWrapper.State state) {
         if (state == AppBarStateChangeWrapper.State.COLLAPSED) {
-            this.f7030l.setClickable(false);
-            this.f7030l.hide();
+            this.startRunningFab.setClickable(false);
+            this.startRunningFab.hide();
         } else {
-            this.f7030l.setClickable(true);
-            this.f7030l.show();
+            this.startRunningFab.setClickable(true);
+            this.startRunningFab.show();
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void H(ObservableEmitter observableEmitter, DialogInterface dialogInterface) {
         observableEmitter.onNext(Boolean.FALSE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public /* synthetic */ void I(int i2, int i3, final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(getContext()).setTitle(i2).setMessage(i3).setPositiveButton(R.string.f_record_dialog_positive, new DialogInterface.OnClickListener() { // from class: v.i
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i4) {
-                RecordListFragment.J(observableEmitter, dialogInterface, i4);
+    public /* synthetic */ void I(int index, int index2, final ObservableEmitter observableEmitter) {
+        new AlertDialog.Builder(getContext()).setTitle(index).setMessage(index2).setPositiveButton(R.string.f_record_dialog_positive, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index3) {
+                RecordListFragment.J(observableEmitter, dialogInterface, index3);
             }
-        }).setNegativeButton(R.string.f_record_dialog_negative, new DialogInterface.OnClickListener() { // from class: v.j
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i4) {
-                RecordListFragment.K(observableEmitter, dialogInterface, i4);
+        }).setNegativeButton(R.string.f_record_dialog_negative, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index3) {
+                RecordListFragment.K(observableEmitter, dialogInterface, index3);
             }
-        }).setCancelable(true).setOnCancelListener(new DialogInterface.OnCancelListener() { // from class: v.k
-            @Override // android.content.DialogInterface.OnCancelListener
+        }).setCancelable(true).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
             public final void onCancel(DialogInterface dialogInterface) {
                 RecordListFragment.H(observableEmitter, dialogInterface);
             }
         }).create().show();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void J(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void J(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void K(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void K(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(Boolean.FALSE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void L(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void L(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(RecordListContract.View.PhotoStatus.RecentShot);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void M(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void M(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(RecordListContract.View.PhotoStatus.UseLast);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void N(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void N(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(RecordListContract.View.PhotoStatus.Ignored);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void O(ObservableEmitter observableEmitter, DialogInterface dialogInterface) {
         observableEmitter.onNext(RecordListContract.View.PhotoStatus.Cancelled);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public /* synthetic */ void P(int i2, int i3, final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(getMainActivity()).setTitle(i2).setMessage(i3).setPositiveButton(R.string.f_record_start_camera, new DialogInterface.OnClickListener() { // from class: v.e
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i4) {
-                RecordListFragment.L(observableEmitter, dialogInterface, i4);
+    public /* synthetic */ void P(int index, int index2, final ObservableEmitter observableEmitter) {
+        new AlertDialog.Builder(getMainActivity()).setTitle(index).setMessage(index2).setPositiveButton(R.string.f_record_start_camera, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index3) {
+                RecordListFragment.L(observableEmitter, dialogInterface, index3);
             }
-        }).setNeutralButton(R.string.f_record_use_last_photo, new DialogInterface.OnClickListener() { // from class: v.f
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i4) {
-                RecordListFragment.M(observableEmitter, dialogInterface, i4);
+        }).setNeutralButton(R.string.f_record_use_last_photo, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index3) {
+                RecordListFragment.M(observableEmitter, dialogInterface, index3);
             }
-        }).setNegativeButton(R.string.f_record_ignore_photo, new DialogInterface.OnClickListener() { // from class: v.g
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i4) {
-                RecordListFragment.N(observableEmitter, dialogInterface, i4);
+        }).setNegativeButton(R.string.f_record_ignore_photo, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index3) {
+                RecordListFragment.N(observableEmitter, dialogInterface, index3);
             }
-        }).setCancelable(true).setOnCancelListener(new DialogInterface.OnCancelListener() { // from class: v.h
-            @Override // android.content.DialogInterface.OnCancelListener
+        }).setCancelable(true).setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
             public final void onCancel(DialogInterface dialogInterface) {
                 RecordListFragment.O(observableEmitter, dialogInterface);
             }
@@ -331,147 +302,144 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     }
 
     private void R() {
-        RecordCardAdapter.b bVar;
+        RecordCardAdapter.UploadedRecordViewHolder holder;
         FragmentActivity activity;
-        if (this.f7024f.getItemCount() == 0 || (bVar = (RecordCardAdapter.b) ((RecyclerView) this.f7022d.findViewById(R.id.f_recordlist_recyclerview)).findViewHolderForLayoutPosition(0)) == null || (activity = getActivity()) == null) {
+        if (this.recordCardAdapter.getItemCount() == 0 || (holder = (RecordCardAdapter.UploadedRecordViewHolder) ((RecyclerView) this.rootView.findViewById(R.id.f_recordlist_recyclerview)).findViewHolderForLayoutPosition(0)) == null || (activity = getActivity()) == null) {
             return;
         }
-        if (this.f7034p.getBoolean("upload", true)) {
-            if (T(activity, bVar)) {
-                this.f7034p.edit().putBoolean("upload", false).apply();
+        if (this.sharedPreferences.getBoolean("upload", true)) {
+            if (T(activity, holder)) {
+                this.sharedPreferences.edit().putBoolean("upload", false).apply();
             }
-        } else if (this.f7034p.getBoolean("detail", true)) {
-            if (Q(activity, bVar)) {
-                this.f7034p.edit().putBoolean("detail", false).apply();
+        } else if (this.sharedPreferences.getBoolean("detail", true)) {
+            if (Q(activity, holder)) {
+                this.sharedPreferences.edit().putBoolean("detail", false).apply();
             }
-        } else if (this.f7034p.getBoolean("remove", true) && S(activity, bVar)) {
-            this.f7034p.edit().putBoolean("remove", false).apply();
+        } else if (this.sharedPreferences.getBoolean("remove", true) && S(activity, holder)) {
+            this.sharedPreferences.edit().putBoolean("remove", false).apply();
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void z(File file, ObservableEmitter observableEmitter) {
-        this.f7032n = observableEmitter;
+        this.photoResultEmitter = observableEmitter;
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         if (intent.resolveActivity(getMainActivity().getPackageManager()) == null) {
             makeToast(R.string.f_record_error_start_camera, 0, new Object[0]);
         } else if (file != null) {
-            this.f7036r.launch(FileProvider.getUriForFile(getContext(), "cn.edu.pku.openrunner.fileprovider", file));
+            this.takePictureLauncher.launch(FileProvider.getUriForFile(getContext(), "cn.edu.pku.openrunner.fileprovider", file));
         }
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public Observable<Boolean> callSystemCamera(final File file) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: v.c
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 RecordListFragment.this.z(file, observableEmitter);
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void cancelRefresh() {
-        this.f7023e.setRefreshing(false);
+        this.swipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void dismissWaitDialog() {
-        ProgressDialog progressDialog = this.f7028j;
+        ProgressDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
             progressDialog.dismiss();
-            this.f7028j = null;
+            this.progressDialog = null;
         }
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public Observable<Pair<String, String>> launchIaaaLogin() {
-        return Observable.create(new ObservableOnSubscribe() { // from class: v.d
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 RecordListFragment.this.A(observableEmitter);
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
-    public void makeSnackBar(@StringRes int i2, int i3, Object... objArr) {
-        Snackbar.make(this.f7022d, getString(i2, objArr), i3).show();
+    @Override
+    public void makeSnackBar(@StringRes int index, int index2, Object... objArr) {
+        Snackbar.make(this.rootView, getString(index, objArr), index2).show();
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void scrollRecyclerViewToTop() {
-        ((RecyclerView) this.f7022d.findViewById(R.id.f_recordlist_recyclerview)).smoothScrollToPosition(0);
+        ((RecyclerView) this.rootView.findViewById(R.id.f_recordlist_recyclerview)).smoothScrollToPosition(0);
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
-    public void setWaitingDialogMessage(@StringRes int i2) {
-        ProgressDialog progressDialog = this.f7028j;
+    @Override
+    public void setWaitingDialogMessage(@StringRes int index) {
+        ProgressDialog progressDialog = this.progressDialog;
         if (progressDialog != null) {
-            progressDialog.setMessage(getString(i2));
+            progressDialog.setMessage(getString(index));
         }
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
-    public Observable<Boolean> showConfirmDialog(@StringRes final int i2, @StringRes final int i3) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: v.o
-            @Override // io.reactivex.ObservableOnSubscribe
+    @Override
+    public Observable<Boolean> showConfirmDialog(@StringRes final int index, @StringRes final int index2) {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                RecordListFragment.this.I(i2, i3, observableEmitter);
+                RecordListFragment.this.I(index, index2, observableEmitter);
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
-    public Observable<RecordListContract.View.PhotoStatus> showPhotoDialog(@StringRes final int i2, @StringRes final int i3) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: v.q
-            @Override // io.reactivex.ObservableOnSubscribe
+    @Override
+    public Observable<RecordListContract.View.PhotoStatus> showPhotoDialog(@StringRes final int index, @StringRes final int index2) {
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
-                RecordListFragment.this.P(i2, i3, observableEmitter);
+                RecordListFragment.this.P(index, index2, observableEmitter);
             }
         }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void showRecordDetailSheet(Bundle bundle) {
         RecordDetailViewFragment recordDetailViewFragment = new RecordDetailViewFragment();
         recordDetailViewFragment.setArguments(bundle);
         recordDetailViewFragment.show(getFragmentManager(), "Record Detail Fragment");
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void showWaitingDialog() {
         ProgressDialog progressDialog = new ProgressDialog(getContext());
-        this.f7028j = progressDialog;
+        this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(0);
-        this.f7028j.setIndeterminate(false);
-        this.f7028j.setCancelable(false);
-        this.f7028j.show();
+        this.progressDialog.setIndeterminate(false);
+        this.progressDialog.setCancelable(false);
+        this.progressDialog.show();
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void toggleLoadingNotice(boolean z2) {
-        this.f7026h.setVisibility(z2 ? 0 : 8);
+        this.emptyHintText.setVisibility(z2 ? 0 : 8);
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public void toggleNoDataNotice(boolean z2) {
-        this.f7025g.setVisibility(z2 ? 0 : 8);
-        this.f7027i.setVisibility(z2 ? 0 : 8);
+        this.noticeText.setVisibility(z2 ? 0 : 8);
+        this.emptyImageView.setVisibility(z2 ? 0 : 8);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void E(View view) {
         ((MainActivity) getActivity()).switchFromRecordListToRunning();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void G(Boolean bool) {
         R();
     }
 
-    private boolean Q(Activity activity, RecordCardAdapter.b bVar) {
-        View I = bVar.I();
+    private boolean Q(Activity activity, RecordCardAdapter.UploadedRecordViewHolder holder) {
+        View I = holder.I();
         if (I == null) {
             return false;
         }
@@ -479,122 +447,122 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         return true;
     }
 
-    private boolean S(Activity activity, RecordCardAdapter.b bVar) {
-        View H = bVar.H();
-        if (H == null || !(bVar instanceof RecordCardAdapter.d)) {
+    private boolean S(Activity activity, RecordCardAdapter.UploadedRecordViewHolder holder) {
+        View H = holder.H();
+        if (H == null || !(holder instanceof RecordCardAdapter.RecordViewHolder)) {
             return false;
         }
         TapTargetView.showFor(activity, TapTarget.forBounds(y(H), getString(R.string.g_record_t_delete), getString(R.string.g_record_c_delete)).outerCircleColor(R.color.amber_500).transparentTarget(true));
         return true;
     }
 
-    private boolean T(Activity activity, RecordCardAdapter.b bVar) {
-        View J = bVar.J();
-        if (J == null || !(bVar instanceof RecordCardAdapter.d)) {
+    private boolean T(Activity activity, RecordCardAdapter.UploadedRecordViewHolder holder) {
+        View J = holder.J();
+        if (J == null || !(holder instanceof RecordCardAdapter.RecordViewHolder)) {
             return false;
         }
         TapTargetView.showFor(activity, TapTarget.forBounds(y(J), getString(R.string.g_record_t_upload), getString(R.string.g_record_c_upload)).outerCircleColor(R.color.purple_500).transparentTarget(true));
         return true;
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public File getExternalPhotoDir() {
         return getMainActivity().getExternalFilesDir(PhotoFile.PicutreType);
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
+    @Override
     public MainActivity getMainActivity() {
         return (MainActivity) getActivity();
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.RecordListContract.View
-    public void makeToast(@StringRes int i2, int i3, Object... objArr) {
-        Toast.makeText(getContext(), getString(i2, objArr), i3).show();
+    @Override
+    public void makeToast(@StringRes int index, int index2, Object... objArr) {
+        Toast.makeText(getContext(), getString(index, objArr), index2).show();
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
         setHasOptionsMenu(true);
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
         super.onCreateOptionsMenu(menu, menuInflater);
         menuInflater.inflate(R.menu.fragment_recordlist, menu);
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public View onCreateView(LayoutInflater layoutInflater, ViewGroup viewGroup, Bundle bundle) {
         View inflate = layoutInflater.inflate(R.layout.fragment_recordlist, viewGroup, false);
-        this.f7022d = inflate;
+        this.rootView = inflate;
         SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout) inflate.findViewById(R.id.f_recordlist_swipeRefreshLayout);
-        this.f7023e = swipeRefreshLayout;
+        this.swipeRefreshLayout = swipeRefreshLayout;
         swipeRefreshLayout.setColorSchemeResources(R.color.orange_500, R.color.green_500, R.color.blue_500);
-        this.f7023e.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() { // from class: v.l
-            @Override // androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
+        this.swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
             public final void onRefresh() {
                 RecordListFragment.this.B();
             }
         });
-        this.f7023e.setOnChildScrollUpCallback(new SwipeRefreshLayout.OnChildScrollUpCallback() { // from class: v.m
-            @Override // androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnChildScrollUpCallback
+        this.swipeRefreshLayout.setOnChildScrollUpCallback(new SwipeRefreshLayout.OnChildScrollUpCallback() {
+            @Override
             public final boolean canChildScrollUp(SwipeRefreshLayout swipeRefreshLayout2, View view) {
                 boolean C;
                 C = RecordListFragment.this.C(swipeRefreshLayout2, view);
                 return C;
             }
         });
-        RecyclerView recyclerView = (RecyclerView) this.f7022d.findViewById(R.id.f_recordlist_recyclerview);
+        RecyclerView recyclerView = (RecyclerView) this.rootView.findViewById(R.id.f_recordlist_recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
-        recyclerView.addOnScrollListener(new a());
+        recyclerView.addOnScrollListener(new ScrollStateResetListener());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), 1);
         dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.divider));
         recyclerView.addItemDecoration(dividerItemDecoration);
         RecordCardAdapter recordCardAdapter = new RecordCardAdapter();
-        this.f7024f = recordCardAdapter;
-        recordCardAdapter.setPresenter(this.f7031m, new RecordCardAdapter.c() { // from class: cn.edu.pku.pkurunner.RecordList.e
-            @Override // cn.edu.pku.pkurunner.RecordList.RecordCardAdapter.c
-            public final Resources a() {
+        this.recordCardAdapter = recordCardAdapter;
+        recordCardAdapter.setPresenter(this.presenter, new RecordCardAdapter.ResourcesProvider() {
+            @Override
+            public final Resources getResources() {
                 return RecordListFragment.this.getResources();
             }
         });
-        recyclerView.setAdapter(this.f7024f);
-        new ItemTouchHelper(new ItemTouchHelperCallback(this.f7024f, new ItemTouchHelperCallback.a() { // from class: cn.edu.pku.pkurunner.RecordList.f
-            @Override // cn.edu.pku.pkurunner.RecordList.ItemTouchHelperCallback.a
-            public final void a(boolean z2) {
-                RecordListFragment.this.D(z2);
+        recyclerView.setAdapter(this.recordCardAdapter);
+        new ItemTouchHelper(new ItemTouchHelperCallback(this.recordCardAdapter, new ItemTouchHelperCallback.SwipeStateListener() {
+            @Override
+            public final void onSwipeStateChanged(boolean active) {
+                RecordListFragment.this.D(active);
             }
-        }, new RecordCardAdapter.c() { // from class: cn.edu.pku.pkurunner.RecordList.e
-            @Override // cn.edu.pku.pkurunner.RecordList.RecordCardAdapter.c
-            public final Resources a() {
+        }, new RecordCardAdapter.ResourcesProvider() {
+            @Override
+            public final Resources getResources() {
                 return RecordListFragment.this.getResources();
             }
         })).attachToRecyclerView(recyclerView);
-        this.f7025g = (TextView) this.f7022d.findViewById(R.id.f_recordlist_txt_notice);
-        this.f7027i = (ImageView) this.f7022d.findViewById(R.id.f_recordlist_img);
-        this.f7026h = (TextView) this.f7022d.findViewById(R.id.f_recordlist_txt_loading);
+        this.noticeText = (TextView) this.rootView.findViewById(R.id.f_recordlist_txt_notice);
+        this.emptyImageView = (ImageView) this.rootView.findViewById(R.id.f_recordlist_img);
+        this.emptyHintText = (TextView) this.rootView.findViewById(R.id.f_recordlist_txt_loading);
         FloatingActionButton floatingActionButton = (FloatingActionButton) getActivity().findViewById(R.id.v_main_fab_switch);
-        this.f7030l = floatingActionButton;
-        floatingActionButton.setOnClickListener(new View.OnClickListener() { // from class: v.n
-            @Override // android.view.View.OnClickListener
+        this.startRunningFab = floatingActionButton;
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public final void onClick(View view) {
                 RecordListFragment.this.E(view);
             }
         });
-        ((AppBarLayout) getActivity().findViewById(R.id.v_main_appbar)).addOnOffsetChangedListener((AppBarLayout.OnOffsetChangedListener) new AppBarStateChangeWrapper(new AppBarStateChangeWrapper.a() { // from class: cn.edu.pku.pkurunner.RecordList.g
-            @Override // cn.edu.pku.pkurunner.RecordList.RecordListFragment.AppBarStateChangeWrapper.a
-            public final void a(AppBarLayout appBarLayout, RecordListFragment.AppBarStateChangeWrapper.State state) {
+        ((AppBarLayout) getActivity().findViewById(R.id.v_main_appbar)).addOnOffsetChangedListener((AppBarLayout.OnOffsetChangedListener) new AppBarStateChangeWrapper(new AppBarStateChangeWrapper.OnAppBarStateChanged() {
+            @Override
+            public final void onStateChanged(AppBarLayout appBarLayout, RecordListFragment.AppBarStateChangeWrapper.State state) {
                 RecordListFragment.this.F(appBarLayout, state);
             }
         }));
-        this.f7034p = getContext().getSharedPreferences(IntroActivity.GuidePreferencesName, 0);
-        return this.f7022d;
+        this.sharedPreferences = getContext().getSharedPreferences(IntroActivity.GuidePreferencesName, 0);
+        return this.rootView;
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onHiddenChanged(boolean z2) {
         super.onHiddenChanged(z2);
         if (!z2) {
@@ -604,9 +572,9 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
                 z3 = arguments.getBoolean("newRecord", false);
                 arguments.remove("newRecord");
             }
-            this.f7031m.start(z3);
-            Observable.just(Boolean.TRUE).delay(1L, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: v.p
-                @Override // io.reactivex.functions.Consumer
+            this.presenter.start(z3);
+            Observable.just(Boolean.TRUE).delay(1L, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+                @Override
                 public final void accept(Object obj) {
                     RecordListFragment.this.G((Boolean) obj);
                 }
@@ -614,16 +582,16 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         }
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
         if (menuItem.getItemId() != R.id.f_m_recordlist_clear_preferences) {
             return super.onOptionsItemSelected(menuItem);
         }
-        this.f7034p.edit().remove("upload").remove("detail").remove("remove").apply();
+        this.sharedPreferences.edit().remove("upload").remove("detail").remove("remove").apply();
         return true;
     }
 
-    @Override // androidx.fragment.app.Fragment
+    @Override
     public void onResume() {
         super.onResume();
         Bundle arguments = getArguments();
@@ -632,6 +600,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
             z2 = arguments.getBoolean("newRecord", false);
             arguments.remove("newRecord");
         }
-        this.f7031m.start(z2);
+        this.presenter.start(z2);
     }
 }

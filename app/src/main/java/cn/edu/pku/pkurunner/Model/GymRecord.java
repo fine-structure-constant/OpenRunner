@@ -15,7 +15,6 @@ public class GymRecord {
     @Column(name = "duration")
     private int duration;
 
-    /* renamed from: id, reason: collision with root package name */
     @Column(isId = true, name = "id", property = "UNIQUE")
     private int f6974id;
 
@@ -80,20 +79,20 @@ public class GymRecord {
         return this.verified;
     }
 
-    public void setDuration(int i2) {
-        this.duration = i2;
+    public void setDuration(int index) {
+        this.duration = index;
     }
 
-    public void setId(int i2) {
-        this.f6974id = i2;
+    public void setId(int index) {
+        this.f6974id = index;
     }
 
-    public void setPlace(int i2) {
-        this.place = i2;
+    public void setPlace(int index) {
+        this.place = index;
     }
 
-    public void setRecordId(int i2) {
-        this.recordId = i2;
+    public void setRecordId(int index) {
+        this.recordId = index;
     }
 
     public void setStartTime(Date date) {
@@ -112,8 +111,8 @@ public class GymRecord {
         this.verified = bool;
     }
 
-    public GymRecord(String str, int i2) {
-        this.place = i2;
+    public GymRecord(String str, int index) {
+        this.place = index;
         this.f6974id = 0;
         this.recordId = -1;
         this.userId = str;

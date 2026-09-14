@@ -13,12 +13,12 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.edu.pku.pkurunner.Data;
+import cn.edu.pku.pkurunner.StackTracePrintingConsumer;
 import cn.edu.pku.pkurunner.Model.Record;
 import cn.edu.pku.pkurunner.R;
 import cn.edu.pku.pkurunner.RecordList.ItemTouchHelperCallback;
 import cn.edu.pku.pkurunner.RecordList.RecordCardAdapter;
 import cn.edu.pku.pkurunner.RecordList.RecordListContract;
-import cn.edu.pku.pkurunner.i1;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import java.text.SimpleDateFormat;
@@ -27,91 +27,75 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class RecordCardAdapter extends RecyclerView.Adapter<RecordCardAdapter.b> implements ItemTouchHelperCallback.b {
+public class RecordCardAdapter extends RecyclerView.Adapter<RecordCardAdapter.UploadedRecordViewHolder> implements ItemTouchHelperCallback.SwipeableItemCallback {
 
-    /* renamed from: h, reason: collision with root package name */
-    private static final SimpleDateFormat f6997h = new SimpleDateFormat("yy-MM-dd");
+    private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yy-MM-dd");
 
-    /* renamed from: i, reason: collision with root package name */
-    private static final SimpleDateFormat f6998i = new SimpleDateFormat("HH:mm");
+    private static final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm");
 
-    /* renamed from: c, reason: collision with root package name */
-    private ArrayList f6999c;
+    private ArrayList records;
 
-    /* renamed from: d, reason: collision with root package name */
-    private Boolean f7000d;
+    private Boolean dataValid;
 
-    /* renamed from: e, reason: collision with root package name */
-    private Boolean f7001e;
+    private Boolean firstItemElevationPending;
 
-    /* renamed from: f, reason: collision with root package name */
-    private RecordListContract.Presenter f7002f;
+    private RecordListContract.Presenter presenter;
 
-    /* renamed from: g, reason: collision with root package name */
-    private c f7003g;
+    private ResourcesProvider resourcesProvider;
 
-    interface a {
+    interface CardClickListener {
         void onClick(View view);
     }
 
-    static class b extends RecyclerView.ViewHolder {
+    static class UploadedRecordViewHolder extends RecyclerView.ViewHolder {
 
-        /* renamed from: s, reason: collision with root package name */
-        protected TextView f7004s;
+        protected TextView distanceText;
 
-        /* renamed from: t, reason: collision with root package name */
-        protected TextView f7005t;
+        protected TextView durationText;
 
-        /* renamed from: u, reason: collision with root package name */
-        protected TextView f7006u;
+        protected TextView dateText;
 
-        /* renamed from: v, reason: collision with root package name */
-        protected TextView f7007v;
+        protected TextView placeText;
 
-        /* renamed from: w, reason: collision with root package name */
-        protected a f7008w;
+        protected CardClickListener cardClickListener;
 
-        /* renamed from: x, reason: collision with root package name */
-        protected ImageView f7009x;
+        protected ImageView statusImageView;
 
-        /* renamed from: y, reason: collision with root package name */
-        protected ImageView f7010y;
+        protected ImageView circleBackgroundView;
 
-        /* renamed from: z, reason: collision with root package name */
-        protected CardView f7011z;
+        protected CardView cardView;
 
         public View H() {
-            return this.f7006u;
+            return this.dateText;
         }
 
         public View I() {
-            return this.f7004s;
+            return this.distanceText;
         }
 
         public View J() {
-            return this.f7009x;
+            return this.statusImageView;
         }
 
-        void L(a aVar) {
-            this.f7008w = aVar;
+        void L(CardClickListener cardClickListener) {
+            this.cardClickListener = cardClickListener;
         }
 
-        /* JADX INFO: Access modifiers changed from: private */
         public /* synthetic */ void K(View view) {
-            a aVar = this.f7008w;
-            if (aVar != null) {
-                aVar.onClick(view);
+            CardClickListener cardClickListener = this.cardClickListener;
+            if (cardClickListener != null) {
+                cardClickListener.onClick(view);
             }
         }
 
         void M() {
-            float cardElevation = this.f7011z.getCardElevation();
-            float f2 = 4.0f * cardElevation;
-            ObjectAnimator ofFloat = ObjectAnimator.ofFloat(this.f7011z, "cardElevation", cardElevation, f2);
+            float cardElevation = this.cardView.getCardElevation();
+            float value = 4.0f * cardElevation;
+            ObjectAnimator ofFloat = ObjectAnimator.ofFloat(this.cardView, "cardElevation", cardElevation, value);
             ofFloat.setInterpolator(new LinearOutSlowInInterpolator());
             ofFloat.setDuration(250L);
             ofFloat.setStartDelay(1000L);
-            ObjectAnimator ofFloat2 = ObjectAnimator.ofFloat(this.f7011z, "cardElevation", f2, cardElevation);
+            ObjectAnimator ofFloat2 = ObjectAnimator.ofFloat(this.cardView, "cardElevation", value, cardElevation);
             ofFloat2.setInterpolator(new FastOutSlowInInterpolator());
             ofFloat2.setDuration(250L);
             ofFloat2.setStartDelay(1000L);
@@ -120,187 +104,183 @@ public class RecordCardAdapter extends RecyclerView.Adapter<RecordCardAdapter.b>
             animatorSet.start();
         }
 
-        b(View view) {
+        UploadedRecordViewHolder(View view) {
             super(view);
-            this.f7004s = (TextView) view.findViewById(R.id.v_record_card_txt_distance);
-            this.f7005t = (TextView) view.findViewById(R.id.v_record_card_txt_time);
-            this.f7006u = (TextView) view.findViewById(R.id.v_record_card_txt_date);
-            this.f7009x = (ImageView) view.findViewById(R.id.v_record_card_img_status);
-            this.f7011z = (CardView) view.findViewById(R.id.view_card_record_fg);
-            this.f7007v = (TextView) view.findViewById(R.id.v_record_card_txt_place);
-            this.f7010y = (ImageView) view.findViewById(R.id.v_record_card_circle_bg);
-            view.setOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.RecordList.d
-                @Override // android.view.View.OnClickListener
+            this.distanceText = (TextView) view.findViewById(R.id.v_record_card_txt_distance);
+            this.durationText = (TextView) view.findViewById(R.id.v_record_card_txt_time);
+            this.dateText = (TextView) view.findViewById(R.id.v_record_card_txt_date);
+            this.statusImageView = (ImageView) view.findViewById(R.id.v_record_card_img_status);
+            this.cardView = (CardView) view.findViewById(R.id.view_card_record_fg);
+            this.placeText = (TextView) view.findViewById(R.id.v_record_card_txt_place);
+            this.circleBackgroundView = (ImageView) view.findViewById(R.id.v_record_card_circle_bg);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
                 public final void onClick(View view2) {
-                    RecordCardAdapter.b.this.K(view2);
+                    RecordCardAdapter.UploadedRecordViewHolder.this.K(view2);
                 }
             });
         }
     }
 
-    interface c {
-        Resources a();
+    interface ResourcesProvider {
+        Resources getResources();
     }
 
     public void notifyDataInvalid() {
-        this.f7000d = Boolean.FALSE;
+        this.dataValid = Boolean.FALSE;
     }
 
     public void notifyFirstElementElevation() {
-        this.f7001e = Boolean.TRUE;
+        this.firstItemElevationPending = Boolean.TRUE;
     }
 
-    public void setPresenter(RecordListContract.Presenter presenter, c cVar) {
+    public void setPresenter(RecordListContract.Presenter presenter, ResourcesProvider resourcesProvider) {
         if (presenter != null) {
-            this.f7002f = presenter;
+            this.presenter = presenter;
         }
-        this.f7003g = cVar;
+        this.resourcesProvider = resourcesProvider;
     }
 
-    static class d extends b {
-        d(View view) {
+    static class RecordViewHolder extends UploadedRecordViewHolder {
+        RecordViewHolder(View view) {
             super(view);
         }
     }
 
     private ArrayList e() {
-        if (!this.f7000d.booleanValue()) {
+        if (!this.dataValid.booleanValue()) {
             if (Data.isValid()) {
                 ArrayList<Record> records = Data.getRecords();
-                this.f6999c = records;
-                Collections.sort(records, new Comparator() { // from class: v.a
-                    @Override // java.util.Comparator
+                this.records = records;
+                Collections.sort(records, new Comparator() {
+                    @Override
                     public final int compare(Object obj, Object obj2) {
-                        int f2;
-                        f2 = RecordCardAdapter.f((Record) obj, (Record) obj2);
-                        return f2;
+                        int value;
+                        value = RecordCardAdapter.f((Record) obj, (Record) obj2);
+                        return value;
                     }
                 });
             } else {
-                this.f6999c = new ArrayList();
+                this.records = new ArrayList();
             }
-            this.f7000d = Boolean.TRUE;
+            this.dataValid = Boolean.TRUE;
         }
-        return this.f6999c;
+        return this.records;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void i(b bVar, String str) {
-        bVar.f7007v.setText(str);
+    public static /* synthetic */ void i(UploadedRecordViewHolder holder, String str) {
+        holder.placeText.setText(str);
     }
 
     private boolean j() {
-        if (!this.f7001e.booleanValue()) {
+        if (!this.firstItemElevationPending.booleanValue()) {
             return false;
         }
-        this.f7001e = Boolean.FALSE;
+        this.firstItemElevationPending = Boolean.FALSE;
         return true;
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
-    public void onBindViewHolder(final b bVar, int i2) {
-        Record record = (Record) e().get(i2);
-        bVar.f7004s.setText(this.f7003g.a().getString(R.string.v_record_card_distance_format, Double.valueOf(record.getDistance() / 1000.0d)));
+    @Override
+    public void onBindViewHolder(final UploadedRecordViewHolder holder, int index) {
+        Record record = (Record) e().get(index);
+        holder.distanceText.setText(this.resourcesProvider.getResources().getString(R.string.v_record_card_distance_format, Double.valueOf(record.getDistance() / 1000.0d)));
         Date date = record.getDate();
-        String format = f6997h.format(date);
-        SimpleDateFormat simpleDateFormat = f6998i;
+        String format = DATE_FORMATTER.format(date);
+        SimpleDateFormat simpleDateFormat = TIME_FORMATTER;
         String format2 = simpleDateFormat.format(new Date(date.getTime() - (record.getDuration() * 1000)));
         String format3 = simpleDateFormat.format(date);
-        bVar.f7006u.setText(format);
-        bVar.f7005t.setText(this.f7003g.a().getString(R.string.v_record_card_duration_format, format2, format3));
-        bVar.L(new a() { // from class: cn.edu.pku.pkurunner.RecordList.a
-            @Override // cn.edu.pku.pkurunner.RecordList.RecordCardAdapter.a
+        holder.dateText.setText(format);
+        holder.durationText.setText(this.resourcesProvider.getResources().getString(R.string.v_record_card_duration_format, format2, format3));
+        holder.L(new CardClickListener() {
+            @Override
             public final void onClick(View view) {
-                RecordCardAdapter.this.g(bVar, view);
+                RecordCardAdapter.this.g(holder, view);
             }
         });
-        if (bVar instanceof d) {
-            ((d) bVar).f7009x.setOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.RecordList.b
-                @Override // android.view.View.OnClickListener
+        if (holder instanceof RecordViewHolder) {
+            ((RecordViewHolder) holder).statusImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
                 public final void onClick(View view) {
-                    RecordCardAdapter.this.h(bVar, view);
+                    RecordCardAdapter.this.h(holder, view);
                 }
             });
         } else {
             if (record.isVerified()) {
-                TextView textView = bVar.f7004s;
+                TextView textView = holder.distanceText;
                 textView.setPaintFlags(textView.getPaintFlags() & (-17));
-                bVar.f7009x.setImageResource(R.drawable.ic_done_black_24dp);
-                bVar.f7009x.getDrawable().setTint(this.f7003g.a().getColor(R.color.green_A700));
+                holder.statusImageView.setImageResource(R.drawable.ic_done_black_24dp);
+                holder.statusImageView.getDrawable().setTint(this.resourcesProvider.getResources().getColor(R.color.green_A700));
             } else {
-                TextView textView2 = bVar.f7004s;
+                TextView textView2 = holder.distanceText;
                 textView2.setPaintFlags(textView2.getPaintFlags() | 16);
-                bVar.f7009x.setImageResource(R.drawable.ic_error_outline_black_24dp);
-                bVar.f7009x.getDrawable().setTint(this.f7003g.a().getColor(R.color.orange_A400));
+                holder.statusImageView.setImageResource(R.drawable.ic_error_outline_black_24dp);
+                holder.statusImageView.getDrawable().setTint(this.resourcesProvider.getResources().getColor(R.color.orange_A400));
             }
             if (Data.getUser().isOffline().booleanValue()) {
-                Data.getRecordPlaceHintForOfflineUser(record).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.RecordList.c
-                    @Override // io.reactivex.functions.Consumer
+                Data.getRecordPlaceHintForOfflineUser(record).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+                    @Override
                     public final void accept(Object obj) {
-                        RecordCardAdapter.i(bVar, (String) obj);
+                        RecordCardAdapter.i(holder, (String) obj);
                     }
-                }, new i1());
+                }, new StackTracePrintingConsumer());
             } else {
                 Record.RecordPlace place = record.getPlace();
-                bVar.f7007v.setText(Record.getPlaceString(place));
-                bVar.f7010y.getDrawable().setTint(this.f7003g.a().getColor(place == Record.RecordPlace.UNKNOWN ? R.color.blue_grey_700 : R.color.teal_700));
+                holder.placeText.setText(Record.getPlaceString(place));
+                holder.circleBackgroundView.getDrawable().setTint(this.resourcesProvider.getResources().getColor(place == Record.RecordPlace.UNKNOWN ? R.color.blue_grey_700 : R.color.teal_700));
             }
         }
-        if (i2 == 0 && j()) {
-            bVar.M();
+        if (index == 0 && j()) {
+            holder.M();
         }
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
-    public b onCreateViewHolder(ViewGroup viewGroup, int i2) {
-        if (i2 == 0) {
-            return new b(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_record_card_uploaded, viewGroup, false));
+    @Override
+    public UploadedRecordViewHolder onCreateViewHolder(ViewGroup viewGroup, int index) {
+        if (index == 0) {
+            return new UploadedRecordViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_record_card_uploaded, viewGroup, false));
         }
-        if (i2 != 1) {
+        if (index != 1) {
             return null;
         }
-        return new d(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_record_card, viewGroup, false));
+        return new RecordViewHolder(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.view_record_card, viewGroup, false));
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.ItemTouchHelperCallback.b
-    public void onItemSwiped(int i2) {
-        this.f7002f.deleteRecord(((Record) e().get(i2)).getId(), i2);
+    @Override
+    public void onItemSwiped(int index) {
+        this.presenter.deleteRecord(((Record) e().get(index)).getId(), index);
     }
 
     public RecordCardAdapter() {
         Boolean bool = Boolean.FALSE;
-        this.f7000d = bool;
-        this.f7001e = bool;
+        this.dataValid = bool;
+        this.firstItemElevationPending = bool;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ int f(Record record, Record record2) {
         return -record.getDate().compareTo(record2.getDate());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public /* synthetic */ void g(b bVar, View view) {
-        this.f7002f.showRecordDetail(((Record) e().get(bVar.getAdapterPosition())).getId());
+    public /* synthetic */ void g(UploadedRecordViewHolder holder, View view) {
+        this.presenter.showRecordDetail(((Record) e().get(holder.getAdapterPosition())).getId());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public /* synthetic */ void h(b bVar, View view) {
-        int adapterPosition = bVar.getAdapterPosition();
-        this.f7002f.uploadVerifyRecord(((Record) e().get(adapterPosition)).getId(), adapterPosition);
+    public /* synthetic */ void h(UploadedRecordViewHolder holder, View view) {
+        int adapterPosition = holder.getAdapterPosition();
+        this.presenter.uploadVerifyRecord(((Record) e().get(adapterPosition)).getId(), adapterPosition);
     }
 
-    @Override // cn.edu.pku.pkurunner.RecordList.ItemTouchHelperCallback.b
-    public boolean canBeSwiped(int i2) {
-        return !((Record) e().get(i2)).isUploaded();
+    @Override
+    public boolean canBeSwiped(int index) {
+        return !((Record) e().get(index)).isUploaded();
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
+    @Override
     public int getItemCount() {
         return e().size();
     }
 
-    @Override // androidx.recyclerview.widget.RecyclerView.Adapter
-    public int getItemViewType(int i2) {
-        return !((Record) e().get(i2)).isUploaded() ? 1 : 0;
+    @Override
+    public int getItemViewType(int index) {
+        return !((Record) e().get(index)).isUploaded() ? 1 : 0;
     }
 }

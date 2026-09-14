@@ -32,8 +32,8 @@ public class Badge {
         this.description = str;
     }
 
-    public void setId(int i2) {
-        this.id = i2;
+    public void setId(int index) {
+        this.id = index;
     }
 
     public void setName(String str) {
@@ -44,7 +44,7 @@ public class Badge {
         this.requirement = str;
     }
 
-    public void setStatus(int i2) {
-        this.status = i2;
+    public void setStatus(int index) {
+        this.status = index;
     }
 }

@@ -10,7 +10,6 @@ import org.xutils.db.annotation.Table;
 @Table(name = "partial_track")
 public class PartialPoint {
 
-    /* renamed from: id, reason: collision with root package name */
     @Column(isId = true, name = "id")
     private int f6975id;
 
@@ -62,36 +61,36 @@ public class PartialPoint {
         return this.status;
     }
 
-    public void setId(int i2) {
-        this.f6975id = i2;
+    public void setId(int index) {
+        this.f6975id = index;
     }
 
-    public void setLatitude(double d2) {
-        this.latitude = d2;
+    public void setLatitude(double value) {
+        this.latitude = value;
     }
 
-    public void setLongitude(double d2) {
-        this.longitude = d2;
+    public void setLongitude(double value) {
+        this.longitude = value;
     }
 
-    public void setRecordDbId(int i2) {
-        this.recordDbId = i2;
+    public void setRecordDbId(int index) {
+        this.recordDbId = index;
     }
 
-    public void setSequence(int i2) {
-        this.sequence = i2;
+    public void setSequence(int index) {
+        this.sequence = index;
     }
 
-    public void setStatus(int i2) {
-        this.status = i2;
+    public void setStatus(int index) {
+        this.status = index;
     }
 
-    public static ArrayList<PartialPoint> assignInfoToTrack(int i2, List<Point> list) {
+    public static ArrayList<PartialPoint> assignInfoToTrack(int index, List<Point> list) {
         ArrayList<PartialPoint> arrayList = new ArrayList<>();
-        for (int i3 = 0; i3 < list.size(); i3++) {
-            PartialPoint partialPoint = new PartialPoint(list.get(i3));
-            partialPoint.setSequence(i3);
-            partialPoint.setRecordDbId(i2);
+        for (int index2 = 0; index2 < list.size(); index2++) {
+            PartialPoint partialPoint = new PartialPoint(list.get(index2));
+            partialPoint.setSequence(index2);
+            partialPoint.setRecordDbId(index);
             arrayList.add(partialPoint);
         }
         return arrayList;

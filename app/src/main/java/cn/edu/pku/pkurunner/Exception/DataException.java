@@ -10,15 +10,15 @@ public class DataException extends SimpleException {
     public static final int Record_Not_Found = 32;
     public static final int Record_Not_Uploaded = 16;
 
-    public DataException(int i2) {
-        super(i2);
+    public DataException(int index) {
+        super(index);
     }
 
-    public DataException(int i2, String str) {
-        super(i2, str);
+    public DataException(int index, String str) {
+        super(index, str);
     }
 
-    public DataException(int i2, String str, Throwable th) {
-        super(i2, str, th);
+    public DataException(int index, String str, Throwable th) {
+        super(index, str, th);
     }
 }

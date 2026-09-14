@@ -6,24 +6,22 @@ import cn.edu.pku.pkurunner.R;
 
 public class ServerException extends SimpleException {
 
-    /* renamed from: a, reason: collision with root package name */
-    private static Resources f6862a;
+    private static Resources resources;
 
-    /* renamed from: b, reason: collision with root package name */
-    private static final SparseIntArray f6863b;
+    private static final SparseIntArray MESSAGE_RES_IDS;
 
     public static void setResources(Resources resources) {
-        f6862a = resources;
+        ServerException.resources = resources;
     }
 
-    @Override // java.lang.Throwable
+    @Override
     public String getLocalizedMessage() {
-        return f6862a.getString(f6863b.get(this.errorCode, R.string.e_server_n1));
+        return resources.getString(MESSAGE_RES_IDS.get(this.errorCode, R.string.e_server_n1));
     }
 
     static {
         SparseIntArray sparseIntArray = new SparseIntArray();
-        f6863b = sparseIntArray;
+        MESSAGE_RES_IDS = sparseIntArray;
         sparseIntArray.put(-1, R.string.e_server_n1);
         sparseIntArray.put(0, R.string.e_server_0);
         sparseIntArray.put(1, R.string.e_server_1);
@@ -52,11 +50,11 @@ public class ServerException extends SimpleException {
         sparseIntArray.put(24, R.string.e_server_24);
     }
 
-    public static String getLocalizedMessage(int i2) {
-        return f6862a.getString(f6863b.get(i2, R.string.e_server_n1));
+    public static String getLocalizedMessage(int index) {
+        return resources.getString(MESSAGE_RES_IDS.get(index, R.string.e_server_n1));
     }
 
-    public ServerException(int i2, String str) {
-        super(i2, str);
+    public ServerException(int index, String str) {
+        super(index, str);
     }
 }

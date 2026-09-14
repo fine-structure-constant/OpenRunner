@@ -27,7 +27,6 @@ public class User {
     @Column(name = "gender")
     private int gender;
 
-    /* renamed from: id, reason: collision with root package name */
     @Column(isId = true, name = "id", property = "UNIQUE")
     private String f6980id;
 
@@ -61,8 +60,8 @@ public class User {
     }
 
     private String getGenderByString() {
-        int i2 = this.gender;
-        return i2 != 0 ? i2 != 1 ? UNKNOWN_GENDER_STRING : MALE_STRING : FEMALE_STRING;
+        int index = this.gender;
+        return index != 0 ? index != 1 ? UNKNOWN_GENDER_STRING : MALE_STRING : FEMALE_STRING;
     }
 
     public String getDepartment() {
@@ -105,14 +104,14 @@ public class User {
         this.department = str;
     }
 
-    public void setGender(int i2) {
-        this.gender = i2;
+    public void setGender(int index) {
+        this.gender = index;
     }
 
-    public void setGymRecordById(int i2, GymRecord gymRecord) {
-        for (int i3 = 0; i3 < this.gymRecords.size(); i3++) {
-            if (this.gymRecords.get(i3).getId() == i2) {
-                this.gymRecords.set(i2, gymRecord);
+    public void setGymRecordById(int index, GymRecord gymRecord) {
+        for (int index2 = 0; index2 < this.gymRecords.size(); index2++) {
+            if (this.gymRecords.get(index2).getId() == index) {
+                this.gymRecords.set(index, gymRecord);
             }
         }
     }
@@ -133,10 +132,10 @@ public class User {
         this.PESpecialty = bool;
     }
 
-    public void setRecordById(int i2, Record record) {
-        for (int i3 = 0; i3 < this.records.size(); i3++) {
-            if (this.records.get(i3).getId() == i2) {
-                this.records.set(i3, record);
+    public void setRecordById(int index, Record record) {
+        for (int index2 = 0; index2 < this.records.size(); index2++) {
+            if (this.records.get(index2).getId() == index) {
+                this.records.set(index2, record);
             }
         }
     }
@@ -149,11 +148,11 @@ public class User {
         this.token = str;
     }
 
-    public static User createOfflineUser(int i2, String str) {
+    public static User createOfflineUser(int index, String str) {
         User user = new User();
         user.offline = Boolean.TRUE;
         user.department = "离线";
-        user.gender = i2;
+        user.gender = index;
         user.f6980id = UUID.randomUUID().toString();
         user.name = str;
         user.PESpecialty = Boolean.FALSE;
@@ -171,11 +170,11 @@ public class User {
         return record.getId();
     }
 
-    public Boolean deleteGymRecordById(int i2) {
+    public Boolean deleteGymRecordById(int index) {
         Iterator<GymRecord> it = this.gymRecords.iterator();
         while (it.hasNext()) {
             GymRecord next = it.next();
-            if (next.getId() == i2) {
+            if (next.getId() == index) {
                 return next.isUploaded().booleanValue() ? Boolean.FALSE : Boolean.valueOf(this.gymRecords.remove(next));
             }
         }
@@ -186,22 +185,22 @@ public class User {
         return Boolean.valueOf(this.records.remove(record));
     }
 
-    public GymRecord getGymRecordById(int i2) {
+    public GymRecord getGymRecordById(int index) {
         Iterator<GymRecord> it = this.gymRecords.iterator();
         while (it.hasNext()) {
             GymRecord next = it.next();
-            if (next.getId() == i2) {
+            if (next.getId() == index) {
                 return next;
             }
         }
         return null;
     }
 
-    public Record getRecordById(int i2) {
+    public Record getRecordById(int index) {
         Iterator<Record> it = this.records.iterator();
         while (it.hasNext()) {
             Record next = it.next();
-            if (next.getId() == i2) {
+            if (next.getId() == index) {
                 return next;
             }
         }
@@ -212,10 +211,10 @@ public class User {
         return "User{id='" + this.f6980id + "', token='" + this.token + "', PESpecialty=" + this.PESpecialty + ", name='" + this.name + "', gender=" + getGenderByString() + ", department=" + this.department + ", records=" + this.records + ", gymRecords=" + this.gymRecords + '}';
     }
 
-    public Boolean provideTrackForRecord(int i2, ArrayList<Point> arrayList) {
-        Record recordById = getRecordById(i2);
+    public Boolean provideTrackForRecord(int index, ArrayList<Point> arrayList) {
+        Record recordById = getRecordById(index);
         if (recordById != null) {
-            recordById.setTrack(Point.assignInfoToTrack(i2, arrayList));
+            recordById.setTrack(Point.assignInfoToTrack(index, arrayList));
             recordById.setDetailed(true);
             return Boolean.TRUE;
         }

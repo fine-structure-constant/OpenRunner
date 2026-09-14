@@ -14,9 +14,9 @@ import org.xutils.db.annotation.Table;
 
 @Table(name = "track")
 public class Point implements Serializable, Parcelable {
-    public static final Parcelable.Creator<Point> CREATOR = new Parcelable.Creator<Point>() { // from class: cn.edu.pku.pkurunner.Model.Point.1
+    public static final Parcelable.Creator<Point> CREATOR = new Parcelable.Creator<Point>() {
         /* JADX WARN: Can't rename method to resolve collision */
-        @Override // android.os.Parcelable.Creator
+        @Override
         public Point createFromParcel(Parcel parcel) {
             int readInt = parcel.readInt();
             Point point = new Point(parcel.readInt(), parcel.readInt(), parcel.readDouble(), parcel.readDouble(), parcel.readInt());
@@ -25,9 +25,9 @@ public class Point implements Serializable, Parcelable {
         }
 
         /* JADX WARN: Can't rename method to resolve collision */
-        @Override // android.os.Parcelable.Creator
-        public Point[] newArray(int i2) {
-            return new Point[i2];
+        @Override
+        public Point[] newArray(int index) {
+            return new Point[index];
         }
     };
     public static final int STATUS_BEGIN = 1;
@@ -35,7 +35,6 @@ public class Point implements Serializable, Parcelable {
     public static final int STATUS_MARKER = 3;
     public static final int STATUS_RUNNING = 0;
 
-    /* renamed from: id, reason: collision with root package name */
     @Column(isId = true, name = "id")
     private int f6977id;
 
@@ -57,7 +56,7 @@ public class Point implements Serializable, Parcelable {
     public Point() {
     }
 
-    @Override // android.os.Parcelable
+    @Override
     public int describeContents() {
         return 0;
     }
@@ -86,28 +85,28 @@ public class Point implements Serializable, Parcelable {
         return this.status;
     }
 
-    public void setId(int i2) {
-        this.f6977id = i2;
+    public void setId(int index) {
+        this.f6977id = index;
     }
 
-    public void setLatitude(double d2) {
-        this.latitude = d2;
+    public void setLatitude(double value) {
+        this.latitude = value;
     }
 
-    public void setLongitude(double d2) {
-        this.longitude = d2;
+    public void setLongitude(double value) {
+        this.longitude = value;
     }
 
-    public void setRecordDbId(int i2) {
-        this.recordDbId = i2;
+    public void setRecordDbId(int index) {
+        this.recordDbId = index;
     }
 
-    public void setSequence(int i2) {
-        this.sequence = i2;
+    public void setSequence(int index) {
+        this.sequence = index;
     }
 
-    public void setStatus(int i2) {
-        this.status = i2;
+    public void setStatus(int index) {
+        this.status = index;
     }
 
     public Point(LatLng latLng) {
@@ -117,10 +116,10 @@ public class Point implements Serializable, Parcelable {
         this.status = 0;
     }
 
-    public static ArrayList<Point> assignInfoToTrack(int i2, ArrayList<Point> arrayList) {
+    public static ArrayList<Point> assignInfoToTrack(int index, ArrayList<Point> arrayList) {
         ArrayList<Point> arrayList2 = new ArrayList<>();
-        for (int i3 = 0; i3 < arrayList.size(); i3++) {
-            arrayList2.add(new Point(i3, i2, arrayList.get(i3).getLongitude(), arrayList.get(i3).getLatitude(), arrayList.get(i3).getStatus()));
+        for (int index2 = 0; index2 < arrayList.size(); index2++) {
+            arrayList2.add(new Point(index2, index, arrayList.get(index2).getLongitude(), arrayList.get(index2).getLatitude(), arrayList.get(index2).getStatus()));
         }
         return arrayList2;
     }
@@ -146,8 +145,8 @@ public class Point implements Serializable, Parcelable {
         return "Point{id=" + this.f6977id + ", sequence=" + this.sequence + ", recordDbId=" + this.recordDbId + ", latitude=" + this.latitude + ", longitude=" + this.longitude + ", status=" + this.status + '}';
     }
 
-    @Override // android.os.Parcelable
-    public void writeToParcel(Parcel parcel, int i2) {
+    @Override
+    public void writeToParcel(Parcel parcel, int index) {
         parcel.writeInt(this.f6977id);
         parcel.writeInt(this.sequence);
         parcel.writeInt(this.recordDbId);
@@ -156,12 +155,12 @@ public class Point implements Serializable, Parcelable {
         parcel.writeInt(this.status);
     }
 
-    public Point(int i2, int i3, double d2, double d3, int i4) {
+    public Point(int index, int index2, double value, double value2, int index3) {
         this.f6977id = 0;
-        this.sequence = i2;
-        this.recordDbId = i3;
-        this.latitude = d3;
-        this.longitude = d2;
-        this.status = i4;
+        this.sequence = index;
+        this.recordDbId = index2;
+        this.latitude = value2;
+        this.longitude = value;
+        this.status = index3;
     }
 }

@@ -25,33 +25,27 @@ import java.util.concurrent.TimeUnit;
 
 public class GPSInfoView extends CardView {
 
-    /* renamed from: n, reason: collision with root package name */
-    private static final int[] f7146n;
+    private static final int[] SIGNAL_LEVEL_DRAWABLES;
 
-    /* renamed from: o, reason: collision with root package name */
-    private static final int f7147o;
+    private static final int SIGNAL_LEVEL_COUNT;
 
-    /* renamed from: j, reason: collision with root package name */
-    private ImageView f7148j;
+    private ImageView signalImageView;
 
-    /* renamed from: k, reason: collision with root package name */
-    private TextView f7149k;
+    private TextView infoText;
 
-    /* renamed from: l, reason: collision with root package name */
-    private ObservableEmitter f7150l;
+    private ObservableEmitter clickEmitter;
 
-    /* renamed from: m, reason: collision with root package name */
-    private boolean f7151m;
+    private boolean persistent;
 
     static {
         int[] iArr = {R.drawable.ic_signal_cellular_0_bar, R.drawable.ic_signal_cellular_1_bar, R.drawable.ic_signal_cellular_2_bar, R.drawable.ic_signal_cellular_3_bar, R.drawable.ic_signal_cellular_4_bar};
-        f7146n = iArr;
-        f7147o = iArr.length;
+        SIGNAL_LEVEL_DRAWABLES = iArr;
+        SIGNAL_LEVEL_COUNT = iArr.length;
     }
 
     public GPSInfoView(@NonNull Context context) {
         super(context);
-        this.f7151m = true;
+        this.persistent = true;
         g(context, null);
     }
 
@@ -69,22 +63,21 @@ public class GPSInfoView extends CardView {
         ofFloat.start();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void j(ObservableEmitter observableEmitter) {
-        this.f7150l = observableEmitter;
+        this.clickEmitter = observableEmitter;
     }
 
-    public void setSignalStrength(int i2) {
-        this.f7148j.setImageResource(f7146n[m(i2)]);
+    public void setSignalStrength(int index2) {
+        this.signalImageView.setImageResource(SIGNAL_LEVEL_DRAWABLES[m(index2)]);
         invalidate();
     }
 
-    private int m(int i2) {
-        return Math.max(0, Math.min(f7147o - 1, i2));
+    private int m(int index2) {
+        return Math.max(0, Math.min(SIGNAL_LEVEL_COUNT - 1, index2));
     }
 
     public void notifyVisible() {
-        this.f7150l.onNext(Boolean.TRUE);
+        this.clickEmitter.onNext(Boolean.TRUE);
     }
 
     public void setAppear(boolean z2) {
@@ -93,58 +86,58 @@ public class GPSInfoView extends CardView {
     }
 
     public void setInfoText(String str) {
-        this.f7149k.setText(str);
+        this.infoText.setText(str);
         invalidate();
     }
 
     public void setPersistent(boolean z2) {
-        this.f7151m = z2;
+        this.persistent = z2;
         setAppear(z2);
     }
 
     public GPSInfoView(Context context, @Nullable AttributeSet attributeSet) {
         super(context, attributeSet);
-        this.f7151m = true;
+        this.persistent = true;
         g(context, attributeSet);
     }
 
     private void g(Context context, AttributeSet attributeSet) {
         View.inflate(context, R.layout.view_gps_indicator, this);
-        this.f7148j = (ImageView) findViewById(R.id.v_gps_img_signal);
-        this.f7149k = (TextView) findViewById(R.id.v_gps_txt_info);
+        this.signalImageView = (ImageView) findViewById(R.id.v_gps_img_signal);
+        this.infoText = (TextView) findViewById(R.id.v_gps_txt_info);
         if (attributeSet != null) {
             TypedArray obtainStyledAttributes = context.obtainStyledAttributes(attributeSet, R.styleable.GPSInfoView);
-            for (int i2 = 0; i2 < obtainStyledAttributes.getIndexCount(); i2++) {
-                int index = obtainStyledAttributes.getIndex(i2);
+            for (int index2 = 0; index2 < obtainStyledAttributes.getIndexCount(); index2++) {
+                int index = obtainStyledAttributes.getIndex(index2);
                 if (index != 0) {
                     if (index != 1) {
                         if (index == 2) {
-                            setInfoText(obtainStyledAttributes.getString(i2));
+                            setInfoText(obtainStyledAttributes.getString(index2));
                         }
                     } else {
-                        setSignalStrength(obtainStyledAttributes.getInteger(i2, 0));
+                        setSignalStrength(obtainStyledAttributes.getInteger(index2, 0));
                     }
                 } else {
-                    setAppear(obtainStyledAttributes.getBoolean(i2, true));
+                    setAppear(obtainStyledAttributes.getBoolean(index2, true));
                 }
             }
             obtainStyledAttributes.recycle();
         }
         if (!isInEditMode()) {
-            Observable create = Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.View.a
-                @Override // io.reactivex.ObservableOnSubscribe
+            Observable create = Observable.create(new ObservableOnSubscribe() {
+                @Override
                 public final void subscribe(ObservableEmitter observableEmitter) {
                     GPSInfoView.this.j(observableEmitter);
                 }
             });
             TimeUnit timeUnit = TimeUnit.SECONDS;
-            create.throttleFirst(3L, timeUnit).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer() { // from class: cn.edu.pku.pkurunner.View.b
-                @Override // io.reactivex.functions.Consumer
+            create.throttleFirst(3L, timeUnit).observeOn(AndroidSchedulers.mainThread()).doOnNext(new Consumer() {
+                @Override
                 public final void accept(Object obj) {
                     GPSInfoView.this.k((Boolean) obj);
                 }
-            }).debounce(5L, timeUnit).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.View.c
-                @Override // io.reactivex.functions.Consumer
+            }).debounce(5L, timeUnit).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+                @Override
                 public final void accept(Object obj) {
                     GPSInfoView.this.l((Boolean) obj);
                 }
@@ -175,21 +168,19 @@ public class GPSInfoView extends CardView {
         return false;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void k(Boolean bool) {
         if (h()) {
             e();
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void l(Boolean bool) {
-        if (i() && !this.f7151m) {
+        if (i() && !this.persistent) {
             f();
         }
     }
 
-    public void setSignalStrength(double d2) {
-        setSignalStrength((int) (f7147o * d2));
+    public void setSignalStrength(double value) {
+        setSignalStrength((int) (SIGNAL_LEVEL_COUNT * value));
     }
 }

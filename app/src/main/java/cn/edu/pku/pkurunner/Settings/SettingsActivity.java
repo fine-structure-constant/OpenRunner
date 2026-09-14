@@ -18,6 +18,7 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import cn.edu.pku.pkurunner.BuildConfig;
+import cn.edu.pku.pkurunner.StackTracePrintingConsumer;
 import cn.edu.pku.pkurunner.Data;
 import cn.edu.pku.pkurunner.GuidePage.IntroActivity;
 import cn.edu.pku.pkurunner.Map.SpeedHelper;
@@ -27,7 +28,6 @@ import cn.edu.pku.pkurunner.R;
 import cn.edu.pku.pkurunner.Storage.Dropbox;
 import cn.edu.pku.pkurunner.Storage.OperationCancelException;
 import cn.edu.pku.pkurunner.Storage.StorageUtil;
-import cn.edu.pku.pkurunner.i1;
 import com.dropbox.core.NetworkIOException;
 import com.dropbox.core.android.Auth;
 import com.dropbox.core.v2.DbxClientV2;
@@ -46,30 +46,27 @@ import org.xutils.common.util.LogUtil;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    /* renamed from: a, reason: collision with root package name */
-    private ProgressDialog f7051a;
+    private ProgressDialog progressDialog;
 
-    /* renamed from: b, reason: collision with root package name */
-    private int f7052b = 0;
+    private int uploadRetryCount = 0;
 
-    private SettingsFragment f7053c;
+    private SettingsFragment settingsFragment;
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
-        @Override // androidx.preference.PreferenceFragmentCompat
+        @Override
         public void onCreatePreferences(Bundle bundle, String str) {
             setPreferencesFromResource(R.xml.app_settings, str);
         }
     }
 
     private Preference findPreference(CharSequence charSequence) {
-        SettingsFragment settingsFragment = this.f7053c;
+        SettingsFragment settingsFragment = this.settingsFragment;
         if (settingsFragment == null) {
             return null;
         }
         return settingsFragment.findPreference(charSequence);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void U(Preference preference, Pair pair) {
         preference.setSummary(getString(R.string.p_setting_storage_user, ((FullAccount) pair.first).getName().getDisplayName(), StorageUtil.sizeToReadableString(((SpaceUsage) pair.second).getUsed()), StorageUtil.sizeToReadableString(((SpaceUsage) pair.second).getAllocation().getIndividualValue().getAllocated())));
     }
@@ -78,8 +75,8 @@ public class SettingsActivity extends AppCompatActivity {
         Preference findPreference = findPreference("pref_dropbox");
         findPreference.setSummary("Not connected");
         findPreference.setEnabled(true);
-        findPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { // from class: cn.edu.pku.pkurunner.Settings.h
-            @Override // android.preference.Preference.OnPreferenceClickListener
+        findPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
             public final boolean onPreferenceClick(Preference preference) {
                 boolean V;
                 V = SettingsActivity.this.V(preference);
@@ -92,8 +89,8 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void B() {
         findPreference("pref_version").setSummary(BuildConfig.VERSION_NAME);
-        findPreference("pref_guide").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { // from class: cn.edu.pku.pkurunner.Settings.r
-            @Override // android.preference.Preference.OnPreferenceClickListener
+        findPreference("pref_guide").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
             public final boolean onPreferenceClick(Preference preference) {
                 boolean W;
                 W = SettingsActivity.this.W(preference);
@@ -102,8 +99,8 @@ public class SettingsActivity extends AppCompatActivity {
         });
         Preference findPreference = findPreference("pref_version");
         final String[] stringArray = getResources().getStringArray(R.array.p_about_easteregg);
-        findPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { // from class: cn.edu.pku.pkurunner.Settings.s
-            @Override // android.preference.Preference.OnPreferenceClickListener
+        findPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
             public final boolean onPreferenceClick(Preference preference) {
                 boolean X;
                 X = SettingsActivity.this.X(stringArray, preference);
@@ -117,8 +114,8 @@ public class SettingsActivity extends AppCompatActivity {
         listPreference.setSummary(D(Data.getUser().getGender()));
         listPreference.setDefaultValue(E(Data.getUser().getGender()));
         listPreference.setEnabled(Data.getUser().isOffline().booleanValue());
-        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() { // from class: cn.edu.pku.pkurunner.Settings.a
-            @Override // android.preference.Preference.OnPreferenceChangeListener
+        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
             public final boolean onPreferenceChange(Preference preference, Object obj) {
                 boolean Z;
                 Z = SettingsActivity.this.Z(preference, obj);
@@ -127,7 +124,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void I(Throwable th) {
         if (th instanceof Dropbox.APIWrapper.DropboxException) {
             A();
@@ -136,7 +132,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void J(Preference preference, Throwable th) {
         if (th instanceof NetworkIOException) {
             preference.setSummary(R.string.p_setting_storage_sockettimeout);
@@ -145,51 +140,45 @@ public class SettingsActivity extends AppCompatActivity {
         Toast.makeText(this, "Error in " + th, 0).show();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void K(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void K(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onError(new OperationCancelException());
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void L(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void L(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void M(final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(this).setTitle("Really upload database (will overwrite remote file)?").setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() { // from class: cn.edu.pku.pkurunner.Settings.o
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
-                SettingsActivity.K(observableEmitter, dialogInterface, i2);
+        new AlertDialog.Builder(this).setTitle("Really upload database (will overwrite remote file)?").setCancelable(false).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
+                SettingsActivity.K(observableEmitter, dialogInterface, index);
             }
-        }).setPositiveButton("Confirm", new DialogInterface.OnClickListener() { // from class: cn.edu.pku.pkurunner.Settings.p
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
-                SettingsActivity.L(observableEmitter, dialogInterface, i2);
+        }).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
+                SettingsActivity.L(observableEmitter, dialogInterface, index);
             }
         }).show();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ ObservableSource N(Boolean bool) {
         ProgressDialog progressDialog = new ProgressDialog(this);
-        this.f7051a = progressDialog;
+        this.progressDialog = progressDialog;
         progressDialog.setProgressStyle(0);
-        this.f7051a.setMessage("Uploading...");
-        this.f7051a.setIndeterminate(false);
-        this.f7051a.setCancelable(false);
-        this.f7051a.show();
+        this.progressDialog.setMessage("Uploading...");
+        this.progressDialog.setIndeterminate(false);
+        this.progressDialog.setCancelable(false);
+        this.progressDialog.show();
         return Observable.just(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void P(FileMetadata fileMetadata) {
-        this.f7051a.dismiss();
-        this.f7051a = null;
+        this.progressDialog.dismiss();
+        this.progressDialog = null;
         Toast.makeText(this, "Successfully updated (" + StorageUtil.sizeToReadableString(fileMetadata.getSize()) + ")!", 0).show();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void Q(Throwable th) {
         if (th instanceof OperationCancelException) {
             LogUtil.d("Operation dismissed.");
@@ -199,34 +188,33 @@ public class SettingsActivity extends AppCompatActivity {
         th.printStackTrace();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean R(final DbxClientV2 dbxClientV2, Preference preference) {
-        Observable.create(new ObservableOnSubscribe() { // from class: cn.edu.pku.pkurunner.Settings.i
-            @Override // io.reactivex.ObservableOnSubscribe
+        Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 SettingsActivity.this.M(observableEmitter);
             }
-        }).subscribeOn(AndroidSchedulers.mainThread()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.Settings.j
-            @Override // io.reactivex.functions.Function
+        }).subscribeOn(AndroidSchedulers.mainThread()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource N;
                 N = SettingsActivity.this.N((Boolean) obj);
                 return N;
             }
-        }).observeOn(Schedulers.io()).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.Settings.k
-            @Override // io.reactivex.functions.Function
+        }).observeOn(Schedulers.io()).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource O;
                 O = SettingsActivity.this.O(dbxClientV2, (Boolean) obj);
                 return O;
             }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.m
-            @Override // io.reactivex.functions.Consumer
+        }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+            @Override
             public final void accept(Object obj) {
                 SettingsActivity.this.P((FileMetadata) obj);
             }
-        }, new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.n
-            @Override // io.reactivex.functions.Consumer
+        }, new Consumer() {
+            @Override
             public final void accept(Object obj) {
                 SettingsActivity.this.Q((Throwable) obj);
             }
@@ -234,75 +222,66 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean V(Preference preference) {
         Auth.startOAuth2Authentication(this, BuildConfig.DROPBOX_KEY);
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean W(Preference preference) {
         startActivity(new Intent(this, (Class<?>) IntroActivity.class));
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean X(String[] strArr, Preference preference) {
-        int i2 = this.f7052b;
-        if (i2 < strArr.length) {
-            Toast.makeText(this, strArr[i2], 0).show();
-            this.f7052b++;
+        int index = this.uploadRetryCount;
+        if (index < strArr.length) {
+            Toast.makeText(this, strArr[index], 0).show();
+            this.uploadRetryCount++;
         }
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void Y(Preference preference, Boolean bool) {
         Toast.makeText(this, "Successfully changed gender", 0).show();
         preference.setSummary(D(Data.getUser().getGender()));
         preference.setDefaultValue(E(Data.getUser().getGender()));
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean Z(final Preference preference, Object obj) {
         Data.getUser().setGender(((String) obj).equals(getResources().getStringArray(R.array.p_setting_gender_value)[0]) ? 1 : 0);
-        Data.saveUserToDatabase().observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.b
-            @Override // io.reactivex.functions.Consumer
+        Data.saveUserToDatabase().observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+            @Override
             public final void accept(Object obj2) {
                 SettingsActivity.this.Y(preference, (Boolean) obj2);
             }
-        }, new i1());
+        }, new StackTracePrintingConsumer());
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void a0(Preference preference, String str, Boolean bool) {
         Toast.makeText(this, "Successfully changed name", 0).show();
         preference.setSummary(str);
         preference.setDefaultValue(str);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean b0(final Preference preference, Object obj) {
         final String str = (String) obj;
         Data.getUser().setName(str);
-        Data.saveUserToDatabase().observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.x
-            @Override // io.reactivex.functions.Consumer
+        Data.saveUserToDatabase().observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+            @Override
             public final void accept(Object obj2) {
                 SettingsActivity.this.a0(preference, str, (Boolean) obj2);
             }
-        }, new i1());
+        }, new StackTracePrintingConsumer());
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean d0(Preference preference) {
         UselessPhotoCleaner.cleanAllUnused(getExternalFilesDir(PhotoFile.PicutreType));
         Toast.makeText(this, R.string.p_setting_photo_deleted, 0).show();
         return true;
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ boolean e0(ListPreference listPreference, Preference preference, Object obj) {
         Data.setSpeedUnitPreference(SpeedHelper.SPEED_UNIT.values()[Integer.valueOf((String) obj).intValue()]);
         listPreference.setSummary(F(Data.getSpeedUnitPreference()));
@@ -314,8 +293,8 @@ public class SettingsActivity extends AppCompatActivity {
         editTextPreference.setSummary(Data.getUser().getName());
         editTextPreference.setDefaultValue(Data.getUser().getName());
         editTextPreference.setEnabled(Data.getUser().isOffline().booleanValue());
-        editTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() { // from class: cn.edu.pku.pkurunner.Settings.w
-            @Override // android.preference.Preference.OnPreferenceChangeListener
+        editTextPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
             public final boolean onPreferenceChange(Preference preference, Object obj) {
                 boolean b02;
                 b02 = SettingsActivity.this.b0(preference, obj);
@@ -325,8 +304,8 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void g0() {
-        findPreference("pref_clean_photo").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { // from class: cn.edu.pku.pkurunner.Settings.v
-            @Override // android.preference.Preference.OnPreferenceClickListener
+        findPreference("pref_clean_photo").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
             public final boolean onPreferenceClick(Preference preference) {
                 boolean d02;
                 d02 = SettingsActivity.this.d0(preference);
@@ -339,8 +318,8 @@ public class SettingsActivity extends AppCompatActivity {
         final ListPreference listPreference = (ListPreference) findPreference("pref_unit");
         listPreference.setSummary(F(Data.getSpeedUnitPreference()));
         listPreference.setDefaultValue(G(Data.getSpeedUnitPreference()));
-        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() { // from class: cn.edu.pku.pkurunner.Settings.u
-            @Override // android.preference.Preference.OnPreferenceChangeListener
+        listPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
             public final boolean onPreferenceChange(Preference preference, Object obj) {
                 boolean e02;
                 e02 = SettingsActivity.this.e0(listPreference, preference, obj);
@@ -375,13 +354,13 @@ public class SettingsActivity extends AppCompatActivity {
             findPreference.setEnabled(false);
         } else {
             findPreference.setEnabled(true);
-            Dropbox.APIWrapper.getToken(this).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.l
-                @Override // io.reactivex.functions.Consumer
+            Dropbox.APIWrapper.getToken(this).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+                @Override
                 public final void accept(Object obj) {
                     SettingsActivity.this.H((String) obj);
                 }
-            }, new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.q
-                @Override // io.reactivex.functions.Consumer
+            }, new Consumer() {
+                @Override
                 public final void accept(Object obj) {
                     SettingsActivity.this.I((Throwable) obj);
                 }
@@ -395,33 +374,33 @@ public class SettingsActivity extends AppCompatActivity {
         findPreference.setEnabled(false);
         final DbxClientV2 client = Dropbox.ClientFactory.getClient();
         final Preference findPreference2 = findPreference("pref_dropbox_user");
-        StorageUtil.NetworkMethodWrapper(new StorageUtil.Producer() { // from class: cn.edu.pku.pkurunner.Settings.c
-            @Override // cn.edu.pku.pkurunner.Storage.StorageUtil.Producer
+        StorageUtil.NetworkMethodWrapper(new StorageUtil.Producer() {
+            @Override
             public final Object produce() {
                 FullAccount S;
                     S = SettingsActivity.S(client);
                 return S;
             }
-        }).flatMap(new Function() { // from class: cn.edu.pku.pkurunner.Settings.d
-            @Override // io.reactivex.functions.Function
+        }).flatMap(new Function() {
+            @Override
             public final Object apply(Object obj) {
                 ObservableSource T;
                 T = SettingsActivity.T(client, (FullAccount) obj);
                 return T;
             }
-        }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.e
-            @Override // io.reactivex.functions.Consumer
+        }).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
+            @Override
             public final void accept(Object obj) {
                 SettingsActivity.this.U(findPreference2, (Pair) obj);
             }
-        }, new Consumer() { // from class: cn.edu.pku.pkurunner.Settings.f
-            @Override // io.reactivex.functions.Consumer
+        }, new Consumer() {
+            @Override
             public final void accept(Object obj) {
                 SettingsActivity.this.J(findPreference2, (Throwable) obj);
             }
         });
-        findPreference("pref_dropbox_upload").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() { // from class: cn.edu.pku.pkurunner.Settings.g
-            @Override // android.preference.Preference.OnPreferenceClickListener
+        findPreference("pref_dropbox_upload").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
             public final boolean onPreferenceClick(Preference preference) {
                 boolean R;
                 R = SettingsActivity.this.R(client, preference);
@@ -430,22 +409,22 @@ public class SettingsActivity extends AppCompatActivity {
         });
     }
 
-    private String D(int i2) {
+    private String D(int index) {
         String[] stringArray = getResources().getStringArray(R.array.p_setting_gender_display);
-        char c2 = 1;
-        if (i2 == 1) {
-            c2 = 0;
+        char character = 1;
+        if (index == 1) {
+            character = 0;
         }
-        return stringArray[c2];
+        return stringArray[character];
     }
 
-    private String E(int i2) {
+    private String E(int index) {
         String[] stringArray = getResources().getStringArray(R.array.p_setting_gender_value);
-        char c2 = 1;
-        if (i2 == 1) {
-            c2 = 0;
+        char character = 1;
+        if (index == 1) {
+            character = 0;
         }
-        return stringArray[c2];
+        return stringArray[character];
     }
 
     private String F(SpeedHelper.SPEED_UNIT speed_unit) {
@@ -456,12 +435,10 @@ public class SettingsActivity extends AppCompatActivity {
         return getResources().getStringArray(R.array.p_setting_unit_value)[speed_unit.ordinal()];
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void H(String str) {
         z();
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ ObservableSource O(DbxClientV2 dbxClientV2, Boolean bool) {
         try {
             return Observable.just(Data.uploadDatabaseToDropbox(this, dbxClientV2));
@@ -470,7 +447,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ FullAccount S(DbxClientV2 dbxClientV2) {
         try {
             return dbxClientV2.users().getCurrentAccount();
@@ -479,7 +455,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ ObservableSource T(DbxClientV2 dbxClientV2, FullAccount fullAccount) {
         try {
             return Observable.just(new Pair(fullAccount, dbxClientV2.users().getSpaceUsage()));
@@ -488,7 +463,6 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public /* synthetic */ void c0(View view) {
         finish();
     }
@@ -507,20 +481,20 @@ public class SettingsActivity extends AppCompatActivity {
         setTheme(dark ? R.style.BaseTheme_Dark : R.style.BaseTheme_Light);
     }
 
-    @Override // androidx.activity.ComponentActivity, androidx.core.app.ComponentActivity, android.app.Activity
+    @Override
     protected void onCreate(Bundle bundle) {
         applySettingsTheme();
         super.onCreate(bundle);
         setContentView(R.layout.activity_settings);
         Toolbar toolbar = (Toolbar) findViewById(R.id.p_settings_toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() { // from class: cn.edu.pku.pkurunner.Settings.t
-            @Override // android.view.View.OnClickListener
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
             public final void onClick(View view) {
                 SettingsActivity.this.c0(view);
             }
         });
-        this.f7053c = new SettingsFragment();
-        getSupportFragmentManager().beginTransaction().replace(R.id.f_settings_container, this.f7053c).commit();
+        this.settingsFragment = new SettingsFragment();
+        getSupportFragmentManager().beginTransaction().replace(R.id.f_settings_container, this.settingsFragment).commit();
         getSupportFragmentManager().executePendingTransactions();
         f0();
         C();
@@ -530,7 +504,7 @@ public class SettingsActivity extends AppCompatActivity {
         k0();
     }
 
-    @Override // android.app.Activity
+    @Override
     protected void onResume() {
         super.onResume();
         h0();

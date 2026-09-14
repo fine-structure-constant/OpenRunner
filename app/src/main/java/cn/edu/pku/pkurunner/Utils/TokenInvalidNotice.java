@@ -11,24 +11,22 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public abstract class TokenInvalidNotice {
-    /* JADX INFO: Access modifiers changed from: private */
-    public static /* synthetic */ void c(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int i2) {
+    public static /* synthetic */ void c(ObservableEmitter observableEmitter, DialogInterface dialogInterface, int index) {
         observableEmitter.onNext(Boolean.TRUE);
     }
 
-    /* JADX INFO: Access modifiers changed from: private */
     public static /* synthetic */ void d(Context context, final ObservableEmitter observableEmitter) {
-        new AlertDialog.Builder(context).setTitle(R.string.d_token_invalid_dialog_title).setMessage(R.string.d_token_invalid_dialog_content).setPositiveButton(R.string.d_token_invalid_dialog_positive_button, new DialogInterface.OnClickListener() { // from class: y.j
-            @Override // android.content.DialogInterface.OnClickListener
-            public final void onClick(DialogInterface dialogInterface, int i2) {
-                TokenInvalidNotice.c(observableEmitter, dialogInterface, i2);
+        new AlertDialog.Builder(context).setTitle(R.string.d_token_invalid_dialog_title).setMessage(R.string.d_token_invalid_dialog_content).setPositiveButton(R.string.d_token_invalid_dialog_positive_button, new DialogInterface.OnClickListener() {
+            @Override
+            public final void onClick(DialogInterface dialogInterface, int index) {
+                TokenInvalidNotice.c(observableEmitter, dialogInterface, index);
             }
         }).setCancelable(false).create().show();
     }
 
     public static Observable<Boolean> showTokenInvalidDialog(final Context context) {
-        return Observable.create(new ObservableOnSubscribe() { // from class: y.i
-            @Override // io.reactivex.ObservableOnSubscribe
+        return Observable.create(new ObservableOnSubscribe() {
+            @Override
             public final void subscribe(ObservableEmitter observableEmitter) {
                 TokenInvalidNotice.d(context, observableEmitter);
             }

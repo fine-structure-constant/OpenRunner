@@ -25,18 +25,18 @@ public interface TaskListContract {
 
         TaskCardAdapter getTaskCardAdapter();
 
-        void makeSnackBar(@StringRes int i2, int i3, Object... objArr);
+        void makeSnackBar(@StringRes int index, int index2, Object... objArr);
 
-        void makeToast(@StringRes int i2, int i3, Object... objArr);
+        void makeToast(@StringRes int index, int index2, Object... objArr);
 
-        void showCongratulationsDialog(@StringRes int i2, @StringRes int i3);
+        void showCongratulationsDialog(@StringRes int index, @StringRes int index2);
 
         void showTaskDetailDialog(String str, String str2);
 
-        void showWaitingDialog(int i2);
+        void showWaitingDialog(int index);
 
         void toggleNotice(Boolean bool);
 
-        void updateWaitingDialog(int i2);
+        void updateWaitingDialog(int index);
     }
 }

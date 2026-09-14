@@ -16,5 +16,5 @@ public interface GymRecordService {
 
     @FormUrlEncoded
     @POST("record2/{userId}/{recordId}")
-    Observable<DataPack<GymRecord.Inner>> verifyGymRecord(@Path("userId") String str, @Path("recordId") int i2, @Field("token") String str2);
+    Observable<DataPack<GymRecord.Inner>> verifyGymRecord(@Path("userId") String str, @Path("recordId") int index, @Field("token") String str2);
 }

@@ -12,16 +12,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class WeatherUpdateReceiver extends BroadcastReceiver {
 
-    /* renamed from: a, reason: collision with root package name */
-    private Observer f6850a;
+    private Observer observer;
 
     public WeatherUpdateReceiver(Observer<Weather> observer) {
-        this.f6850a = observer;
+        this.observer = observer;
     }
 
-    @Override // android.content.BroadcastReceiver
+    @Override
     public void onReceive(Context context, Intent intent) {
         Toast.makeText(context, context.getString(R.string.i_refreshing_weather), 0).show();
-        Network.getWeather().observeOn(AndroidSchedulers.mainThread()).subscribe(this.f6850a);
+        Network.getWeather().observeOn(AndroidSchedulers.mainThread()).subscribe(this.observer);
     }
 }

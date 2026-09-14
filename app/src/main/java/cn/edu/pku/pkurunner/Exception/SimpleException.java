@@ -3,22 +3,22 @@ package cn.edu.pku.pkurunner.Exception;
 public abstract class SimpleException extends RuntimeException {
     protected int errorCode;
 
-    public SimpleException(int i2) {
+    public SimpleException(int index) {
         super("SimpleException");
-        this.errorCode = i2;
+        this.errorCode = index;
     }
 
     public int getErrorCode() {
         return this.errorCode;
     }
 
-    public SimpleException(int i2, String str) {
+    public SimpleException(int index, String str) {
         super(str);
-        this.errorCode = i2;
+        this.errorCode = index;
     }
 
-    public SimpleException(int i2, String str, Throwable th) {
+    public SimpleException(int index, String str, Throwable th) {
         super(str, th);
-        this.errorCode = i2;
+        this.errorCode = index;
     }
 }

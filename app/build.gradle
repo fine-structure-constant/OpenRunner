@@ -124,6 +124,29 @@ android {
     }
 }
 
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+tasks.register('jacocoTestReport', JacocoReport) {
+    dependsOn 'testDebugUnitTest'
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    sourceDirectories.setFrom(files('src/main/java'))
+    classDirectories.setFrom(fileTree(
+            dir: 'build/intermediates/javac/debug/compileDebugJavaWithJavac/classes',
+            excludes: ['**/R.class', '**/R$*.class', '**/BuildConfig.class', '**/*$$*']))
+    executionData.setFrom(fileTree(dir: 'build', includes: [
+            'jacoco/*.exec',
+            'outputs/unit_test_code_coverage/**/*.exec',
+            'test-results/**/*.exec'
+    ]))
+}
+
 def robolectricDependencyDir = localProps.getProperty('robolectric.dependency.dir')
 
 tasks.withType(Test).configureEach {
