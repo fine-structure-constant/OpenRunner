@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dark-mode variant: the start colour must share the RGB of the end colour, otherwise the
+    alpha ramp drags a white cast across the photo. @color/or_surface resolves to #12151B here,
+    which is exactly the bottom sheet background.
+-->
+<shape
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient android:startColor="#0012151b" android:endColor="@color/or_surface" android:angle="-90.0" android:type="linear" />
+</shape>

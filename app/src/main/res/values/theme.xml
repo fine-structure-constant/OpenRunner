@@ -62,6 +62,7 @@
 
         <item name="alertDialogTheme">@style/ThemeOverlay.OpenRunner.MaterialAlertDialog</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.OpenRunner.MaterialAlertDialog</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.OpenRunner.BottomSheetDialog</item>
 
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.OpenRunner.Small</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.OpenRunner.Small</item>
@@ -93,6 +94,22 @@
         <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
         <item name="colorPrimary">@color/or_primary</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.OpenRunner.Card</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <!--
+      The modal bottom sheet takes its surface from ?attr/colorSurface. Left at the Material 3
+      default, the elevation overlay tints that surface with ~10% colorPrimary, so the sheet ends
+      up at #291A20 in dark mode while @color/or_surface is #12151B. mask_gradient fades the
+      detail photo into @color/or_surface, which would leave a visible step. Disabling the overlay
+      pins the sheet to exactly colorSurface, so the photo edge blends. Same treatment as the
+      alert dialog and the loading dialog.
+    -->
+    <style name="ThemeOverlay.OpenRunner.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="colorSurface">@color/or_surface</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
+        <item name="colorPrimary">@color/or_primary</item>
         <item name="elevationOverlayEnabled">false</item>
     </style>
 

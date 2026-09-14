@@ -294,7 +294,7 @@ public class RecordDetailViewFragment extends BottomSheetDialogFragment {
         this.distanceText.setText(getString(R.string.v_record_card_distance_format, Double.valueOf(record.getDistance() / 1000.0d)));
         if (Data.getUser().isOffline().booleanValue()) {
             this.statusText.setText(R.string.f_record_detail_status_offline);
-            this.statusText.setTextColor(getResources().getColor(R.color.orange_A700));
+            this.statusText.setTextColor(getResources().getColor(R.color.or_warning));
         } else if (!record.isUploaded()) {
             this.statusText.setText(R.string.f_record_detail_status_unuploaded);
         } else if (!record.isVerified()) {
@@ -307,7 +307,7 @@ public class RecordDetailViewFragment extends BottomSheetDialogFragment {
                 index2 = R.string.f_record_detail_status_ok_bonus;
             }
             textView.setText(index2);
-            this.statusText.setTextColor(getResources().getColor(R.color.green_A700));
+            this.statusText.setTextColor(getResources().getColor(R.color.or_success));
         }
         this.dateText.setText(N.format(record.getDate()));
         this.userIdText.setText(record.getUserId());
@@ -331,7 +331,7 @@ public class RecordDetailViewFragment extends BottomSheetDialogFragment {
         w(record.getTrack());
         String photoRemotePath = record.getPhotoRemotePath();
         if (photoRemotePath != null && !"".equals(photoRemotePath)) {
-            Glide.with(this).load(Network.photoBaseUrl + record.getPhotoRemotePath()).placeholder(R.color.grey_200).error(R.drawable.ic_cloud_off_black_24dp).centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).transition((TransitionOptions<?, ? super Drawable>) DrawableTransitionOptions.withCrossFade()).into(this.F);
+            Glide.with(this).load(Network.photoBaseUrl + record.getPhotoRemotePath()).placeholder(R.color.or_surface_container_high).error(R.drawable.ic_cloud_off_black_24dp).centerCrop().diskCacheStrategy(DiskCacheStrategy.AUTOMATIC).transition((TransitionOptions<?, ? super Drawable>) DrawableTransitionOptions.withCrossFade()).into(this.F);
             return;
         }
         this.F.setImageResource(R.drawable.clip_runner_default);

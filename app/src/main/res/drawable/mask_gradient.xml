@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Foreground mask for the record-detail photo: fades the photo into the sheet surface so the
+    image edge is invisible. The opaque end must equal the bottom-sheet background, which
+    Material derives from ?attr/colorSurface, hence @color/or_surface instead of a hardcoded
+    white, so light and dark both blend seamlessly.
+-->
 <shape
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient android:startColor="#00ffffff" android:endColor="#ffffffff" android:angle="-90.0" android:type="linear" />
+    <gradient android:startColor="#00fefefe" android:endColor="@color/or_surface" android:angle="-90.0" android:type="linear" />
 </shape>

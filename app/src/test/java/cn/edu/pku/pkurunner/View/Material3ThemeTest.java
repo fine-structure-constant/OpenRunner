@@ -191,6 +191,41 @@ public class Material3ThemeTest {
         assertThat(fab.getVisibility()).isEqualTo(View.VISIBLE);
     }
 
+    // ---------------------------------------------------------------------------------------
+    // Record detail bottom sheet. The white bar and the hardcoded greys used to make the sheet
+    // unreadable / glaring in dark mode.
+    // ---------------------------------------------------------------------------------------
+
+    /**
+     * {@code f_record_detail_img_padding} had {@code layout_height="0.0dip"} plus both top and
+     * bottom constraints, which in ConstraintLayout means MATCH_CONSTRAINT, so it stretched into a
+     * 120dp full-width {@code @color/white} bar over the stats band. It must stay deleted.
+     */
+    @Test
+    public void recordDetailSheetHasNoHardcodedWhiteFillerBar() {
+        View root = inflate(R.layout.fragment_record_detail);
+        assertThat(find(root, R.id.f_record_detail_img_padding)).isNull();
+    }
+
+    @Test
+    public void recordDetailSheetStatsUseSemanticColorsInLightMode() {
+        assertThat(statColor(inflate(R.layout.fragment_record_detail))).isEqualTo(0xFF6B6E78);
+    }
+
+    @Test
+    @Config(sdk = 33, application = android.app.Application.class, qualifiers = "night")
+    public void recordDetailSheetStatsUseSemanticColorsInDarkMode() {
+        assertThat(statColor(inflate(R.layout.fragment_record_detail))).isEqualTo(0xFF8E95A4);
+    }
+
+    /**
+     * The stats rows must not fall back to the old {@code #8a000000} (54% black), which only
+     * stayed legible in dark mode because the white bar was behind it.
+     */
+    private static int statColor(View root) {
+        return ((TextView) find(root, R.id.f_record_detail_txt_laps)).getCurrentTextColor();
+    }
+
     private static String text(View parent, int id) {
         return ((TextView) find(parent, id)).getText().toString();
     }
