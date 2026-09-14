@@ -11,6 +11,7 @@
         <ListPreference android:entries="@array/p_setting_theme_display" android:title="@string/p_setting_theme" android:key="pref_theme" android:dialogTitle="@string/p_setting_theme_dialog" android:entryValues="@array/p_setting_theme_value" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/p_setting_storage">
+        <Preference android:title="@string/p_setting_export_local" android:key="pref_export_local" android:summary="@string/p_setting_export_local_summary" />
         <PreferenceScreen android:title="@string/p_setting_dropbox_title" android:key="pref_dropbox" android:summary="@string/p_setting_storage_summary">
             <Preference android:title="@string/p_setting_connecting_to_dropbox" android:key="pref_dropbox_connection" android:summary="" />
             <Preference android:title="用户信息" android:key="pref_dropbox_user" />

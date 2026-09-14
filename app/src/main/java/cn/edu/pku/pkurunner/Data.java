@@ -29,6 +29,7 @@ import io.reactivex.schedulers.Schedulers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -871,6 +872,20 @@ public class Data {
                 return W;
             }
         });
+    }
+
+    public static void exportDatabase(Context context, OutputStream outputStream) throws IOException {
+        File file = new File(context.getFilesDir(), "data.db");
+        A();
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+        } finally {
+            d0();
+        }
     }
 
     public static FileMetadata uploadDatabaseToDropbox(Context context, DbxClientV2 dbxClientV2) throws IOException, DbxException {

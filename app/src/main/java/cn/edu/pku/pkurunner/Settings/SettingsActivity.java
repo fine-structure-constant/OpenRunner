@@ -7,10 +7,15 @@ import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -44,11 +49,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import org.xutils.common.util.LogUtil;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private OrLoadingDialog progressDialog;
+
+    private ActivityResultLauncher<Intent> exportDatabaseLauncher;
 
     private int uploadRetryCount = 0;
 
@@ -401,6 +411,7 @@ public class SettingsActivity extends AppCompatActivity {
                 SettingsActivity.this.J(findPreference2, (Throwable) obj);
             }
         });
+        findPreference("pref_dropbox_upload").setEnabled(true);
         findPreference("pref_dropbox_upload").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public final boolean onPreferenceClick(Preference preference) {
@@ -502,8 +513,69 @@ public class SettingsActivity extends AppCompatActivity {
         C();
         g0();
         B();
+        setupLocalExport();
         i0();
         k0();
+    }
+
+    private void setupLocalExport() {
+        exportDatabaseLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() != RESULT_OK || result.getData() == null) {
+                    return;
+                }
+                Uri uri = result.getData().getData();
+                if (uri != null) {
+                    exportDatabaseTo(uri);
+                }
+            }
+        });
+        findPreference("pref_export_local").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/octet-stream");
+                intent.putExtra(Intent.EXTRA_TITLE, "openrunner-data.db");
+                exportDatabaseLauncher.launch(intent);
+                return true;
+            }
+        });
+    }
+
+    private void exportDatabaseTo(final Uri uri) {
+        Observable.create(new ObservableOnSubscribe<Long>() {
+            @Override
+            public void subscribe(ObservableEmitter<Long> observableEmitter) {
+                try {
+                    OutputStream outputStream = getContentResolver().openOutputStream(uri);
+                    if (outputStream == null) {
+                        observableEmitter.onError(new IOException("Cannot open target file"));
+                        return;
+                    }
+                    try {
+                        Data.exportDatabase(SettingsActivity.this, outputStream);
+                    } finally {
+                        outputStream.close();
+                    }
+                    observableEmitter.onNext(Long.valueOf(new File(getFilesDir(), "data.db").length()));
+                    observableEmitter.onComplete();
+                } catch (IOException e2) {
+                    observableEmitter.onError(e2);
+                }
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<Long>() {
+            @Override
+            public void accept(Long value) {
+                Toast.makeText(SettingsActivity.this, getString(R.string.p_setting_export_success, StorageUtil.sizeToReadableString(value.longValue())), Toast.LENGTH_SHORT).show();
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) {
+                Toast.makeText(SettingsActivity.this, getString(R.string.p_setting_export_failed, throwable.getMessage()), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

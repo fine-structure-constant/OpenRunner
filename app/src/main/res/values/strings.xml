@@ -357,6 +357,10 @@
     <string name="p_setting_storage_sockettimeout">网络连接超时</string>
     <string name="p_setting_storage_summary">点击查看详情</string>
     <string name="p_setting_storage_user">%1$s；已用 %2$s，总空间 %3$s</string>
+    <string name="p_setting_export_local">导出数据到本地</string>
+    <string name="p_setting_export_local_summary">把跑步数据库保存为文件，不需要 Dropbox</string>
+    <string name="p_setting_export_success">导出成功（%1$s）</string>
+    <string name="p_setting_export_failed">导出失败：%1$s</string>
     <string name="p_setting_unit">显示使用的单位制</string>
     <string name="p_setting_unit_dialog">请选择您习惯的单位制</string>
     <string name="p_setting_user">用户信息</string>
