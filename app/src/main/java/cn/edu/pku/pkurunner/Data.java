@@ -463,7 +463,28 @@ public class Data {
     }
 
     public static String getCurrentUserIdFromFile() {
-        return userPreferences.getString("id", null);
+        SharedPreferences preferences = userPreferences();
+        return preferences == null ? null : preferences.getString("id", null);
+    }
+
+    /**
+     * {@link #userPreferences} is only assigned by {@link #init(Context)}, which MainActivity
+     * triggers in onCreate. LoginActivity can be launched before that happens -- the system can
+     * restore it directly, and the logout flow races the init -- so resolve the preferences from
+     * the application context rather than dereferencing a null field.
+     */
+    private static SharedPreferences userPreferences() {
+        SharedPreferences preferences = userPreferences;
+        if (preferences != null) {
+            return preferences;
+        }
+        MainApplication application = MainApplication.getContext();
+        if (application == null) {
+            return null;
+        }
+        preferences = application.getSharedPreferences("user", 0);
+        userPreferences = preferences;
+        return preferences;
     }
 
     public static List<User> getDatabaseUsers() throws DataException {
@@ -589,10 +610,14 @@ public class Data {
     }
 
     public static void saveCurrentUserIdToFile() {
+        SharedPreferences preferences = userPreferences();
+        if (preferences == null) {
+            return;
+        }
         if (currentUser == null) {
-            userPreferences.edit().putString("id", null).apply();
+            preferences.edit().putString("id", null).apply();
         } else {
-            userPreferences.edit().putString("id", currentUser.getId()).apply();
+            preferences.edit().putString("id", currentUser.getId()).apply();
         }
     }
 

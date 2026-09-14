@@ -26,18 +26,13 @@
     <style name="AppIntroDefaultText" parent="@style/TextAppearance.AppCompat.Body1">
         <item name="android:textColor">@android:color/white</item>
     </style>
-    <style name="AppTheme" parent="@style/Theme.AppCompat.Light">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="colorAccent">@color/indigo</item>
-        <item name="colorPrimary">@color/white</item>
-        <item name="colorPrimaryDark">@color/white</item>
-    </style>
-    <style name="AppTheme.AppBarOverlay" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme" parent="@style/Theme.OpenRunner" />
+    <style name="AppTheme.AppBarOverlay" parent="@style/ThemeOverlay.OpenRunner.AppBar" />
     <style name="AppTheme.NoActionBar" parent="@style/AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="AppTheme.PopupOverlay" parent="@style/ThemeOverlay.AppCompat.Light" />
+    <style name="AppTheme.PopupOverlay" parent="@style/ThemeOverlay.OpenRunner.PopupMenu" />
     <style name="AppUpdate.DialogActivity" parent="@style/Theme.AppCompat">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowFrame">@null</item>

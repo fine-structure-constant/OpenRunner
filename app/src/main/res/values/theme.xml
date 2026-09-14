@@ -96,18 +96,25 @@
         <item name="elevationOverlayEnabled">false</item>
     </style>
 
-    <style name="Theme.OpenRunner.LoadingDialog" parent="Theme.Material3.DayNight.Dialog.Alert">
+    <!--
+      Parented off Theme.OpenRunner.Base rather than Theme.Material3.DayNight.Dialog.Alert: the
+      plain Material 3 dialog theme does not carry the m3_sys_motion_duration_* attributes, and
+      MaterialCardView's default stateListAnimator (@animator/m3_card_state_list_anim) references
+      ?attr/motionDurationMedium4. AnimatorInflater cannot resolve a theme attribute there and
+      throws NumberFormatException("?2130969426"). Inheriting the app theme also brings in
+      materialCardViewStyle = Widget.OpenRunner.DefaultCard, which nulls the animator outright.
+    -->
+    <style name="Theme.OpenRunner.LoadingDialog" parent="@style/Theme.OpenRunner.Base">
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowMinWidthMajor">0%</item>
         <item name="android:windowMinWidthMinor">0%</item>
         <item name="android:backgroundDimAmount">0.32</item>
         <item name="android:windowCloseOnTouchOutside">false</item>
-        <item name="colorSurface">@color/or_surface_container_high</item>
-        <item name="colorOnSurface">@color/or_on_surface</item>
-        <item name="colorOnSurfaceVariant">@color/or_on_surface_variant</item>
-        <item name="colorPrimary">@color/or_primary</item>
-        <item name="elevationOverlayEnabled">false</item>
+        <item name="materialCardViewStyle">@style/Widget.OpenRunner.DefaultCard</item>
     </style>
 
     <style name="ThemeOverlay.OpenRunner.AppBar" parent="ThemeOverlay.Material3">

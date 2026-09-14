@@ -33,7 +33,11 @@ public class OrLoadingDialog extends Dialog {
 
     public OrLoadingDialog(@NonNull Context context) {
         super(context, R.style.Theme_OpenRunner_LoadingDialog);
-        View content = LayoutInflater.from(context).inflate(R.layout.dialog_loading, null, false);
+        // Inflate against the *dialog's* themed context, not the host activity's. Dialog wraps the
+        // context it was given in a ContextThemeWrapper holding our Material 3 dialog theme; using
+        // the raw activity context would blow up on any screen whose theme is not a Material one
+        // (MaterialCardView enforces Theme.MaterialComponents via ThemeEnforcement).
+        View content = LayoutInflater.from(getContext()).inflate(R.layout.dialog_loading, null, false);
         setContentView(content);
         this.indicator = content.findViewById(R.id.d_loading_indicator);
         this.messageView = content.findViewById(R.id.d_loading_txt_message);

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.view.ContextThemeWrapper;
 import cn.edu.pku.pkurunner.R;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -194,8 +195,62 @@ public class Material3ThemeTest {
         return ((TextView) find(parent, id)).getText().toString();
     }
 
-    private static TextView findFirstTextView(ViewGroup group) {
-        for (int i = 0; i < group.getChildCount(); i++) {
+    // ---------------------------------------------------------------------------------------
+    // Regression: the login screen used to crash on "登录" because two things assumed the host
+    // activity was themed with Material.
+    // ---------------------------------------------------------------------------------------
+
+    /**
+     * {@code IAAA_Authen} is themed with {@code AppTheme.NoActionBar}. If that theme is not a
+     * Material descendant, {@code MaterialAlertDialogBuilder} throws in its constructor and
+     * {@code MaterialCardView} throws while inflating -- both before any network call is made.
+     */
+    @Test
+    public void appThemeNoActionBarIsMaterialCompatible() {
+        Context host = new ContextThemeWrapper(
+                RuntimeEnvironment.getApplication(), R.style.AppTheme_NoActionBar);
+        // Throws IllegalArgumentException if the theme is not a Theme.MaterialComponents descendant.
+        new MaterialAlertDialogBuilder(host).setTitle(R.string.error).setMessage("boom");
+        // Throws while inflating if MaterialCardView cannot resolve a Material theme.
+        LayoutInflater.from(host).inflate(R.layout.dialog_loading, null);
+    }
+
+    /**
+     * The loading dialog must inflate against its own theme, not the caller's. {@code IAAA_Authen}
+     * passes a non-Material activity context.
+     */
+    @Test
+    public void loadingDialogSurvivesANonMaterialHostContext() {
+        Context host = new ContextThemeWrapper(
+                RuntimeEnvironment.getApplication(), R.style.AppTheme_NoActionBar);
+        OrLoadingDialog dialog = new OrLoadingDialog(host);
+        View content = dialog.findViewById(android.R.id.content);
+        assertThat(find(content, R.id.d_loading_indicator)).isNotNull();
+        assertThat(find(content, R.id.d_loading_txt_message)).isNotNull();
+    }
+
+    /**
+     * The loading dialog theme must inherit the app theme rather than sit on a bare
+     * {@code Theme.Material3.DayNight.Dialog.Alert}. A bare dialog theme leaves
+     * {@code materialCardViewStyle} at Material's default, whose {@code android:stateListAnimator}
+     * ({@code @animator/m3_card_state_list_anim}) references theme attributes that
+     * {@code AnimatorInflater} cannot resolve, which blows up with NumberFormatException on a real
+     * device.
+     *
+     * <p>Note: Robolectric cannot resolve {@code ?attr} references inside animator XML at all, so
+     * the animator itself is not loaded here -- only the theme wiring that keeps it off.
+     */
+    @Test
+    public void loadingDialogThemeInheritsTheAppCardStyle() {
+        Context host = new ContextThemeWrapper(
+                RuntimeEnvironment.getApplication(), R.style.Theme_OpenRunner_LoadingDialog);
+        TypedValue value = new TypedValue();
+        assertThat(host.getTheme().resolveAttribute(
+                com.google.android.material.R.attr.materialCardViewStyle, value, true)).isTrue();
+        assertThat(value.resourceId).isEqualTo(R.style.Widget_OpenRunner_DefaultCard);
+    }
+
+    private static TextView findFirstTextView(ViewGroup group) {        for (int i = 0; i < group.getChildCount(); i++) {
             View child = group.getChildAt(i);
             if (child instanceof TextView) {
                 return (TextView) child;
