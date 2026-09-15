@@ -22,10 +22,6 @@
     <attr name="switchPreferenceCompatStyle" format="reference" />
     <attr name="switchPreferenceStyle" format="reference" />
     <attr name="themeLineHeight" format="dimension" />
-    <declare-styleable name="BadgeView">
-        <attr name="distance" format="dimension" />
-        <attr name="textHeightPercent" format="float" />
-    </declare-styleable>
     <declare-styleable name="GPSInfoView">
         <attr name="appear" format="boolean" />
         <attr name="signalStrength" format="integer" />

@@ -678,7 +678,7 @@ public class MapPresenter implements MapContract.Presenter {
     @Override
     public boolean onFabRunClick(boolean z2) {
         if (this.state == State.IDLE) {
-            if (!this.mapView.checkKeepAlive()) {
+            if (!this.mapView.checkRunPermission()) {
                 return true;
             }
             if (!u()) {

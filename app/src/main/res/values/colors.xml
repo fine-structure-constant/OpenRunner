@@ -271,10 +271,6 @@
     <color name="orange_A200">#ffffab40</color>
     <color name="orange_A400">#ffff9100</color>
     <color name="orange_A700">#ffff6d00</color>
-    <color name="permissionx_default_dialog_bg">#ffffffff</color>
-    <color name="permissionx_split_line">#ffe0e0e0</color>
-    <color name="permissionx_text_color">#ff212121</color>
-    <color name="permissionx_tint_color">#ff1972e8</color>
     <color name="pink_100">#fff8bbd0</color>
     <color name="pink_200">#fff48fb1</color>
     <color name="pink_300">#fff06292</color>

@@ -27,7 +27,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import cn.edu.pku.pkurunner.BuildConfig;
 import cn.edu.pku.pkurunner.StackTracePrintingConsumer;
 import cn.edu.pku.pkurunner.Data;
-import cn.edu.pku.pkurunner.GuidePage.IntroActivity;
 import cn.edu.pku.pkurunner.Map.SpeedHelper;
 import cn.edu.pku.pkurunner.Photo.PhotoFile;
 import cn.edu.pku.pkurunner.Photo.UselessPhotoCleaner;
@@ -101,14 +100,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void B() {
         findPreference("pref_version").setSummary(BuildConfig.VERSION_NAME);
-        findPreference("pref_guide").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public final boolean onPreferenceClick(Preference preference) {
-                boolean W;
-                W = SettingsActivity.this.W(preference);
-                return W;
-            }
-        });
         Preference findPreference = findPreference("pref_version");
         final String[] stringArray = getResources().getStringArray(R.array.p_about_easteregg);
         findPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -236,11 +227,6 @@ public class SettingsActivity extends AppCompatActivity {
 
     public /* synthetic */ boolean V(Preference preference) {
         Auth.startOAuth2Authentication(this, BuildConfig.DROPBOX_KEY);
-        return true;
-    }
-
-    public /* synthetic */ boolean W(Preference preference) {
-        startActivity(new Intent(this, (Class<?>) IntroActivity.class));
         return true;
     }
 

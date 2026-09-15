@@ -1,17 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="a_intro_content">
-        <item>All you need to do is focusing on your exercising; we will take care of the rest.</item>
-        <item>Elegant design. Convenience and accessibility.</item>
-        <item>AMap Module needs a lot of permissions. The minimal we request is location service.</item>
-        <item>Have a nice day!</item>
-    </string-array>
-    <string-array name="a_intro_title">
-        <item>This is Your Running App.</item>
-        <item>All Records Shown in One Place.</item>
-        <item>Some permission are needed…</item>
-        <item>PKURunner</item>
-    </string-array>
     <string-array name="f_map_hint_speed_units">
         <item>m/s</item>
         <item>km/h</item>
@@ -45,13 +33,5 @@
         <item>min/km</item>
         <item>mi/h</item>
         <item>c</item>
-    </string-array>
-    <string-array name="p_task_source_entry">
-        <item>@string/p_task_source_school</item>
-        <item>@string/p_task_source_github</item>
-    </string-array>
-    <string-array name="p_task_source_value">
-        <item>pku</item>
-        <item>github</item>
     </string-array>
 </resources>

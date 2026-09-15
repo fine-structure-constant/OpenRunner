@@ -36,7 +36,7 @@ import cn.edu.pku.pkurunner.Map.MapFragment;
 import cn.edu.pku.pkurunner.Map.SpeedHelper;
 import cn.edu.pku.pkurunner.R;
 import cn.edu.pku.pkurunner.Service.NotificationDisplayService;
-import cn.edu.pku.pkurunner.Utils.KeepAliveUtil;
+import cn.edu.pku.pkurunner.Utils.RunPermissionUtil;
 import cn.edu.pku.pkurunner.View.GPSInfoView;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdateFactory;
@@ -597,8 +597,8 @@ public class MapFragment extends Fragment implements MapContract.View {
     }
 
     @Override
-    public boolean checkKeepAlive() {
-        return KeepAliveUtil.check(getActivity());
+    public boolean checkRunPermission() {
+        return RunPermissionUtil.check(getActivity());
     }
 
     @Override

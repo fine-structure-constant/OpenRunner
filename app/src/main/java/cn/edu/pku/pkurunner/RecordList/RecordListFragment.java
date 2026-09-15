@@ -2,21 +2,15 @@ package cn.edu.pku.pkurunner.RecordList;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import cn.edu.pku.pkurunner.View.OrLoadingDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -31,14 +25,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import cn.edu.pku.pkurunner.GuidePage.IntroActivity;
 import cn.edu.pku.pkurunner.MainActivity;
 import cn.edu.pku.pkurunner.Photo.PhotoFile;
 import cn.edu.pku.pkurunner.R;
@@ -47,10 +39,7 @@ import cn.edu.pku.pkurunner.RecordList.RecordCardAdapter;
 import cn.edu.pku.pkurunner.RecordList.RecordListContract;
 import cn.edu.pku.pkurunner.RecordList.RecordListFragment;
 import cn.edu.pku.pkurunner.Utils.IaaaWrapper;
-import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import cn.edu.pku.pkurunner.View.RunningFabView;
 import com.google.android.material.snackbar.Snackbar;
 import io.reactivex.Observable;
@@ -59,7 +48,6 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
 public class RecordListFragment extends Fragment implements RecordListContract.View {
 
@@ -86,8 +74,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     private ObservableEmitter photoResultEmitter;
 
     private ObservableEmitter loginResultEmitter;
-
-    private SharedPreferences sharedPreferences;
 
     private final ActivityResultLauncher<Uri> takePictureLauncher = registerForActivityResult(new ActivityResultContracts.TakePicture(), new ActivityResultCallback<Boolean>() {
         @Override
@@ -189,15 +175,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
 
     public /* synthetic */ boolean C(SwipeRefreshLayout swipeRefreshLayout, View view) {
         return this.appBarExpanded;
-    }
-
-    private Rect y(View view) {
-        int[] iArr = new int[2];
-        view.getLocationInWindow(iArr);
-        int index = iArr[0];
-        int width = view.getWidth() + index;
-        int index2 = iArr[1];
-        return new Rect(index, index2, width, view.getHeight() + index2);
     }
 
     @Override
@@ -304,25 +281,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
                 RecordListFragment.O(observableEmitter, dialogInterface);
             }
         }).create().show();
-    }
-
-    private void R() {
-        RecordCardAdapter.UploadedRecordViewHolder holder;
-        FragmentActivity activity;
-        if (this.recordCardAdapter.getItemCount() == 0 || (holder = (RecordCardAdapter.UploadedRecordViewHolder) ((RecyclerView) this.rootView.findViewById(R.id.f_recordlist_recyclerview)).findViewHolderForLayoutPosition(0)) == null || (activity = getActivity()) == null) {
-            return;
-        }
-        if (this.sharedPreferences.getBoolean("upload", true)) {
-            if (T(activity, holder)) {
-                this.sharedPreferences.edit().putBoolean("upload", false).apply();
-            }
-        } else if (this.sharedPreferences.getBoolean("detail", true)) {
-            if (Q(activity, holder)) {
-                this.sharedPreferences.edit().putBoolean("detail", false).apply();
-            }
-        } else if (this.sharedPreferences.getBoolean("remove", true) && S(activity, holder)) {
-            this.sharedPreferences.edit().putBoolean("remove", false).apply();
-        }
     }
 
     public /* synthetic */ void z(File file, ObservableEmitter observableEmitter) {
@@ -439,37 +397,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
         ((MainActivity) getActivity()).switchFromRecordListToRunning();
     }
 
-    public /* synthetic */ void G(Boolean bool) {
-        R();
-    }
-
-    private boolean Q(Activity activity, RecordCardAdapter.UploadedRecordViewHolder holder) {
-        View I = holder.I();
-        if (I == null) {
-            return false;
-        }
-        TapTargetView.showFor(activity, TapTarget.forBounds(y(I), getString(R.string.g_record_t_detail), getString(R.string.g_record_c_detail)).outerCircleColor(R.color.indigo_500).transparentTarget(true));
-        return true;
-    }
-
-    private boolean S(Activity activity, RecordCardAdapter.UploadedRecordViewHolder holder) {
-        View H = holder.H();
-        if (H == null || !(holder instanceof RecordCardAdapter.RecordViewHolder)) {
-            return false;
-        }
-        TapTargetView.showFor(activity, TapTarget.forBounds(y(H), getString(R.string.g_record_t_delete), getString(R.string.g_record_c_delete)).outerCircleColor(R.color.amber_500).transparentTarget(true));
-        return true;
-    }
-
-    private boolean T(Activity activity, RecordCardAdapter.UploadedRecordViewHolder holder) {
-        View J = holder.J();
-        if (J == null || !(holder instanceof RecordCardAdapter.RecordViewHolder)) {
-            return false;
-        }
-        TapTargetView.showFor(activity, TapTarget.forBounds(y(J), getString(R.string.g_record_t_upload), getString(R.string.g_record_c_upload)).outerCircleColor(R.color.purple_500).transparentTarget(true));
-        return true;
-    }
-
     @Override
     public File getExternalPhotoDir() {
         return getMainActivity().getExternalFilesDir(PhotoFile.PicutreType);
@@ -488,13 +415,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
     @Override
     public void onCreate(@Nullable Bundle bundle) {
         super.onCreate(bundle);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
-        super.onCreateOptionsMenu(menu, menuInflater);
-        menuInflater.inflate(R.menu.fragment_recordlist, menu);
     }
 
     @Override
@@ -560,7 +480,6 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
                 RecordListFragment.this.F(appBarLayout, state);
             }
         }));
-        this.sharedPreferences = getContext().getSharedPreferences(IntroActivity.GuidePreferencesName, 0);
         return this.rootView;
     }
 
@@ -575,22 +494,7 @@ public class RecordListFragment extends Fragment implements RecordListContract.V
                 arguments.remove("newRecord");
             }
             this.presenter.start(z3);
-            Observable.just(Boolean.TRUE).delay(1L, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
-                @Override
-                public final void accept(Object obj) {
-                    RecordListFragment.this.G((Boolean) obj);
-                }
-            });
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() != R.id.f_m_recordlist_clear_preferences) {
-            return super.onOptionsItemSelected(menuItem);
-        }
-        this.sharedPreferences.edit().remove("upload").remove("detail").remove("remove").apply();
-        return true;
     }
 
     @Override

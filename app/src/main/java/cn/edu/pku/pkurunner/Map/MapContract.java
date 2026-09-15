@@ -42,7 +42,7 @@ public interface MapContract {
     }
 
     public interface View extends BaseView<Presenter> {
-        boolean checkKeepAlive();
+        boolean checkRunPermission();
 
         void dismissNotification();
 

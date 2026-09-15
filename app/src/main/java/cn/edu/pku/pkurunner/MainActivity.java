@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,7 +30,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import cn.edu.pku.pkurunner.Broadcasts.WeatherUpdateReceiver;
 import cn.edu.pku.pkurunner.Exception.ServerException;
-import cn.edu.pku.pkurunner.GuidePage.IntroActivity;
 import cn.edu.pku.pkurunner.Map.MapFragment;
 import cn.edu.pku.pkurunner.Model.User;
 import cn.edu.pku.pkurunner.Model.Record;
@@ -43,8 +41,6 @@ import cn.edu.pku.pkurunner.Permission.PermissionDialog;
 import cn.edu.pku.pkurunner.RecordList.RecordListFragment;
 import cn.edu.pku.pkurunner.RecordList.RecordListPresenter;
 import cn.edu.pku.pkurunner.Settings.SettingsActivity;
-import cn.edu.pku.pkurunner.TaskList.TaskListFragment;
-import cn.edu.pku.pkurunner.TaskList.TaskListPresenter;
 import cn.edu.pku.pkurunner.Utils.ClientUpdateNotice;
 import cn.edu.pku.pkurunner.Utils.PerfectExitUtil;
 import cn.edu.pku.pkurunner.Utils.SerializeHelper;
@@ -59,10 +55,7 @@ import com.bumptech.glide.RequestBuilder;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
-import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -76,7 +69,6 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.xutils.common.Callback;
 import org.xutils.common.util.LogUtil;
@@ -88,8 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
     private RecordListFragment recordListFragment;
 
-    private TaskListFragment taskListFragment;
-
     private Fragment currentFragment;
 
     private NavigationView navigationView;
@@ -100,8 +90,6 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences weatherPreferences;
 
-    private SharedPreferences guidePreferences;
-
     private WeatherUpdateReceiver weatherUpdateReceiver;
 
     private TextView navUserNameText;
@@ -110,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressableView progressableView;
 
-    private int[] fragmentAttachedFlags = new int[3];
+    private int[] fragmentAttachedFlags = new int[2];
 
     private int lastFragmentId = -1;
 
@@ -173,34 +161,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class SwitchToRunningGuideListener extends TapTargetView.Listener {
-        SwitchToRunningGuideListener() {
-        }
-
-        @Override
-        public void onTargetClick(TapTargetView tapTargetView) {
-            super.onTargetClick(tapTargetView);
-            MainActivity.this.switchFromRecordListToRunning();
-        }
-    }
-
-    class FeedbackGuideListener extends TapTargetView.Listener {
-        FeedbackGuideListener() {
-        }
-
-        @Override
-        public void onOuterCircleClick(TapTargetView tapTargetView) {
-            super.onOuterCircleClick(tapTargetView);
-            tapTargetView.dismiss(false);
-        }
-
-        @Override
-        public void onTargetClick(TapTargetView tapTargetView) {
-            super.onTargetClick(tapTargetView);
-            MainActivity.this.e0();
-        }
-    }
-
     public /* synthetic */ void O(Throwable th) {
         Toast.makeText(this, getString(R.string.a_main_error_loading_data, th.getMessage()), 0).show();
     }
@@ -224,16 +184,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void i0(Bundle bundle) {
         if (bundle == null) {
-            for (int index = 0; index < 3; index++) {
+            for (int index = 0; index < 2; index++) {
                 this.fragmentAttachedFlags[index] = 0;
             }
             this.mapFragment = new MapFragment();
             RecordListFragment recordListFragment = new RecordListFragment();
             this.recordListFragment = recordListFragment;
             new RecordListPresenter(recordListFragment);
-            TaskListFragment taskListFragment = new TaskListFragment();
-            this.taskListFragment = taskListFragment;
-            new TaskListPresenter(taskListFragment);
             this.currentFragment = null;
             this.lastFragmentId = -1;
             return;
@@ -244,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         LogUtil.d("lastTag: " + String.valueOf(this.lastFragmentId));
         FragmentManager supportFragmentManager = getSupportFragmentManager();
         FragmentTransaction beginTransaction = supportFragmentManager.beginTransaction();
-        for (int index2 = 0; index2 < 3; index2++) {
+        for (int index2 = 0; index2 < 2; index2++) {
             if (this.fragmentAttachedFlags[index2] == 1) {
                 Fragment findFragmentByTag = supportFragmentManager.findFragmentByTag(String.valueOf(index2));
                 if (this.lastFragmentId != index2) {
@@ -280,14 +237,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public /* synthetic */ void N(Boolean bool) {
-        if (this.guidePreferences.getBoolean(IntroActivity.GuidePreferencesKey, false)) {
-            if (Data.getUser() == null) {
-                startActivity(new Intent(this, (Class<?>) LoginActivity.class));
-            }
-        } else {
-            Intent intent = new Intent(this, (Class<?>) IntroActivity.class);
-            intent.putExtra("jumpToLogin", true);
-            startActivity(intent);
+        if (Data.getUser() == null) {
+            startActivity(new Intent(this, (Class<?>) LoginActivity.class));
         }
     }
 
@@ -326,12 +277,6 @@ public class MainActivity extends AppCompatActivity {
         Weather weather = (Weather) serializable;
         Network.weather = weather;
         D(weather);
-    }
-
-    public void e0() {
-        Intent intent = new Intent("android.intent.action.VIEW");
-        intent.setData(Uri.parse(Config.FEEDBACK_URL));
-        startActivity(intent);
     }
 
     private void f0() {
@@ -418,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * The "start running" FAB only makes sense while browsing records / tasks -- on the running
+     * The "start running" FAB only makes sense while browsing records -- on the running
      * map it would sit on top of the map for no reason. The map also collapses the AppBar, so
      * leaving it has to expand the hero card again, otherwise the FAB would be re-shown while its
      * anchor is still scrolled out of view.
@@ -450,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
         if (fragment.equals(this.recordListFragment)) {
             return 1;
         }
-        return fragment.equals(this.taskListFragment) ? 2 : -1;
+        return -1;
     }
 
     public void refreshUserStatusNotice() {
@@ -526,15 +471,6 @@ public class MainActivity extends AppCompatActivity {
             new RecordListPresenter(this.recordListFragment);
             return;
         }
-        if (index != 2) {
-            return;
-        }
-        if (fragment != null) {
-            this.taskListFragment = (TaskListFragment) fragment;
-        } else {
-            this.taskListFragment = new TaskListFragment();
-        }
-        new TaskListPresenter(this.taskListFragment);
     }
 
     public void switchFromRunningToRecordList() {
@@ -601,7 +537,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void G() {
         ServerException.setResources(getResources());
-        this.guidePreferences = getSharedPreferences(IntroActivity.GuidePreferencesName, 0);
         Data.init(this).subscribe(new Consumer() {
             @Override
             public final void accept(Object obj) {
@@ -685,11 +620,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public /* synthetic */ void b0(Boolean bool) {
-        float value2 = getResources().getDisplayMetrics().density;
-        TapTargetView.showFor(this, TapTarget.forBounds(new Rect((int) (16.0f * value2), (int) (504.0f * value2), (int) (32.0f * value2), (int) (value2 * 520.0f)), getString(R.string.g_main_t_feedback), getString(R.string.g_main_c_feedback)).transparentTarget(true).outerCircleColor(R.color.teal_500), new FeedbackGuideListener());
-    }
-
     public /* synthetic */ void d0(Throwable th) {
         th.printStackTrace();
         this.weatherPreferences.edit().remove("weather").remove("weather.nmc.v1").apply();
@@ -700,8 +630,6 @@ public class MainActivity extends AppCompatActivity {
         int itemId = menuItem.getItemId();
         if (itemId == R.id.nav_announcement) {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Network.announcementUrl)));
-        } else if (itemId == R.id.nav_feedback) {
-            e0();
         } else if (itemId == R.id.nav_logout) {
             f0();
         } else if (itemId == R.id.nav_run) {
@@ -710,8 +638,6 @@ public class MainActivity extends AppCompatActivity {
             m0(this.recordListFragment);
         } else if (itemId == R.id.nav_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
-        } else if (itemId == R.id.nav_tasks) {
-            m0(this.taskListFragment);
         } else if (itemId == R.id.nav_update) {
             User user = Data.getUser();
             ClientUpdateNotice.downloadLatestVersion(this, user != null && user.isOffline().booleanValue());
@@ -720,24 +646,6 @@ public class MainActivity extends AppCompatActivity {
         }
         this.drawerLayout.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private boolean k0() {
-        View floatingActionButton = findViewById(R.id.v_main_fab_switch);
-        if (floatingActionButton == null || floatingActionButton.getVisibility() != 0 || this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            return false;
-        }
-        TapTargetView.showFor(this, TapTarget.forView(floatingActionButton, getString(R.string.g_main_t_switch_to_running), getString(R.string.g_main_c_switch_to_running)).outerCircleColor(R.color.cyan_500).transparentTarget(true), new SwitchToRunningGuideListener());
-        return true;
-    }
-
-    private boolean l0() {
-        View findViewById = findViewById(R.id.f_recordlist_img);
-        if (findViewById != null && findViewById.getVisibility() == 0) {
-            TapTargetView.showFor(this, TapTarget.forView(findViewById, getString(R.string.g_main_t_pull_down), getString(R.string.g_main_c_pull_down)).outerCircleColor(R.color.orange_500).transparentTarget(true).targetRadius(96));
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -801,7 +709,6 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         this.mapFragment = null;
         this.recordListFragment = null;
-        this.taskListFragment = null;
         this.currentFragment = null;
         unregisterReceiver(this.weatherUpdateReceiver);
     }
@@ -811,10 +718,6 @@ public class MainActivity extends AppCompatActivity {
         int itemId = menuItem.getItemId();
         if (itemId == R.id.a_main_permission_management) {
             new PermissionDialog().show(getSupportFragmentManager(), "Permission dialog");
-            return true;
-        }
-        if (itemId == R.id.a_main_clear_preferences) {
-            this.guidePreferences.edit().remove("drawer").remove("fab").remove("pullDown").apply();
             return true;
         }
         return super.onOptionsItemSelected(menuItem);
@@ -892,22 +795,6 @@ public class MainActivity extends AppCompatActivity {
         }
         if (this.currentFragment == null) {
             m0(this.recordListFragment);
-        }
-        if (this.currentFragment == this.recordListFragment && this.guidePreferences.getBoolean("drawer", true)) {
-            this.guidePreferences.edit().putBoolean("drawer", false).apply();
-            this.drawerLayout.openDrawer(GravityCompat.START, true);
-            Observable.just(Boolean.TRUE).delay(300L, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer() {
-                @Override
-                public final void accept(Object obj) {
-                    MainActivity.this.b0((Boolean) obj);
-                }
-            });
-        } else if (this.currentFragment == this.recordListFragment && this.guidePreferences.getBoolean("fab", true)) {
-            if (k0()) {
-                this.guidePreferences.edit().putBoolean("fab", false).apply();
-            }
-        } else if (this.currentFragment == this.recordListFragment && this.guidePreferences.getBoolean("pullDown", true) && l0()) {
-            this.guidePreferences.edit().putBoolean("pullDown", false).apply();
         }
     }
 

@@ -1,7 +1,6 @@
 package cn.edu.pku.pkurunner.Model;
 
 import cn.edu.pku.pkurunner.BuildConfig;
-import com.umeng.analytics.AnalyticsConfig;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -24,7 +23,7 @@ public class GymRecord {
     @Column(name = "recordId")
     private int recordId;
 
-    @Column(name = AnalyticsConfig.RTD_START_TIME)
+    @Column(name = "startTime")
     private Date startTime;
 
     @Column(name = "uploaded")

@@ -31,15 +31,12 @@ android {
 
         buildConfigField 'String', 'AMAP_WEB_KEY', '"bff87dda9f692c2c5f28102eb8d6dad7"'
         buildConfigField 'String', 'DROPBOX_KEY', '"' + localProps.getProperty('DROPBOX_KEY', 'anxwqdheet1e4a4') + '"'
-        buildConfigField 'String', 'BUGLY_APP_ID', '"' + localProps.getProperty('BUGLY_APP_ID', '900033802') + '"'
-        buildConfigField 'String', 'UMENG_APP_KEY', '"' + localProps.getProperty('UMENG_APP_KEY', '632197a105844627b548e03b') + '"'
 
         manifestPlaceholders = [
                 AMAP_API_KEY: localProps.getProperty('AMAP_API_KEY', '19fe50e8d34fcebd76a3a126990c6edb'),
                 DROPBOX_KEY : localProps.getProperty('DROPBOX_KEY', 'anxwqdheet1e4a4')
         ]
 
-        // AMap / Umeng / Bugly 等 SDK 需要读取 meta-data，无需额外配置
         // xUtils 的 DbManager 需要数据库名，见代码内 Config
         multiDexEnabled true
 
@@ -105,7 +102,7 @@ android {
         }
     }
 
-    // 保留原有 ABI（注意：arm64-v8a 缺 libwebpbackport.so，原包也是这样）
+    // 保留原有 ABI，构建单个通用 APK。
     splits {
         abi {
             enable false
@@ -195,18 +192,12 @@ dependencies {
     // 坐标来自 com.amap.api:map2d；若解析失败请手动下载 AAR 放入 app/libs/
     implementation 'com.amap.api:map2d:6.0.0'
 
-    // ---------- 权限 / UI 引导 ----------
-    implementation 'com.guolindev.permissionx:permissionx:1.7.1'
-    implementation 'com.getkeepsafe.taptargetview:taptargetview:1.13.3'
+    // ---------- 权限 ----------
     implementation 'com.github.instacart:truetime-android:3.5'
 
-    // ---------- 更新 / 统计 / 崩溃 ----------
+    // ---------- 更新 ----------
     implementation 'io.github.azhon:appupdate:4.2.4'
     implementation 'id.zelory:compressor:2.1.1'
-    implementation 'com.umeng.umsdk:common:9.5.4'
-    // Common 9.5.x requires the Android Security Module (ASMS) at runtime.
-    implementation 'com.umeng.umsdk:asms:1.2.3'
-    implementation 'com.tencent.bugly:crashreport:4.1.9.3'
 
     // ---------- 存储 / 数据库 ----------
     implementation 'com.dropbox.core:dropbox-core-sdk:5.4.2'

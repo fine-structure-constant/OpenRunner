@@ -3,29 +3,6 @@
     <style name="AndroidThemeColorAccentYellow">
         <item name="android:colorAccent">#ffffff00</item>
     </style>
-    <style name="AppIntroButtonStyleCompat" parent="@style/Widget.AppCompat.Button.Borderless">
-        <item name="android:background">?selectableItemBackgroundBorderless</item>
-    </style>
-    <style name="AppIntroDefaultHeading" parent="@style/TextAppearance.AppCompat.Display1">
-        <item name="android:textSize">@dimen/appIntroHeadingTextSize</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:fontFamily">sans-serif-thin</item>
-    </style>
-    <style name="AppIntroDefaultPadding">
-        <item name="android:paddingLeft">@dimen/appIntroDefaultPaddingLeft</item>
-        <item name="android:paddingTop">@dimen/appIntroDefaultPaddingTop</item>
-        <item name="android:paddingRight">@dimen/appIntroDefaultPaddingRight</item>
-        <item name="android:paddingBottom">@dimen/appIntroDefaultPaddingBottom</item>
-    </style>
-    <style name="AppIntroDefaultPadding.Intro1" parent="@style/AppIntroDefaultPadding">
-        <item name="android:paddingBottom">@dimen/appIntroDefaultPaddingBottomIntro1</item>
-    </style>
-    <style name="AppIntroDefaultPadding.Intro2" parent="@style/AppIntroDefaultPadding">
-        <item name="android:paddingBottom">@dimen/appIntroDefaultPaddingBottomIntro2</item>
-    </style>
-    <style name="AppIntroDefaultText" parent="@style/TextAppearance.AppCompat.Body1">
-        <item name="android:textColor">@android:color/white</item>
-    </style>
     <style name="AppTheme" parent="@style/Theme.OpenRunner" />
     <style name="AppTheme.AppBarOverlay" parent="@style/ThemeOverlay.OpenRunner.AppBar" />
     <style name="AppTheme.NoActionBar" parent="@style/AppTheme">

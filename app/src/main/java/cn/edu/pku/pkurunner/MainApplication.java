@@ -6,8 +6,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import cn.edu.pku.pkurunner.Network.Network;
 import cn.edu.pku.pkurunner.Utils.PerfectExitUtil;
 import com.instacart.library.truetime.TrueTime;
-import com.tencent.bugly.crashreport.CrashReport;
-import com.umeng.commonsdk.UMConfigure;
 import java.io.IOException;
 import org.xutils.x;
 
@@ -39,9 +37,6 @@ public class MainApplication extends Application {
         Network.init(this);
         x.Ext.init(this);
         x.Ext.setDebug(false);
-        CrashReport.initCrashReport(this, BuildConfig.BUGLY_APP_ID, false);
-        UMConfigure.preInit(this, BuildConfig.UMENG_APP_KEY, "Umeng");
-        UMConfigure.init(this, BuildConfig.UMENG_APP_KEY, "Umeng", 1, "");
         PerfectExitUtil.init(this);
         new Thread(new Runnable() {
             @Override

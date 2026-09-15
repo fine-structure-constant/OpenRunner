@@ -1,20 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="a_intro_content">
-        <item>"支持内网 轨迹精确
-简单刷脸 专注运动"</item>
-        <item>"完成百分比
-进度一目了然"</item>
-        <item>打电话和外部储存权限都是高德地图模块才需要的。像我们这么良心的软件，当然只要一个位置信息权限啦。</item>
-        <item>"极致的用户体验
-诚意之作"</item>
-    </string-array>
-    <string-array name="a_intro_title">
-        <item>跑步打卡</item>
-        <item>统计整合</item>
-        <item>需要一些权限…</item>
-        <item>PKURunner</item>
-    </string-array>
     <string-array name="f_map_hint_speed_units">
         <item>m/s</item>
         <item>km/h</item>
@@ -65,13 +50,5 @@
         <item>system</item>
         <item>light</item>
         <item>dark</item>
-    </string-array>
-    <string-array name="p_task_source_entry">
-        <item>@string/p_task_source_school</item>
-        <item>@string/p_task_source_github</item>
-    </string-array>
-    <string-array name="p_task_source_value">
-        <item>pku</item>
-        <item>github</item>
     </string-array>
 </resources>

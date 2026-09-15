@@ -3,8 +3,4 @@
     <color name="map_route">#ffff8a80</color>
     <color name="map_location_stroke">#ff90caf9</color>
     <color name="map_location_fill">#6690caf9</color>
-    <color name="permissionx_default_dialog_bg">#ff3c4043</color>
-    <color name="permissionx_split_line">#ff55565a</color>
-    <color name="permissionx_text_color">#ffffffff</color>
-    <color name="permissionx_tint_color">#ff8ab6f5</color>
 </resources>

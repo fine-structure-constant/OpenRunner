@@ -97,11 +97,8 @@ Suggestion\u0009%5$s\u0009%6$s"</string>
     <string name="f_offline_name">Name</string>
     <string name="f_permission_auth_now">Auth now</string>
     <string name="f_permission_btn_ok">OK</string>
-    <string name="f_permission_content">The permission for phone call and external storage are needed by the AMap, and our app only need the permission for location.</string>
     <string name="f_permission_location">Permission for location %1$s</string>
     <string name="f_permission_not_auth">Auth later</string>
-    <string name="f_permission_phone">Permission for phone call %1$s</string>
-    <string name="f_permission_sd">Permission for external storage %1$s</string>
     <string name="f_permission_status_negative">&lt;font color=#FF3333>Not acquired&lt;/font></string>
     <string name="f_permission_status_positive">&lt;font color=#33FF33>Acquired&lt;/font></string>
     <string name="f_permission_title">Permission Status</string>
@@ -129,36 +126,18 @@ Suggestion\u0009%5$s\u0009%6$s"</string>
     <string name="f_record_ignore_photo">Ignore</string>
     <string name="f_record_start_camera">Take photo</string>
     <string name="f_record_use_last_photo">Use last photo</string>
-    <string name="f_task_complete_dialog_ok">OK</string>
     <string name="g_error_sockettimeout">Network error! Please use campus WIFI or PKU-VPN instead</string>
-    <string name="g_main_c_feedback">We need your <sugges/>tions to improve PKURunner.</string>
-    <string name="g_main_c_pull_down">The uploaded records will be kept on the server.</string>
-    <string name="g_main_c_switch_to_running">Or you can choose the menu item in the drawer.</string>
-    <string name="g_main_t_feedback">Feedback Portal</string>
-    <string name="g_main_t_pull_down">Swipe down to refresh</string>
-    <string name="g_main_t_switch_to_running">Switch to running fragment</string>
-    <string name="g_record_c_delete">No need of worrying spam records.</string>
-    <string name="g_record_c_detail">Click on the tile to check the detail info of the record.</string>
-    <string name="g_record_c_upload">It will take you to take a photo and verify your identity.</string>
-    <string name="g_record_t_delete">Swipe left to delete</string>
-    <string name="g_record_t_detail">Here is the record detail</string>
-    <string name="g_record_t_upload">Upload your record</string>
     <string name="i_refreshing_weather">Refreshing weather</string>
     <string name="m_announcement">Announcement</string>
     <string name="m_auth_manage">Authority management</string>
-    <string name="m_f_recordlist_clear">Clear Fragement Preferences</string>
-    <string name="m_feed_back">Feedback</string>
     <string name="m_group_other">Other</string>
     <string name="m_keep_locating">Keep locating</string>
     <string name="m_log_out">Log out</string>
-    <string name="m_main_clear">Clear Main Preferences</string>
     <string name="m_map_return">Return to Recordlist</string>
     <string name="m_monitor_gps">Monitor GPS status</string>
     <string name="m_run">Running</string>
     <string name="m_running_records">Running records</string>
     <string name="m_settings">Setting</string>
-    <string name="m_task_clear_20180420">Clear 20180420</string>
-    <string name="m_tasks">Tasks</string>
     <string name="m_update">Update</string>
     <string name="m_weather">Weather</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -210,7 +189,7 @@ Signal: %3$f"</string>
     <string name="p_record_error_other">%1$s</string>
     <string name="p_record_error_repeatedrequest">Repeated request! Please refresh the list, then delete the unuploaded record.</string>
     <string name="p_record_error_server">Fail to communicate with PKURunner server: %1$s</string>
-    <string name="p_record_error_version_low">Your client version is too old to use, please download the latest version in the sidebar \"feedback\" link.</string>
+    <string name="p_record_error_version_low">Your client version is too old to use, please download the latest version.</string>
     <string name="p_record_photo_error_compress">Fail to compress the photo!</string>
     <string name="p_record_photo_error_file">Error in file. Cause: %1$s</string>
     <string name="p_record_photo_error_no_last">"You haven't take any photo before!"</string>
@@ -230,7 +209,6 @@ Signal: %3$f"</string>
     <string name="p_setting_connecting_to_dropbox">Connect To Dropbox</string>
     <string name="p_setting_dropbox_title">Dropbox</string>
     <string name="p_setting_gender">Gender</string>
-    <string name="p_setting_intro">Guide Page</string>
     <string name="p_setting_name">Your name</string>
     <string name="p_setting_photo_deleted">Useless photos cleaned!</string>
     <string name="p_setting_settings">Settings</string>
@@ -244,17 +222,10 @@ Signal: %3$f"</string>
     <string name="p_setting_user">User Info</string>
     <string name="p_setting_version_name">Version name</string>
     <string name="p_settings_title">Settings</string>
-    <string name="p_task_data_failure">Unable to sync data from server</string>
-    <string name="p_task_data_success">Sync data successfully</string>
-    <string name="p_task_dialog_congratulation_content">Be persistent!</string>
-    <string name="p_task_dialog_congratulation_title">Congratulations on completing this task!</string>
-    <string name="p_task_has_signed_up">You have signed up for this activity!</string>
-    <string name="p_task_offline_unusable">Offline users can not access task features at this moment.</string>
-    <string name="p_task_sign_up_failure">Fail to sign up! Cause: %1$s</string>
-    <string name="p_task_sign_up_success">Sign up successfully!</string>
-    <string name="p_task_source_github">Github support</string>
-    <string name="p_task_source_school">School server</string>
-    <string name="p_task_source_title">Source of task list</string>
+    <string name="p_run_permission_title">Location permission required</string>
+    <string name="p_run_permission_content">Location permission is needed to record your route while running. It is used only after you start a run.</string>
+    <string name="p_run_permission_action">Allow</string>
+    <string name="p_run_permission_cancel">Cancel</string>
     <string name="s_return_to_main">Click this tip to return to the main interface.</string>
     <string name="s_running">Running</string>
     <string name="status_finished">Completed</string>
@@ -273,23 +244,4 @@ The next check-in task will be available after %2$d days (%3$s)."</string>
     <string name="v_record_card_distance_format">%1$.2f</string>
     <string name="v_record_card_duration_format">%1$s - %2$s</string>
     <string name="v_record_km">km</string>
-    <string name="v_task_action_cheers">Completed!</string>
-    <string name="v_task_action_sign_up">Sign up now</string>
-    <string name="v_task_detail">"Start\u0009\u0009%1$s
-Due\u0009\u0009%2$s
-Status\u0009\u0009%3$s
-Current\u0009\u0009%4$.2f km
-Purpose\u0009\u0009%5$s km
-Progress\u0009\u0009%6$s%%"</string>
-    <string name="v_task_detail_hint">Detail</string>
-    <string name="v_task_detail_without_time">"Status\u0009\u0009%1$s
-Current\u0009\u0009%2$.2f km
-Purpose\u0009\u0009%3$s km
-Progress\u0009\u0009%4$s%%"</string>
-    <string name="v_task_status_after_end">Finished</string>
-    <string name="v_task_status_before_start">Not started yet</string>
-    <string name="v_task_status_completed">Completed</string>
-    <string name="v_task_status_ongoing">On going</string>
-    <string name="v_task_status_text_without_time">%1$s / %2$s ~ %3$s</string>
-    <string name="v_task_status_unsigned">Not signed up yet</string>
 </resources>

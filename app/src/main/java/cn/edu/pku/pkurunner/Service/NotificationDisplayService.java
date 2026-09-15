@@ -11,14 +11,12 @@ import android.os.Build;
 import android.os.IBinder;
 import cn.edu.pku.pkurunner.MainActivity;
 import cn.edu.pku.pkurunner.R;
-import cn.edu.pku.pkurunner.Utils.KeepAliveUtil;
 import org.xutils.common.util.LogUtil;
 
 public class NotificationDisplayService extends Service {
     @Override
     public void onDestroy() {
         stopForeground(true);
-        KeepAliveUtil.WakeAndWifiLocker.release();
         super.onDestroy();
         LogUtil.d("onDestroy");
     }
@@ -55,7 +53,6 @@ public class NotificationDisplayService extends Service {
         builder.setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, (Class<?>) MainActivity.class), PendingIntent.FLAG_IMMUTABLE)).setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher)).setContentTitle(getString(R.string.s_running)).setSmallIcon(R.drawable.launcher_notification).setContentText(getString(R.string.s_return_to_main)).setWhen(System.currentTimeMillis());
         Notification build = builder.build();
         build.defaults = 1;
-        KeepAliveUtil.WakeAndWifiLocker.lock(this);
         startForeground(110, build);
         return 1;
     }

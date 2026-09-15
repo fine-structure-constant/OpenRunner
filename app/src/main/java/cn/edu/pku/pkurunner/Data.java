@@ -9,7 +9,6 @@ import cn.edu.pku.pkurunner.Model.PartialPoint;
 import cn.edu.pku.pkurunner.Model.PartialRecord;
 import cn.edu.pku.pkurunner.Model.Point;
 import cn.edu.pku.pkurunner.Model.Record;
-import cn.edu.pku.pkurunner.Model.Task;
 import cn.edu.pku.pkurunner.Model.User;
 import cn.edu.pku.pkurunner.Network.Model.UserStatus;
 import cn.edu.pku.pkurunner.Network.Network;
@@ -47,8 +46,6 @@ public class Data {
     private static User currentUser;
 
     private static UserStatus userStatus;
-
-    private static ArrayList partialRecords = new ArrayList();
 
     private static boolean initialized = false;
 
@@ -88,10 +85,6 @@ public class Data {
             e2.printStackTrace();
             return Observable.error(new DataException(4, e2.getMessage()));
         }
-    }
-
-    public static ArrayList<Task> getTasks() {
-        return partialRecords;
     }
 
     public static User getUser() {
@@ -850,15 +843,6 @@ public class Data {
                 ObservableSource F;
                 F = Data.F(record, (String) obj);
                 return F;
-            }
-        });
-    }
-
-    public static Observable<ArrayList<Task>> getTasksFromServer() {
-        return Network.getTasks().observeOn(Schedulers.io()).doOnNext(new Consumer() {
-            @Override
-            public final void accept(Object obj) {
-                Data.partialRecords = (ArrayList) obj;
             }
         });
     }

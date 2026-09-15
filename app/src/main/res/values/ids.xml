@@ -8,7 +8,6 @@
     <item type="id" name="a_login_guideLine_right" />
     <item type="id" name="a_login_img_banner" />
     <item type="id" name="a_login_img_logo" />
-    <item type="id" name="a_main_clear_preferences" />
     <item type="id" name="a_main_coordinator" />
     <item type="id" name="a_main_drawer_layout" />
     <item type="id" name="a_main_nav" />
@@ -68,7 +67,6 @@
     <item type="id" name="activity_chooser_view_content" />
     <item type="id" name="alertTitle" />
     <item type="id" name="appversion_hint" />
-    <item type="id" name="back" />
     <item type="id" name="background" />
     <item type="id" name="bottom_separator" />
     <item type="id" name="btn_update" />
@@ -96,16 +94,12 @@
     <item type="id" name="date_picker_actions" />
     <item type="id" name="decor_content_parent" />
     <item type="id" name="default_activity_button" />
-    <item type="id" name="description" />
     <item type="id" name="design_bottom_sheet" />
     <item type="id" name="design_menu_item_action_area" />
     <item type="id" name="design_menu_item_action_area_stub" />
     <item type="id" name="design_menu_item_text" />
     <item type="id" name="design_navigation_view" />
     <item type="id" name="dialog_button" />
-    <item type="id" name="dialoggif_text" />
-    <item type="id" name="dialoggif_webp" />
-    <item type="id" name="done" />
     <item type="id" name="dropdown_editable" />
     <item type="id" name="dropdown_noneditable" />
     <item type="id" name="edit_query" />
@@ -117,8 +111,6 @@
     <item type="id" name="f_m_map_checkbox_gps_status_on" />
     <item type="id" name="f_m_map_checkbox_location_auto_on" />
     <item type="id" name="f_m_map_return" />
-    <item type="id" name="f_m_recordlist_clear_preferences" />
-    <item type="id" name="f_m_task_btn_clear_20180420" />
     <item type="id" name="f_map_barrier_top" />
     <item type="id" name="f_map_bottomsheet" />
     <item type="id" name="f_map_btn_pause" />
@@ -142,8 +134,6 @@
     <item type="id" name="f_offline_info_title" />
     <item type="id" name="f_offline_info_txt" />
     <item type="id" name="f_perm_location" />
-    <item type="id" name="f_perm_phone" />
-    <item type="id" name="f_perm_sd" />
     <item type="id" name="f_record_detail_circle_bg" />
     <item type="id" name="f_record_detail_guideline_above_map" />
     <item type="id" name="f_record_detail_guideline_detail_bottom" />
@@ -174,13 +164,6 @@
     <item type="id" name="f_recordlist_txt_notice" />
     <item type="id" name="f_recordlist_txt_section" />
     <item type="id" name="f_recordlist_txt_section_action" />
-    <item type="id" name="f_task_complete_txt_message" />
-    <item type="id" name="f_task_complete_txt_title" />
-    <item type="id" name="f_tasklist_recyclerview" />
-    <item type="id" name="f_tasklist_swipeRefreshLayout" />
-    <item type="id" name="f_tasklist_txt_notice" />
-    <item type="id" name="f_tasklist_txt_section" />
-    <item type="id" name="view_card_task_fg" />
     <item type="id" name="p_weather_toolbar" />
     <item type="id" name="f_weather_container" />
     <item type="id" name="v_weather_content" />
@@ -218,7 +201,6 @@
     <item type="id" name="icon" />
     <item type="id" name="icon_frame" />
     <item type="id" name="icon_group" />
-    <item type="id" name="image" />
     <item type="id" name="indicator_container" />
     <item type="id" name="info" />
     <item type="id" name="item1" />
@@ -232,7 +214,6 @@
     <item type="id" name="line3" />
     <item type="id" name="list_item" />
     <item type="id" name="login" />
-    <item type="id" name="main" />
     <item type="id" name="masked" />
     <item type="id" name="material_clock_display" />
     <item type="id" name="material_clock_face" />
@@ -289,12 +270,10 @@
     <item type="id" name="mtrl_picker_title_text" />
     <item type="id" name="mtrl_view_tag_bottom_padding" />
     <item type="id" name="nav_announcement" />
-    <item type="id" name="nav_feedback" />
     <item type="id" name="nav_logout" />
     <item type="id" name="nav_run" />
     <item type="id" name="nav_run_record" />
     <item type="id" name="nav_settings" />
-    <item type="id" name="nav_tasks" />
     <item type="id" name="nav_txt_department" />
     <item type="id" name="nav_txt_name" />
     <item type="id" name="nav_update" />
@@ -308,7 +287,6 @@
     <item type="id" name="navigation_header_container" />
     <item type="id" name="negativeBtn" />
     <item type="id" name="negativeLayout" />
-    <item type="id" name="next" />
     <item type="id" name="notification_background" />
     <item type="id" name="notification_main_column" />
     <item type="id" name="notification_main_column_container" />
@@ -336,7 +314,6 @@
     <item type="id" name="scrollIndicatorDown" />
     <item type="id" name="scrollIndicatorUp" />
     <item type="id" name="scrollView" />
-    <item type="id" name="search_badge" />
     <item type="id" name="search_bar" />
     <item type="id" name="search_button" />
     <item type="id" name="search_close_btn" />
@@ -352,7 +329,6 @@
     <item type="id" name="selection_type" />
     <item type="id" name="sendcodes" />
     <item type="id" name="shortcut" />
-    <item type="id" name="skip" />
     <item type="id" name="snackbar_action" />
     <item type="id" name="snackbar_text" />
     <item type="id" name="spacer" />
@@ -410,10 +386,6 @@
     <item type="id" name="unchecked" />
     <item type="id" name="up" />
     <item type="id" name="userName" />
-    <item type="id" name="v_a_20180420_btn_blue" />
-    <item type="id" name="v_a_20180420_btn_red" />
-    <item type="id" name="v_badge_img" />
-    <item type="id" name="v_badge_txt" />
     <item type="id" name="v_gps_img_signal" />
     <item type="id" name="v_gps_txt_info" />
     <item type="id" name="v_main_appbar" />
@@ -451,13 +423,8 @@
     <item type="id" name="v_record_card_txt_place" />
     <item type="id" name="v_record_card_txt_time" />
     <item type="id" name="v_status_progress" />
-    <item type="id" name="v_task_card_constraintlayout" />
-    <item type="id" name="v_task_card_img_reward" />
-    <item type="id" name="v_task_card_txt_description" />
-    <item type="id" name="v_task_card_txt_name" />
     <item type="id" name="view_card_record_fg" />
     <item type="id" name="view_offset_helper" />
-    <item type="id" name="view_pager" />
     <item type="id" name="view_transition" />
     <item type="id" name="view_tree_lifecycle_owner" />
     <item type="id" name="view_tree_saved_state_registry_owner" />

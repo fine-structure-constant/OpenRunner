@@ -10,7 +10,6 @@ import cn.edu.pku.pkurunner.MainApplication;
 import cn.edu.pku.pkurunner.Model.GymRecord;
 import cn.edu.pku.pkurunner.Model.Point;
 import cn.edu.pku.pkurunner.Model.Record;
-import cn.edu.pku.pkurunner.Model.Task;
 import cn.edu.pku.pkurunner.Model.User;
 import cn.edu.pku.pkurunner.Model.Weather;
 import cn.edu.pku.pkurunner.Network.DataPack;
@@ -18,11 +17,9 @@ import cn.edu.pku.pkurunner.Network.Model.AMapReverseEncoding;
 import cn.edu.pku.pkurunner.Network.Model.UserStatus;
 import cn.edu.pku.pkurunner.Network.Model.Version;
 import cn.edu.pku.pkurunner.Network.Network;
-import cn.edu.pku.pkurunner.Network.Service.ActivityService;
 import cn.edu.pku.pkurunner.Network.Service.GymRecordService;
 import cn.edu.pku.pkurunner.Network.Service.LoginService;
 import cn.edu.pku.pkurunner.Network.Service.RecordService;
-import cn.edu.pku.pkurunner.Network.Service.TaskService;
 import cn.edu.pku.pkurunner.Network.Service.WeatherService;
 import cn.edu.pku.pkurunner.R;
 import cn.edu.pku.pkurunner.Utils.SecUtil;
@@ -35,7 +32,6 @@ import java.io.File;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -55,15 +51,12 @@ public class Network {
     private static WeatherService weatherService = null;
     public static final String announcementUrl = "https://pkunewyouth.pku.edu.cn/public/htmls/requirement.html?t=" + System.currentTimeMillis();
 
-    private static TaskService taskService = null;
-
     private static LoginService loginService = null;
 
     private static RecordService recordService = null;
 
     private static GymRecordService gymRecordService = null;
 
-    private static ActivityService activityService = null;
     public static final String photoBaseUrl = "https://pkunewyouth.pku.edu.cn/";
     public static Weather weather;
 
@@ -79,17 +72,6 @@ public class Network {
             }
             return Observable.error(new ServerException(dataPack.getCode(), dataPack.getMessage()));
         }
-    }
-
-    public static Observable<Boolean> clearActivity20180420() {
-        return activityService.clear20180420(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new Function() {
-            @Override
-            public final Object apply(Object obj) {
-                ObservableSource m2;
-                m2 = Network.m((DataPack) obj);
-                return m2;
-            }
-        });
     }
 
     public static Observable<ArrayList<GymRecord>> getGymRecords() {
@@ -142,17 +124,6 @@ public class Network {
         });
     }
 
-    public static Observable<ArrayList<Task>> getTasks() {
-        return taskService.getList(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction()).flatMap(new Function() {
-            @Override
-            public final Object apply(Object obj) {
-                ObservableSource q2;
-                q2 = Network.q((Map) obj);
-                return q2;
-            }
-        });
-    }
-
     public static Observable<UserStatus> getUserStatus() {
         return recordService.getStatus(Data.getUser().getId()).subscribeOn(Schedulers.newThread()).flatMap(new DataPackUnwrapFunction());
     }
@@ -178,11 +149,9 @@ public class Network {
         });
         Retrofit build = new Retrofit.Builder().baseUrl(photoBaseUrl).addConverterFactory(GsonConverterFactory.create()).addCallAdapterFactory(RxJava2CallAdapterFactory.create()).client(builder.build()).build();
         weatherService = (WeatherService) build.create(WeatherService.class);
-        taskService = (TaskService) build.create(TaskService.class);
         loginService = (LoginService) build.create(LoginService.class);
         recordService = (RecordService) build.create(RecordService.class);
         gymRecordService = (GymRecordService) build.create(GymRecordService.class);
-        activityService = (ActivityService) build.create(ActivityService.class);
     }
 
     public static void interceptIfSocketTimeout(Throwable th, Callback.Callable<Void> callable) {
@@ -225,21 +194,6 @@ public class Network {
 
     public static /* synthetic */ ObservableSource p(Record.Inner inner) {
         return Observable.just(new Record(inner));
-    }
-
-    public static /* synthetic */ ObservableSource q(Map map) {
-        return Observable.just(new ArrayList(map.values()));
-    }
-
-    public static Observable<Boolean> signUpActivity20180420(boolean z2) {
-        return activityService.signUp20180420(20180420, Data.getUser().getId(), z2 ? "red" : "blue").subscribeOn(Schedulers.newThread()).flatMap(new Function() {
-            @Override
-            public final Object apply(Object obj) {
-                ObservableSource u2;
-                u2 = Network.u((DataPack) obj);
-                return u2;
-            }
-        });
     }
 
     public static /* synthetic */ ObservableSource t(User.Inner inner) {
@@ -317,10 +271,6 @@ public class Network {
         return Observable.just(new Record(inner));
     }
 
-    public static /* synthetic */ ObservableSource m(DataPack dataPack) {
-        return Observable.just(Boolean.valueOf(dataPack.isSuccess()));
-    }
-
     public static /* synthetic */ Response s(Interceptor.Chain chain) throws java.io.IOException {
         Request.Builder newBuilder = chain.request().newBuilder();
         if (Data.getUser() != null) {
@@ -329,7 +279,4 @@ public class Network {
         return chain.proceed(newBuilder.header("Platform", "Android").header("Manufacturer", Build.MANUFACTURER).header("ClientVersion", BuildConfig.VERSION_NAME).build());
     }
 
-    public static /* synthetic */ ObservableSource u(DataPack dataPack) {
-        return Observable.just(Boolean.valueOf(dataPack.isSuccess()));
-    }
 }
