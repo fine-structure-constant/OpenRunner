@@ -1,0 +1,42 @@
+# Gradle cache and build outputs
+.gradle/
+**/build/
+.kotlin/
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Local Android SDK configuration
+local.properties
+
+# Generated native and profiling files
+.cxx/
+**/.externalNativeBuild/
+captures/
+*.hprof
+
+# Generated source and reports
+**/generated/
+*.log
+
+# Android packaging artifacts
+*.apk
+*.aab
+*.apks
+*.idsig
+*.mapping.txt
+output-metadata.json
+
+# Local signing material and machine-specific overrides
+*.jks
+*.keystore
+*.properties.local
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+desktop.ini

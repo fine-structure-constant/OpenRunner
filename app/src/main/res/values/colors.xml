@@ -1,0 +1,19 @@
+<resources>
+    <color name="or_primary">#315B49</color>
+    <color name="or_surface">#FAF9F6</color>
+    <color name="or_on_surface">#1B1B1B</color>
+    <color name="or_muted">#6F746F</color>
+    <color name="or_accent">#EF8137</color>
+    <color name="or_surface_container">#F0F1ED</color>
+    <color name="or_surface_container_high">#E7E9E4</color>
+    <color name="or_outline">#CDD2CC</color>
+    <color name="map_route">#315B49</color>
+    <color name="or_status_pending">#A35400</color>
+    <color name="or_status_pending_container">#FFF3DF</color>
+    <color name="or_status_uploading">#1565A8</color>
+    <color name="or_status_uploading_container">#E8F2FA</color>
+    <color name="or_status_success">#216E39</color>
+    <color name="or_status_success_container">#E7F4EA</color>
+    <color name="or_status_error">#B3261E</color>
+    <color name="or_status_error_container">#FCEBE9</color>
+</resources>

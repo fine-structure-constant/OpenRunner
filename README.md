@@ -1,0 +1,47 @@
+# OpenRunner v2
+
+这是 OpenRunner 的可维护重构起点。它使用 Kotlin、AndroidX、Retrofit、OkHttp、协程和 ViewModel，包名统一为 cn.edu.pku.openrunner。
+
+## 当前状态
+
+- 网络层已集中到 core/network，保留 PKU New Youth 官方 API。
+- 会话由 core/session/SessionStore 管理，不再由静态 Data 对象承载全部状态。
+- 任务功能已经迁移到 feature/tasks，使用 Repository + ViewModel + StateFlow。
+- 跑步轨迹距离计算已提取到可测试的 feature/run/domain。
+- 记录列表已接入官方记录接口，使用独立 Repository + ViewModel。
+- 跑步页面已接入 Android GPS 位置源，负责权限、开始/结束和轨迹距离状态。
+- 跑步页面已接入高德 2D 地图；进入页面即显示当前位置与精度范围，跑步时实时绘制轨迹。采集层沿用旧版行为，将 WGS-84 转为 GCJ-02 后再交给地图和记录管线。
+- 跑步页使用单调时钟实时计时，并根据累计时间和距离显示平均 `min/km` 配速；计步沿用旧版的无权限加速度计方案。结束后记录先持久化到本机，用户可选择一张图片（压缩为不超过 640×480、JPEG 质量 50）后上传，也可在“记录”页分别处理多条待上传记录。
+- 记录页以橙/蓝/绿/红区分待上传、上传中、已上传合格及上传失败或验证不合格；服务端错误码会解释为里程范围、速度、位置、时间、照片或摘要问题。
+- 天气页面已迁移到中国气象局 NMC 接口，可从左侧菜单刷新当前天气和预报。
+- 登录后左侧“我的账户”页面显示学号、姓名、Token、跑步汇总和历史记录；Token 缺失或服务端判定失效时才显示登录入口。
+- 登录页面按官方 IAAA 流程处理用户名、密码、SMS/OTP 二次认证，再调用 /user 换取会话。
+
+## 构建
+
+在 Windows PowerShell 中：
+
+~~~powershell
+$env:JAVA_HOME = 'D:\.ENV\Java\jdk-temurin-17.0.20.1'
+$env:ANDROID_SDK_ROOT = 'D:\.DevTOOLs\Android\Sdk'
+.\gradlew.bat :app:assembleDebug
+~~~
+
+生成文件位于 app/build/outputs/apk/debug/app-debug.apk。
+
+v2 的安装包 ID 是 `cn.edu.pku.openrunner.v2`，与旧版的 `cn.edu.pku.openrunner` 不冲突；源码 namespace 仍保持 `cn.edu.pku.openrunner`。
+
+如需使用自己的高德 Key，可在项目 `gradle.properties` 增加：
+
+~~~properties
+AMAP_API_KEY=你的高德 Android Key
+~~~
+
+高德 Android Key 需要绑定 v2 的安装包 ID `cn.edu.pku.openrunner.v2` 和实际签名证书 SHA-1。旧版 Key 不一定能用于共存版。
+
+## 设计约定
+
+- 包名全部使用小写。
+- UI 只负责展示状态，网络和数据转换放到 Repository。
+- 服务器返回的状态必须在 ApiModels.kt 中命名，不在 UI 中散落数字常量。
+- 官方 API 的路径和字段以 docs/PKUNEWYOUTH_API.md 为准。

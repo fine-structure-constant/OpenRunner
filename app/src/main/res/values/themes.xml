@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.OpenRunner.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">@color/or_accent</item>
+        <item name="colorPrimary">@color/or_primary</item>
+        <item name="android:navigationBarColor">@color/or_surface</item>
+        <item name="android:statusBarColor">@color/or_surface</item>
+    </style>
+
+    <style name="Theme.OpenRunner" parent="Theme.OpenRunner.Base" />
+</resources>

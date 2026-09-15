@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_run"
+            android:title="@string/nav_run"
+            android:icon="@android:drawable/ic_menu_mylocation" />
+        <item
+            android:id="@+id/nav_records"
+            android:title="@string/nav_records"
+            android:icon="@android:drawable/ic_menu_recent_history" />
+        <item
+            android:id="@+id/nav_tasks"
+            android:title="@string/nav_tasks"
+            android:icon="@android:drawable/ic_menu_agenda" />
+        <item
+            android:id="@+id/nav_weather"
+            android:title="@string/nav_weather"
+            android:icon="@android:drawable/ic_menu_compass" />
+    </group>
+    <item
+        android:id="@+id/nav_login"
+        android:title="@string/nav_login"
+        android:icon="@android:drawable/ic_lock_lock" />
+</menu>
