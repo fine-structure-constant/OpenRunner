@@ -22,4 +22,27 @@
         android:id="@+id/nav_login"
         android:title="@string/nav_login"
         android:icon="@android:drawable/ic_lock_lock" />
+    <item
+        android:id="@+id/nav_appearance"
+        android:title="@string/nav_appearance"
+        android:icon="@android:drawable/ic_menu_manage">
+        <menu>
+            <group
+                android:id="@+id/theme_group"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/theme_system"
+                    android:checkable="true"
+                    android:title="@string/theme_system" />
+                <item
+                    android:id="@+id/theme_light"
+                    android:checkable="true"
+                    android:title="@string/theme_light" />
+                <item
+                    android:id="@+id/theme_dark"
+                    android:checkable="true"
+                    android:title="@string/theme_dark" />
+            </group>
+        </menu>
+    </item>
 </menu>

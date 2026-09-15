@@ -58,6 +58,7 @@ data class RunUiState(
     val currentPoint: TrackPoint? = null,
     val accuracyMeters: Int? = null,
     val locating: Boolean = false,
+    val backgroundTrackingActive: Boolean = false,
     val recordSaveStatus: RecordSaveStatus = RecordSaveStatus.NONE,
     val savedRecordId: String? = null,
     val photoAttached: Boolean = false,
@@ -117,6 +118,7 @@ class RunViewModel(
         points.clear()
         startedAtMillis = System.currentTimeMillis()
         startedAtElapsedMillis = SystemClock.elapsedRealtime()
+        val backgroundTrackingActive = locationTracker.enableBackgroundTracking()
         _uiState.value = _uiState.value.copy(
             status = RunStatus.RUNNING,
             durationSeconds = 0,
@@ -125,6 +127,7 @@ class RunViewModel(
             stepCount = 0,
             pointCount = 0,
             points = emptyList(),
+            backgroundTrackingActive = backgroundTrackingActive,
             recordSaveStatus = RecordSaveStatus.NONE,
             savedRecordId = null,
             photoAttached = false,
@@ -141,8 +144,10 @@ class RunViewModel(
         timerJob?.cancel()
         timerJob = null
         stepCounter.stop()
+        locationTracker.disableBackgroundTracking()
         val finishedState = _uiState.value.copy(
             status = RunStatus.FINISHED,
+            backgroundTrackingActive = false,
             recordSaveStatus = RecordSaveStatus.SAVING,
             recordError = null
         )
@@ -163,16 +168,6 @@ class RunViewModel(
                     )
                 }
                 .onFailure { error ->
-                    if (error is RecordAlreadyUploadedException) {
-                        _uiState.value = _uiState.value.copy(
-                            recordSaveStatus = RecordSaveStatus.UPLOADED,
-                            savedRecordId = null,
-                            recordErrorCode = null,
-                            recordError = null
-                        )
-                        _events.tryEmit(RunUiEvent.AlreadyUploaded)
-                        return@onFailure
-                    }
                     _uiState.value = _uiState.value.copy(
                         recordSaveStatus = RecordSaveStatus.ERROR,
                         recordError = error.message ?: "记录保存失败"
@@ -236,6 +231,16 @@ class RunViewModel(
                     )
                 }
                 .onFailure { error ->
+                    if (error is RecordAlreadyUploadedException) {
+                        _uiState.value = _uiState.value.copy(
+                            recordSaveStatus = RecordSaveStatus.UPLOADED,
+                            savedRecordId = null,
+                            recordErrorCode = null,
+                            recordError = null
+                        )
+                        _events.tryEmit(RunUiEvent.AlreadyUploaded)
+                        return@onFailure
+                    }
                     _uiState.value = _uiState.value.copy(
                         recordSaveStatus = RecordSaveStatus.ERROR,
                         recordErrorCode = (error as? ApiException)?.code,
@@ -295,7 +300,7 @@ class RunViewModel(
     override fun onCleared() {
         timerJob?.cancel()
         stepCounter.stop()
-        locationTracker.stop()
+        locationTracker.destroy()
         super.onCleared()
     }
 

@@ -1,5 +1,10 @@
 <resources>
     <color name="or_primary">#315B49</color>
+    <color name="or_on_primary">#FFFFFF</color>
+    <color name="or_primary_container">#D5E8DD</color>
+    <color name="or_on_primary_container">#142C22</color>
+    <color name="or_hero">#315B49</color>
+    <color name="or_on_hero">#FFFFFF</color>
     <color name="or_surface">#FAF9F6</color>
     <color name="or_on_surface">#1B1B1B</color>
     <color name="or_muted">#6F746F</color>

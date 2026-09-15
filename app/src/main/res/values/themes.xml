@@ -3,6 +3,16 @@
         <item name="android:fontFamily">sans</item>
         <item name="android:colorAccent">@color/or_accent</item>
         <item name="colorPrimary">@color/or_primary</item>
+        <item name="colorOnPrimary">@color/or_on_primary</item>
+        <item name="colorPrimaryContainer">@color/or_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/or_on_primary_container</item>
+        <item name="colorSecondary">@color/or_accent</item>
+        <item name="colorSurface">@color/or_surface</item>
+        <item name="colorOnSurface">@color/or_on_surface</item>
+        <item name="colorSurfaceVariant">@color/or_surface_container</item>
+        <item name="colorOnSurfaceVariant">@color/or_muted</item>
+        <item name="colorOutline">@color/or_outline</item>
+        <item name="android:windowBackground">@color/or_surface</item>
         <item name="android:navigationBarColor">@color/or_surface</item>
         <item name="android:statusBarColor">@color/or_surface</item>
     </style>

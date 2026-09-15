@@ -226,7 +226,7 @@ v2 的 `RunRecordDto` 按该旧版协议建模，避免将日期强制转换为 
     GET https://restapi.amap.com/v3/geocode/regeo
     参数：output=json、extensions=base、location=经度,纬度、key、radius=1000
 
-天气已迁移到 `feature/weather/data/WeatherRepository`，使用独立的 NMC Retrofit 客户端；跑步地图使用高德 2D SDK，轨迹点在绘制前由 WGS-84 转为 GCJ-02。
+天气已迁移到 `feature/weather/data/WeatherRepository`，使用独立的 NMC Retrofit 客户端；跑步地图和连续定位使用高德 3D 地图/定位合包，定位结果直接采用 GCJ-02。
 
 天气：
 
@@ -234,10 +234,10 @@ v2 的 `RunRecordDto` 按该旧版协议建模，避免将日期强制转换为 
 
 高德地图：
 
-    SDK: com.amap.api:map2d:6.0.0
+    SDK: com.amap.api:3dmap-location-search:11.2.100_loc11.2.100_sea9.8.1
     Manifest key: com.amap.api.v2.apikey
 
-构建时可在 `gradle.properties` 覆盖 `AMAP_API_KEY`。跑步页面的 `MapView` 只负责显示轨迹，定位仍由 Android GPS `LocationManager` 采集，避免把定位生命周期耦合到地图 SDK。
+构建时可在 `gradle.properties` 覆盖 `AMAP_API_KEY`。地图使用普通/夜景矢量底图；定位使用高德 `Sport` 运动场景。开跑时调用后台定位接口显示前台通知并持有有限时长唤醒锁，结束后关闭后台能力、停止通知并释放唤醒锁。
 
 ## curl 示例
 

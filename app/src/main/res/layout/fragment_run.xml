@@ -3,8 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/or_surface"
-    android:keepScreenOn="true"
     android:orientation="vertical">
 
     <FrameLayout
@@ -12,7 +10,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
 
-        <com.amap.api.maps2d.MapView
+        <com.amap.api.maps.MapView
             android:id="@+id/run_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

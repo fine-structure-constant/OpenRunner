@@ -2,7 +2,8 @@ package cn.edu.pku.openrunner.feature.run.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -25,17 +27,17 @@ import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
 import cn.edu.pku.openrunner.feature.run.data.RunPhotoStore
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
-import com.amap.api.maps2d.AMap
-import com.amap.api.maps2d.CameraUpdateFactory
-import com.amap.api.maps2d.MapView
-import com.amap.api.maps2d.model.BitmapDescriptorFactory
-import com.amap.api.maps2d.model.Circle
-import com.amap.api.maps2d.model.CircleOptions
-import com.amap.api.maps2d.model.LatLng
-import com.amap.api.maps2d.model.Marker
-import com.amap.api.maps2d.model.MarkerOptions
-import com.amap.api.maps2d.model.Polyline
-import com.amap.api.maps2d.model.PolylineOptions
+import com.amap.api.maps.AMap
+import com.amap.api.maps.CameraUpdateFactory
+import com.amap.api.maps.MapView
+import com.amap.api.maps.model.BitmapDescriptorFactory
+import com.amap.api.maps.model.Circle
+import com.amap.api.maps.model.CircleOptions
+import com.amap.api.maps.model.LatLng
+import com.amap.api.maps.model.Marker
+import com.amap.api.maps.model.MarkerOptions
+import com.amap.api.maps.model.Polyline
+import com.amap.api.maps.model.PolylineOptions
 import kotlinx.coroutines.launch
 import android.widget.Toast
 import cn.edu.pku.openrunner.feature.records.ui.recordIssueText
@@ -43,8 +45,8 @@ import cn.edu.pku.openrunner.feature.records.ui.recordIssueText
 class RunFragment : Fragment() {
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
-    ) { grants ->
-        if (grants.values.any { it }) viewModel.startLocating()
+    ) {
+        if (hasLocationPermission()) viewModel.startLocating()
     }
     private val photoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let(viewModel::attachPhoto)
@@ -80,6 +82,7 @@ class RunFragment : Fragment() {
         mapView = map
         map.onCreate(savedInstanceState)
         aMap = map.map.apply {
+            mapType = if (isNightMode()) AMap.MAP_TYPE_NIGHT else AMap.MAP_TYPE_NORMAL
             uiSettings.isZoomControlsEnabled = false
             uiSettings.isCompassEnabled = false
             uiSettings.isScaleControlsEnabled = true
@@ -123,7 +126,11 @@ class RunFragment : Fragment() {
                             getString(R.string.run_location_ready, state.accuracyMeters ?: 0)
                         }
                         RunStatus.RUNNING -> getString(
-                            R.string.run_running,
+                            if (state.backgroundTrackingActive) {
+                                R.string.run_running_background
+                            } else {
+                                R.string.run_running_foreground_only
+                            },
                             state.pointCount,
                             state.stepCount
                         )
@@ -245,10 +252,13 @@ class RunFragment : Fragment() {
 
     private fun requestLocationPermission() {
         locationPermissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
+            buildList {
+                add(Manifest.permission.ACCESS_FINE_LOCATION)
+                add(Manifest.permission.ACCESS_COARSE_LOCATION)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    add(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }.toTypedArray()
         )
     }
 
@@ -272,13 +282,14 @@ class RunFragment : Fragment() {
         }
         accuracyCircle?.remove()
         accuracyCircle = accuracyMeters?.takeIf { it > 0 }?.let { accuracy ->
+            val routeColor = ContextCompat.getColor(requireContext(), R.color.map_route)
             map.addCircle(
                 CircleOptions()
                     .center(position)
                     .radius(accuracy.toDouble())
                     .strokeWidth(2f)
-                    .strokeColor(Color.argb(150, 49, 91, 73))
-                    .fillColor(Color.argb(35, 49, 91, 73))
+                    .strokeColor(ColorUtils.setAlphaComponent(routeColor, 150))
+                    .fillColor(ColorUtils.setAlphaComponent(routeColor, 35))
             )
         }
         if (forceCenter || followLocation) {
@@ -316,6 +327,10 @@ class RunFragment : Fragment() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
     }
+
+    private fun isNightMode(): Boolean =
+        resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
+            Configuration.UI_MODE_NIGHT_YES
 
     override fun onResume() {
         super.onResume()

@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/or_surface"
     android:fillViewport="true">
 
     <LinearLayout
@@ -69,7 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/or_primary"
+                app:cardBackgroundColor="@color/or_hero"
                 app:cardCornerRadius="22dp"
                 app:cardElevation="2dp">
 
@@ -84,21 +83,21 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@color/or_on_hero" />
 
                     <TextView
                         android:id="@+id/account_id"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@color/or_on_hero" />
 
                     <TextView
                         android:id="@+id/account_department"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textColor="@android:color/white" />
+                        android:textColor="@color/or_on_hero" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

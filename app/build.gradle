@@ -18,6 +18,10 @@ android {
         // AMap 2D reads this value from the manifest. Override it in
         // gradle.properties for a deployment-specific key.
         manifestPlaceholders = [AMAP_API_KEY: project.findProperty("AMAP_API_KEY") ?: "19fe50e8d34fcebd76a3a126990c6edb"]
+        ndk {
+            // AMap 11.x officially ships these two ABIs.
+            abiFilters "armeabi-v7a", "arm64-v8a"
+        }
     }
 
     buildTypes {
@@ -53,7 +57,7 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
     implementation "com.squareup.okhttp3:okhttp:3.14.9"
     implementation "com.google.code.gson:gson:2.10.1"
-    implementation "com.amap.api:map2d:6.0.0"
+    implementation "com.amap.api:3dmap-location-search:11.2.100_loc11.2.100_sea9.8.1"
 
     testImplementation "junit:junit:4.13.2"
 }

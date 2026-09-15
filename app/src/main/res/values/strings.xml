@@ -5,6 +5,15 @@
     <string name="nav_tasks">任务</string>
     <string name="nav_weather">天气</string>
     <string name="nav_login">登录</string>
+    <string name="nav_appearance">外观</string>
+    <string name="theme_system">跟随系统</string>
+    <string name="theme_light">浅色模式</string>
+    <string name="theme_dark">深色模式</string>
+    <string name="amap_privacy_title">地图与定位隐私说明</string>
+    <string name="amap_privacy_message">跑步地图和持续定位由高德开放平台 SDK 提供。使用地图前，请确认应用隐私说明已包含高德隐私政策，并同意在跑步时处理位置信息。\n\n高德隐私政策：https://lbs.amap.com/pages/privacy/</string>
+    <string name="amap_privacy_accept">同意并打开地图</string>
+    <string name="amap_privacy_decline">暂不同意</string>
+    <string name="amap_privacy_required">需要同意地图与定位隐私说明后才能使用跑步地图</string>
     <string name="drawer_open">打开导航菜单</string>
     <string name="drawer_close">关闭导航菜单</string>
     <string name="session_missing">尚未登录。请先完成 IAAA 登录并保存会话。</string>
@@ -35,7 +44,8 @@
     <string name="run_location_ready">定位就绪 · 精度约 ±%1$d 米</string>
     <string name="run_permission_required">需要定位权限才能采集轨迹</string>
     <string name="run_idle">尚未开始跑步</string>
-    <string name="run_running">正在跑步 · %1$d 个轨迹点 · %2$d 步</string>
+    <string name="run_running_background">正在跑步 · %1$d 个轨迹点 · %2$d 步\n后台与息屏记录已开启</string>
+    <string name="run_running_foreground_only">正在跑步 · %1$d 个轨迹点 · %2$d 步\n后台保护启动失败，请保持应用在前台</string>
     <string name="run_finished">已结束 · %1$d 个轨迹点 · %2$d 步</string>
     <string name="run_metric_distance">距离（米）</string>
     <string name="run_metric_distance_initial">0</string>
@@ -53,6 +63,10 @@
     <string name="run_record_uploaded_invalid">记录已保存并上传服务器，但验证不合格：%1$s</string>
     <string name="run_record_error">操作失败：%1$s</string>
     <string name="run_upload">上传记录</string>
+    <string name="run_notification_channel">跑步记录</string>
+    <string name="run_notification_channel_description">在后台和息屏期间持续记录跑步轨迹</string>
+    <string name="run_notification_title">OpenRunner 正在记录跑步</string>
+    <string name="run_notification_text">定位与计步将在后台持续运行，点击返回跑步页面</string>
     <string name="unknown_error">未知错误</string>
     <string name="records_empty">暂无跑步记录</string>
     <string name="record_distance">%1$d 米</string>
