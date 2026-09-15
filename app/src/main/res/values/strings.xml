@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpenRunner v2</string>
+    <string name="app_name">OpenRunner v2-pro</string>
     <string name="nav_run">跑步</string>
     <string name="nav_records">记录</string>
     <string name="nav_tasks">任务</string>
@@ -85,6 +85,22 @@
     <string name="record_photo_processing">处理中…</string>
     <string name="record_photo_attached">已附加待上传图片</string>
     <string name="record_photo_uploaded">图片已随记录上传</string>
+    <string name="record_details_available">本机有曲线数据 · 点按查看详情</string>
+    <string name="record_detail_title">跑步详情</string>
+    <string name="record_detail_missing">本机没有这条记录的详细采样数据</string>
+    <string name="record_detail_start">开始：%1$s</string>
+    <string name="record_detail_end">结束：%1$s</string>
+    <string name="record_detail_distance">里程\n%1$.2f km</string>
+    <string name="record_detail_duration">用时\n%1$s</string>
+    <string name="record_detail_steps">步数\n%1$d</string>
+    <string name="record_detail_fastest_pace">最快配速\n%1$s min/km</string>
+    <string name="record_detail_samples">本机采样点：%1$d 个</string>
+    <string name="record_chart_distance_title">时间—里程</string>
+    <string name="record_chart_pace_title">时间—配速</string>
+    <string name="record_chart_pace_hint">差分配速采用短窗口平滑，显示范围为 1:30–10:00 min/km</string>
+    <string name="record_chart_no_data">数据不足</string>
+    <string name="record_chart_distance_description">时间里程曲线，共 %1$d 个数据点</string>
+    <string name="record_chart_pace_description">时间配速曲线，共 %1$d 个数据点</string>
     <string name="record_issue_distance">跑步距离或里程范围不符合要求</string>
     <string name="record_issue_speed">跑步速度或配速不符合要求</string>
     <string name="record_issue_location">轨迹位置超出允许跑步区域</string>

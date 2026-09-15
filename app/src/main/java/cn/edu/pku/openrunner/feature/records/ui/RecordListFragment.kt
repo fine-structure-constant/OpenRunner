@@ -56,7 +56,12 @@ class RecordListFragment : Fragment() {
             photoTargetLocalId = localId
             photoPicker.launch("image/*")
         },
-        onDelete = { item -> viewModel.delete(item) }
+        onDelete = { item -> viewModel.delete(item) },
+        onOpenDetails = { item ->
+            item.detailLocalId?.let { localId ->
+                startActivity(RecordDetailActivity.intent(requireContext(), localId))
+            }
+        }
     )
 
     override fun onCreateView(

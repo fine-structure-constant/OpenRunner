@@ -38,5 +38,8 @@
         <activity
             android:name=".feature.auth.ui.AuthActivity"
             android:exported="false" />
+        <activity
+            android:name=".feature.records.ui.RecordDetailActivity"
+            android:exported="false" />
     </application>
 </manifest>

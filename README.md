@@ -1,4 +1,4 @@
-# OpenRunner v2
+# OpenRunner v2-pro
 
 这是 OpenRunner 的可维护重构起点。它使用 Kotlin、AndroidX、Retrofit、OkHttp、协程和 ViewModel，包名统一为 cn.edu.pku.openrunner。
 
@@ -13,6 +13,7 @@
 - 跑步页面已升级到高德 3D 矢量地图 11.2.100；进入页面即显示当前位置与精度范围，跑步时实时绘制轨迹，并随应用深色模式切换夜景底图。
 - 开跑后启用高德前台定位通知与有限时长的 CPU 唤醒锁，保证退到后台或息屏后继续定位和计步；结束跑步后立即关闭并释放资源。
 - 跑步页使用单调时钟实时计时，并根据累计时间和距离显示平均 `min/km` 配速；计步沿用旧版的无权限加速度计方案。结束后记录先持久化到本机，用户可选择一张图片（压缩为不超过 640×480、JPEG 质量 50）后上传，也可在“记录”页分别处理多条待上传记录。
+- 跑步时会为每个有效 GPS 轨迹点在本机保存“相对时间—累计里程”采样。带采样数据的记录使用粗边框标识，点按后可查看起止时间、里程、用时、步数、最快配速，以及时间—里程和时间—配速曲线；配速由短窗口差分计算并截断在 `1.5–10 min/km`。这些增强数据不进入官方上传字段，旧记录和仅从服务器取得的记录保持原样。
 - 记录页以橙/蓝/绿/红区分待上传、上传中或失败、已上传合格及验证不合格；服务端错误码会解释为里程范围、速度、位置、时间、照片或摘要问题。
 - 应用提供跟随系统、浅色和深色三种外观模式；选择会持久化，地图样式与系统栏图标同步变化。
 - 天气页面已迁移到中国气象局 NMC 接口，可从左侧菜单刷新当前天气和预报。
@@ -31,7 +32,7 @@ $env:ANDROID_SDK_ROOT = 'D:\.DevTOOLs\Android\Sdk'
 
 生成文件位于 app/build/outputs/apk/debug/app-debug.apk。
 
-v2 的安装包 ID 是 `cn.edu.pku.openrunner.v2`，与旧版的 `cn.edu.pku.openrunner` 不冲突；源码 namespace 仍保持 `cn.edu.pku.openrunner`。
+v2-pro 的安装包 ID 是 `cn.edu.pku.openrunner.v2pro`，可与旧版 `cn.edu.pku.openrunner` 和原 v2 `cn.edu.pku.openrunner.v2` 同时安装；源码 namespace 仍保持 `cn.edu.pku.openrunner`。
 
 如需使用自己的高德 Key，可在项目 `gradle.properties` 增加：
 
@@ -39,7 +40,7 @@ v2 的安装包 ID 是 `cn.edu.pku.openrunner.v2`，与旧版的 `cn.edu.pku.ope
 AMAP_API_KEY=你的高德 Android Key
 ~~~
 
-高德 Android Key 需要绑定 v2 的安装包 ID `cn.edu.pku.openrunner.v2` 和实际签名证书 SHA-1。旧版 Key 不一定能用于共存版。
+高德 Android Key 需要绑定 v2-pro 的安装包 ID `cn.edu.pku.openrunner.v2pro` 和实际签名证书 SHA-1。旧版或原 v2 的 Key 不一定能用于 v2-pro。
 
 新版高德 SDK 要求在初始化地图和定位前完成隐私合规状态设置，因此首次打开跑步地图会显示一次高德地图与定位隐私说明。
 

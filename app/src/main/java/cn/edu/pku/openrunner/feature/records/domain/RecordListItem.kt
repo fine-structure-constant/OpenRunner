@@ -39,6 +39,8 @@ enum class RecordIssue {
 data class RecordListItem(
     val record: RunRecordDto,
     val localId: String? = null,
+    val detailLocalId: String? = null,
+    val hasLocalDetails: Boolean = false,
     val uploadState: RecordUploadState,
     val hasPhoto: Boolean = false,
     val isPhotoProcessing: Boolean = false,

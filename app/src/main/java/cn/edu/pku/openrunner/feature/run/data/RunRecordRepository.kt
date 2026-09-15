@@ -27,7 +27,7 @@ class RunRecordRepository(
     private val api: PkuNewYouthApi = ApiClient.api
 ) {
     suspend fun save(draft: RunRecordDraft): LocalRunRecord = withContext(Dispatchers.IO) {
-        val completedAt = draft.startedAtMillis + draft.durationSeconds * 1_000L
+        val completedAt = draft.completedAtMillis
         val userId = sessionStore.userId
         val track = markTrackBoundaries(draft.track)
         localStore.create(
@@ -40,7 +40,8 @@ class RunRecordRepository(
             track = track,
             checkField = userId?.let {
                 RunRecordSecurity.generateCheckField(it, completedAt)
-            }
+            },
+            metricSamples = draft.metricSamples
         )
     }
 

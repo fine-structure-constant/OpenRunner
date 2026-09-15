@@ -17,7 +17,8 @@ import java.text.DateFormat
 class RecordAdapter(
     private val onUpload: (String) -> Unit,
     private val onChoosePhoto: (String) -> Unit,
-    private val onDelete: (RecordListItem) -> Unit
+    private val onDelete: (RecordListItem) -> Unit,
+    private val onOpenDetails: (RecordListItem) -> Unit
 ) : ListAdapter<RecordListItem, RecordAdapter.RecordViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecordViewHolder {
@@ -27,7 +28,7 @@ class RecordAdapter(
     }
 
     override fun onBindViewHolder(holder: RecordViewHolder, position: Int) {
-        holder.bind(getItem(position), onUpload, onChoosePhoto, onDelete)
+        holder.bind(getItem(position), onUpload, onChoosePhoto, onDelete, onOpenDetails)
     }
 
     class RecordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -36,6 +37,9 @@ class RecordAdapter(
         private val date: TextView = itemView.findViewById(R.id.record_date)
         private val detail: TextView = itemView.findViewById(R.id.record_detail)
         private val status: TextView = itemView.findViewById(R.id.record_status)
+        private val detailsAvailable: TextView = itemView.findViewById(
+            R.id.record_details_available
+        )
         private val photoStatus: TextView = itemView.findViewById(R.id.record_photo_status)
         private val upload: View = itemView.findViewById(R.id.record_upload)
         private val photo: TextView = itemView.findViewById(R.id.record_photo)
@@ -45,7 +49,8 @@ class RecordAdapter(
             item: RecordListItem,
             onUpload: (String) -> Unit,
             onChoosePhoto: (String) -> Unit,
-            onDelete: (RecordListItem) -> Unit
+            onDelete: (RecordListItem) -> Unit,
+            onOpenDetails: (RecordListItem) -> Unit
         ) {
             val record = item.record
             val context = itemView.context
@@ -93,7 +98,16 @@ class RecordAdapter(
             }
             card.setCardBackgroundColor(ContextCompat.getColor(context, containerColor))
             card.strokeColor = ContextCompat.getColor(context, accentColor)
+            card.strokeWidth = dp(if (item.hasLocalDetails) 4 else 1)
+            card.isClickable = item.hasLocalDetails
+            card.isFocusable = item.hasLocalDetails
+            card.setOnClickListener(if (item.hasLocalDetails) {
+                View.OnClickListener { onOpenDetails(item) }
+            } else {
+                null
+            })
             status.setTextColor(ContextCompat.getColor(context, accentColor))
+            detailsAvailable.visibility = if (item.hasLocalDetails) View.VISIBLE else View.GONE
 
             photoStatus.visibility = if (item.hasPhoto) View.VISIBLE else View.GONE
             photoStatus.setText(
@@ -127,6 +141,9 @@ class RecordAdapter(
             delete.isEnabled = item.uploadState != RecordUploadState.UPLOADING && !isAttachingPhoto
             delete.setOnClickListener { onDelete(item) }
         }
+
+        private fun dp(value: Int): Int =
+            (value * itemView.resources.displayMetrics.density).toInt()
     }
 
     companion object {

@@ -3,6 +3,7 @@ package cn.edu.pku.openrunner.feature.run.data
 import android.content.Context
 import cn.edu.pku.openrunner.core.network.RunRecordDto
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
+import cn.edu.pku.openrunner.feature.run.domain.RunMetricSample
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,9 @@ data class LocalRunRecord(
     val photoUploaded: Boolean = false,
     val photoRemotePath: String? = null,
     val lastUploadErrorCode: Int? = null,
-    val lastUploadError: String? = null
+    val lastUploadError: String? = null,
+    // Nullable for Gson compatibility with records saved before local chart data was introduced.
+    val metricSamples: List<RunMetricSample>? = null
 ) {
     fun asDto(): RunRecordDto = RunRecordDto(
         id = -1,
@@ -65,7 +68,8 @@ class LocalRunRecordStore(context: Context) {
         distanceMeters: Int,
         steps: Int,
         track: List<TrackPoint>,
-        checkField: String?
+        checkField: String?,
+        metricSamples: List<RunMetricSample>
     ): LocalRunRecord = synchronized(STORE_LOCK) {
         val record = LocalRunRecord(
             localId = UUID.randomUUID().toString(),
@@ -76,7 +80,8 @@ class LocalRunRecordStore(context: Context) {
             distanceMeters = distanceMeters,
             steps = steps,
             track = track,
-            checkField = checkField
+            checkField = checkField,
+            metricSamples = metricSamples
         )
         val records = readRecords()
         records += record

@@ -248,6 +248,6 @@ v2 的 `RunRecordDto` 按该旧版协议建模，避免将日期强制转换为 
       --header "Authorization: <raw-token>" ^
       --header "Platform: Android" ^
       --header "Manufacturer: Windows-curl" ^
-      --header "ClientVersion: 2.0.0-dev"
+      --header "ClientVersion: v2-pro"
 
 不要在公共聊天、提交记录或 CI 日志中暴露真实 Token。

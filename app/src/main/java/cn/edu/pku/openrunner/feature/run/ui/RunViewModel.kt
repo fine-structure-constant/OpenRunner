@@ -11,6 +11,7 @@ import cn.edu.pku.openrunner.feature.run.data.LocationSample
 import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
 import cn.edu.pku.openrunner.feature.run.data.RecordAlreadyUploadedException
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
+import cn.edu.pku.openrunner.feature.run.domain.RunMetricSample
 import cn.edu.pku.openrunner.feature.run.domain.RunRecordDraft
 import cn.edu.pku.openrunner.feature.run.domain.TrackDistance
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
@@ -72,6 +73,7 @@ class RunViewModel(
     private val recordRepository: RunRecordRepository
 ) : ViewModel() {
     private val points = mutableListOf<TrackPoint>()
+    private val metricSamples = mutableListOf<RunMetricSample>()
     private val _uiState = MutableStateFlow(RunUiState())
     val uiState: StateFlow<RunUiState> = _uiState.asStateFlow()
     private val _events = MutableSharedFlow<RunUiEvent>(extraBufferCapacity = 2)
@@ -116,8 +118,10 @@ class RunViewModel(
             return
         }
         points.clear()
+        metricSamples.clear()
         startedAtMillis = System.currentTimeMillis()
         startedAtElapsedMillis = SystemClock.elapsedRealtime()
+        metricSamples += RunMetricSample(elapsedMillis = 0L, distanceMeters = 0.0)
         val backgroundTrackingActive = locationTracker.enableBackgroundTracking()
         _uiState.value = _uiState.value.copy(
             status = RunStatus.RUNNING,
@@ -145,6 +149,11 @@ class RunViewModel(
         timerJob = null
         stepCounter.stop()
         locationTracker.disableBackgroundTracking()
+        val completedElapsedMillis = SystemClock.elapsedRealtime() - startedAtElapsedMillis
+        addMetricSample(
+            elapsedMillis = completedElapsedMillis,
+            distanceMeters = TrackDistance.polylineMeters(points)
+        )
         val finishedState = _uiState.value.copy(
             status = RunStatus.FINISHED,
             backgroundTrackingActive = false,
@@ -154,9 +163,11 @@ class RunViewModel(
         _uiState.value = finishedState
         val draft = RunRecordDraft(
             startedAtMillis = startedAtMillis,
+            completedAtMillis = startedAtMillis + completedElapsedMillis,
             durationSeconds = finishedState.durationSeconds,
             track = points.toList(),
-            steps = finishedState.stepCount
+            steps = finishedState.stepCount,
+            metricSamples = metricSamples.toList()
         )
         viewModelScope.launch {
             runCatching { recordRepository.save(draft) }
@@ -254,6 +265,10 @@ class RunViewModel(
         val current = _uiState.value
         if (current.status == RunStatus.RUNNING && shouldAddToTrack(sample)) {
             points += sample.point
+            addMetricSample(
+                elapsedMillis = SystemClock.elapsedRealtime() - startedAtElapsedMillis,
+                distanceMeters = TrackDistance.polylineMeters(points)
+            )
         }
         _uiState.value = current.copy(
             currentPoint = sample.point,
@@ -295,6 +310,19 @@ class RunViewModel(
         if (sample.accuracyMeters > 100f) return false
         val distance = TrackDistance.haversineMeters(points.last(), sample.point)
         return distance in 0.5..200.0
+    }
+
+    private fun addMetricSample(elapsedMillis: Long, distanceMeters: Double) {
+        val sample = RunMetricSample(
+            elapsedMillis = elapsedMillis.coerceAtLeast(0L),
+            distanceMeters = distanceMeters.coerceAtLeast(0.0)
+        )
+        val last = metricSamples.lastOrNull()
+        when {
+            last == null -> metricSamples += sample
+            sample.elapsedMillis > last.elapsedMillis -> metricSamples += sample
+            sample.elapsedMillis == last.elapsedMillis -> metricSamples[metricSamples.lastIndex] = sample
+        }
     }
 
     override fun onCleared() {

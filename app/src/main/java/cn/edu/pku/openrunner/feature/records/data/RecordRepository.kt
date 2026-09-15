@@ -12,6 +12,8 @@ import cn.edu.pku.openrunner.feature.run.data.LocalRunRecord
 import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
+import kotlin.math.abs
+import kotlin.math.max
 
 class RecordRepository(
     private val sessionStore: SessionStore,
@@ -53,14 +55,20 @@ class RecordRepository(
         remote: List<RunRecordDto>
     ): List<RecordListItem> {
         val remoteIds = remote.mapNotNull(::serverId).toSet()
-        val localItems = local
-            .filter { record ->
-                !record.uploaded || record.serverRecordId == null || record.serverRecordId !in remoteIds
-            }
-            .map(::localItem)
+        val localByServerId = local
+            .filter { it.uploaded && it.serverRecordId != null }
+            .associateBy { checkNotNull(it.serverRecordId) }
+        val matchedLocalIds = mutableSetOf<String>()
         val remoteItems = remote.map { record ->
+            val localDetails = serverId(record)?.let(localByServerId::get)
+                ?: findLocalMatch(record, local, matchedLocalIds)
+            localDetails?.let { matchedLocalIds += it.localId }
             RecordListItem(
                 record = record,
+                detailLocalId = localDetails
+                    ?.takeIf(::hasLocalDetails)
+                    ?.localId,
+                hasLocalDetails = localDetails?.let(::hasLocalDetails) == true,
                 uploadState = if (record.verified) {
                     RecordUploadState.UPLOADED_VALID
                 } else {
@@ -69,12 +77,22 @@ class RecordRepository(
                 hasPhoto = !record.photoPath.isNullOrBlank()
             )
         }
+        val localItems = local
+            .filter { record ->
+                record.localId !in matchedLocalIds &&
+                    (!record.uploaded ||
+                        record.serverRecordId == null ||
+                        record.serverRecordId !in remoteIds)
+            }
+            .map(::localItem)
         return RecordOrdering.newestFirst(localItems + remoteItems)
     }
 
     private fun localItem(record: LocalRunRecord): RecordListItem = RecordListItem(
         record = record.asDto(),
         localId = record.localId,
+        detailLocalId = record.localId.takeIf { hasLocalDetails(record) },
+        hasLocalDetails = hasLocalDetails(record),
         uploadState = when {
             record.uploaded && record.verified -> RecordUploadState.UPLOADED_VALID
             record.uploaded -> RecordUploadState.UPLOADED_INVALID
@@ -90,4 +108,36 @@ class RecordRepository(
 
     private fun serverId(record: RunRecordDto): Int? =
         record.recordId.takeIf { it >= 0 } ?: record.id.takeIf { it >= 0 }
+
+    private fun hasLocalDetails(record: LocalRunRecord): Boolean =
+        record.metricSamples.orEmpty().size >= 2
+
+    private fun findLocalMatch(
+        remote: RunRecordDto,
+        local: List<LocalRunRecord>,
+        alreadyMatched: Set<String>
+    ): LocalRunRecord? {
+        val remoteTime = remote.date?.time ?: return null
+        return local
+            .asSequence()
+            .filter {
+                it.uploaded &&
+                    it.serverRecordId == null &&
+                    it.localId !in alreadyMatched &&
+                    abs(it.completedAtMillis - remoteTime) <= MATCH_TIME_TOLERANCE_MILLIS &&
+                    abs(it.distanceMeters - remote.distance) <=
+                    max(MATCH_DISTANCE_TOLERANCE_METERS, remote.distance * 0.05) &&
+                    abs(it.durationSeconds - remote.duration) <= MATCH_DURATION_TOLERANCE_SECONDS
+            }
+            .minByOrNull { record ->
+                abs(record.completedAtMillis - remoteTime) +
+                    abs(record.distanceMeters - remote.distance).toLong() * 1_000L
+            }
+    }
+
+    companion object {
+        private const val MATCH_TIME_TOLERANCE_MILLIS = 120_000L
+        private const val MATCH_DISTANCE_TOLERANCE_METERS = 30.0
+        private const val MATCH_DURATION_TOLERANCE_SECONDS = 15.0
+    }
 }
