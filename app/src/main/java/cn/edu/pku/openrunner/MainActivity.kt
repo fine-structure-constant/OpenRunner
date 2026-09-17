@@ -15,6 +15,7 @@ import cn.edu.pku.openrunner.core.session.SessionStore
 import cn.edu.pku.openrunner.feature.account.ui.AccountFragment
 import cn.edu.pku.openrunner.feature.records.ui.RecordListFragment
 import cn.edu.pku.openrunner.feature.run.ui.RunFragment
+import cn.edu.pku.openrunner.feature.run.ui.VirtualLocationFragment
 import cn.edu.pku.openrunner.feature.tasks.ui.TaskListFragment
 import cn.edu.pku.openrunner.feature.weather.ui.WeatherFragment
 import cn.edu.pku.openrunner.core.AmapPrivacyController
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val themeStore by lazy { AppThemeStore(this) }
     private val amapPrivacyStore by lazy { AmapPrivacyStore(this) }
     private var privacyDialogVisible = false
+    private var pendingVirtualPage = false
     private val authLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -60,6 +62,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setNavigationItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.nav_run -> openRunPage()
+                    R.id.nav_virtual_location -> openVirtualLocationPage()
                     R.id.nav_records -> showFragment(RecordListFragment())
                     R.id.nav_tasks -> showFragment(TaskListFragment())
                     R.id.nav_weather -> showFragment(WeatherFragment())
@@ -121,12 +124,24 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun openRunPage() {
+        pendingVirtualPage = false
         if (!amapPrivacyStore.isAgreed) {
             showAmapPrivacyDialog()
             return
         }
         findViewById<NavigationView>(R.id.main_navigation).setCheckedItem(R.id.nav_run)
         showFragment(RunFragment())
+    }
+
+    private fun openVirtualLocationPage() {
+        pendingVirtualPage = true
+        if (!amapPrivacyStore.isAgreed) {
+            showAmapPrivacyDialog()
+            return
+        }
+        findViewById<NavigationView>(R.id.main_navigation)
+            .setCheckedItem(R.id.nav_virtual_location)
+        showFragment(VirtualLocationFragment())
     }
 
     private fun showAmapPrivacyDialog() {
@@ -139,7 +154,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setPositiveButton(R.string.amap_privacy_accept) { _, _ ->
                 privacyDialogVisible = false
                 AmapPrivacyController.recordDecision(this, agreed = true)
-                openRunPage()
+                if (pendingVirtualPage) openVirtualLocationPage() else openRunPage()
             }
             .setNegativeButton(R.string.amap_privacy_decline) { _, _ ->
                 privacyDialogVisible = false

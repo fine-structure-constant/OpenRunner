@@ -20,12 +20,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import cn.edu.pku.openrunner.R
-import cn.edu.pku.openrunner.core.session.SessionStore
-import cn.edu.pku.openrunner.feature.run.data.AndroidLocationTracker
-import cn.edu.pku.openrunner.feature.run.data.AccelerometerStepCounter
-import cn.edu.pku.openrunner.feature.run.data.LocalRunRecordStore
-import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
-import cn.edu.pku.openrunner.feature.run.data.RunPhotoStore
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
 import com.amap.api.maps.AMap
@@ -51,15 +45,7 @@ class RunFragment : Fragment() {
     }
 
     private val viewModel: RunViewModel by activityViewModels {
-        RunViewModel.Factory(
-            AndroidLocationTracker(requireContext()),
-            AccelerometerStepCounter(requireContext()),
-            RunRecordRepository(
-                SessionStore(requireContext()),
-                LocalRunRecordStore(requireContext()),
-                RunPhotoStore(requireContext())
-            )
-        )
+        RunViewModel.Factory.from(requireContext())
     }
 
     private var mapView: MapView? = null
@@ -104,7 +90,9 @@ class RunFragment : Fragment() {
             when (viewModel.uiState.value.primaryAction) {
                 RunPrimaryAction.STOP -> confirmStop()
                 RunPrimaryAction.SAVE -> viewModel.saveFinishedRecord()
-                RunPrimaryAction.START -> if (hasLocationPermission()) {
+                RunPrimaryAction.START -> if (
+                    viewModel.uiState.value.virtualLocationEnabled || hasLocationPermission()
+                ) {
                     followLocation = true
                     viewModel.start()
                 } else {
@@ -120,12 +108,18 @@ class RunFragment : Fragment() {
                     viewModel.uiState.collect { state ->
                         statusText.text = when (state.status) {
                             RunStatus.IDLE -> if (state.currentPoint == null) {
-                                getString(R.string.run_locating)
+                                getString(if (state.virtualLocationEnabled) {
+                                    R.string.run_virtual_waiting
+                                } else {
+                                    R.string.run_locating
+                                })
                             } else {
                                 getString(R.string.run_location_ready, state.accuracyMeters ?: 0)
                             }
                             RunStatus.RUNNING -> getString(
-                                if (state.backgroundTrackingActive) {
+                                if (state.virtualLocationEnabled) {
+                                    R.string.run_running_virtual
+                                } else if (state.backgroundTrackingActive) {
                                     R.string.run_running_background
                                 } else {
                                     R.string.run_running_foreground_only
@@ -139,6 +133,9 @@ class RunFragment : Fragment() {
                                 state.stepCount
                             )
                             RunStatus.PERMISSION_REQUIRED -> getString(R.string.run_permission_required)
+                        }
+                        if (state.usedVirtualLocation && state.status != RunStatus.IDLE) {
+                            statusText.text = getString(R.string.run_virtual_status, statusText.text)
                         }
                         action.setText(
                             when (state.primaryAction) {
@@ -160,7 +157,13 @@ class RunFragment : Fragment() {
                                 ""
                             }
                             RecordSaveStatus.SAVING -> getString(R.string.run_record_saving)
-                            RecordSaveStatus.SAVED -> getString(R.string.run_record_saved)
+                            RecordSaveStatus.SAVED -> getString(
+                                if (state.usedVirtualLocation) {
+                                    R.string.run_record_saved_virtual
+                                } else {
+                                    R.string.run_record_saved
+                                }
+                            )
                             RecordSaveStatus.ERROR -> getString(
                                 R.string.run_record_error,
                                 state.recordError ?: getString(R.string.unknown_error)
@@ -175,7 +178,11 @@ class RunFragment : Fragment() {
                             ContextCompat.getColor(
                                 requireContext(),
                                 when (state.recordSaveStatus) {
-                                    RecordSaveStatus.SAVED -> R.color.or_status_success
+                                    RecordSaveStatus.SAVED -> if (state.usedVirtualLocation) {
+                                        R.color.or_status_virtual
+                                    } else {
+                                        R.color.or_status_success
+                                    }
                                     RecordSaveStatus.ERROR -> R.color.or_status_error
                                     RecordSaveStatus.SAVING -> R.color.or_status_uploading
                                     else -> R.color.or_status_pending
@@ -185,7 +192,7 @@ class RunFragment : Fragment() {
                         state.currentPoint?.let {
                             renderCurrentLocation(it, state.accuracyMeters, false)
                         }
-                        renderTrack(state.points)
+                        renderTrack(state.points, state.usedVirtualLocation)
                     }
                 }
                 launch {
@@ -202,7 +209,7 @@ class RunFragment : Fragment() {
             }
         }
 
-        if (hasLocationPermission()) {
+        if (viewModel.uiState.value.virtualLocationEnabled || hasLocationPermission()) {
             viewModel.startLocating()
         } else {
             requestLocationPermission()
@@ -267,7 +274,7 @@ class RunFragment : Fragment() {
         }
     }
 
-    private fun renderTrack(points: List<TrackPoint>) {
+    private fun renderTrack(points: List<TrackPoint>, virtual: Boolean) {
         val map = aMap ?: return
         val latLngs = points.map { it.toMapLatLng() }
         routePolyline?.remove()
@@ -275,7 +282,8 @@ class RunFragment : Fragment() {
             map.addPolyline(
                 PolylineOptions()
                     .addAll(latLngs)
-                    .color(ContextCompat.getColor(requireContext(), R.color.map_route))
+                    .color(ContextCompat.getColor(requireContext(),
+                        if (virtual) R.color.or_status_virtual else R.color.map_route))
                     .width(10f)
             )
         } else {

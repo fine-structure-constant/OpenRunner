@@ -49,6 +49,8 @@ class RecordDetailActivity : AppCompatActivity(R.layout.activity_record_detail) 
         val samples = record.metricSamples.orEmpty()
         val paceSeries = RunChartData.paceMinutesPerKm(samples)
         val fastestPace = RunChartData.fastestPaceMinutesPerKm(samples)
+        findViewById<TextView>(R.id.record_detail_source).visibility =
+            if (record.usedVirtualLocation) View.VISIBLE else View.GONE
 
         findViewById<TextView>(R.id.record_detail_start).text = getString(
             R.string.record_detail_start,

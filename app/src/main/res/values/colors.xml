@@ -21,4 +21,6 @@
     <color name="or_status_success_container">#E7F4EA</color>
     <color name="or_status_error">#B3261E</color>
     <color name="or_status_error_container">#FCEBE9</color>
+    <color name="or_status_virtual">#006875</color>
+    <color name="or_status_virtual_container">#D0F4F7</color>
 </resources>

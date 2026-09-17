@@ -36,7 +36,7 @@ class RecordRepository(
         }
         val claimedServerIds = mutableSetOf<String>()
         val reconciledLocal = local.map { record ->
-            if (record.uploaded ||
+            if (record.usedVirtualLocation || record.uploaded ||
                 !RecordReconciliation.isResponseParsingFailure(record.lastUploadError)
             ) {
                 record
@@ -81,7 +81,7 @@ class RecordRepository(
     ): List<RecordListItem> {
         val remoteIds = remote.mapNotNull(::serverId).toSet()
         val localByServerId = local
-            .filter { it.uploaded && it.serverRecordId != null }
+            .filter { !it.usedVirtualLocation && it.uploaded && it.serverRecordId != null }
             .associateBy { checkNotNull(it.serverRecordId) }
         val matchedLocalIds = mutableSetOf<String>()
         val remoteItems = remote.map { record ->
@@ -118,6 +118,7 @@ class RecordRepository(
         localId = record.localId,
         detailLocalId = record.localId.takeIf { hasLocalDetails(record) },
         hasLocalDetails = hasLocalDetails(record),
+        isVirtualTest = record.usedVirtualLocation,
         uploadState = when {
             record.uploaded && record.verified -> RecordUploadState.UPLOADED_VALID
             record.uploaded -> RecordUploadState.UPLOADED_INVALID
@@ -145,7 +146,7 @@ class RecordRepository(
         return local
             .asSequence()
             .filter {
-                it.uploaded &&
+                !it.usedVirtualLocation && it.uploaded &&
                     it.serverRecordId == null &&
                     it.localId !in alreadyMatched &&
                     abs(it.completedAtMillis - remoteTime) <= MATCH_TIME_TOLERANCE_MILLIS &&

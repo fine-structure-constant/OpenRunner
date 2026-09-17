@@ -1,6 +1,8 @@
 package cn.edu.pku.openrunner.feature.run.ui
 
 import android.os.SystemClock
+import android.content.Context
+import cn.edu.pku.openrunner.core.session.SessionStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +10,8 @@ import cn.edu.pku.openrunner.feature.run.data.AndroidLocationTracker
 import cn.edu.pku.openrunner.feature.run.data.AccelerometerStepCounter
 import cn.edu.pku.openrunner.feature.run.data.LocationSample
 import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
+import cn.edu.pku.openrunner.feature.run.data.LocalRunRecordStore
+import cn.edu.pku.openrunner.feature.run.data.RunPhotoStore
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
 import cn.edu.pku.openrunner.feature.run.domain.RunMetricSample
 import cn.edu.pku.openrunner.feature.run.domain.RunRecordDraft
@@ -61,7 +65,10 @@ data class RunUiState(
     val backgroundTrackingActive: Boolean = false,
     val recordSaveStatus: RecordSaveStatus = RecordSaveStatus.NONE,
     val savedRecordId: String? = null,
-    val recordError: String? = null
+    val recordError: String? = null,
+    val virtualLocationEnabled: Boolean = false,
+    val virtualPoint: TrackPoint? = null,
+    val usedVirtualLocation: Boolean = false
 ) {
     val hasPendingRecord: Boolean
         get() = status == RunStatus.FINISHED && recordSaveStatus != RecordSaveStatus.SAVED
@@ -75,6 +82,15 @@ data class RunUiState(
             hasPendingRecord -> RunPrimaryAction.SAVE
             else -> RunPrimaryAction.START
         }
+
+    fun withVirtualLocationMode(enabled: Boolean): RunUiState = copy(
+        virtualLocationEnabled = enabled,
+        usedVirtualLocation = usedVirtualLocation || (enabled && status == RunStatus.RUNNING),
+        locating = false,
+        backgroundTrackingActive = false,
+        currentPoint = null,
+        accuracyMeters = null
+    )
 }
 
 class RunViewModel(
@@ -92,10 +108,22 @@ class RunViewModel(
     private var startedAtElapsedMillis = 0L
     private var timerJob: Job? = null
     private var pendingDraft: RunRecordDraft? = null
+    private var pendingLocationSourceChange = false
 
     fun startLocating(): Boolean {
+        if (_uiState.value.virtualLocationEnabled) {
+            _uiState.value = _uiState.value.copy(
+                locating = true,
+                status = if (_uiState.value.status == RunStatus.PERMISSION_REQUIRED) {
+                    RunStatus.IDLE
+                } else {
+                    _uiState.value.status
+                }
+            )
+            return true
+        }
         if (_uiState.value.locating) return true
-        val started = locationTracker.start(::onLocation)
+        val started = locationTracker.start { sample -> onLocation(sample, virtual = false) }
         _uiState.value = if (started) {
             _uiState.value.copy(
                 locating = true,
@@ -107,15 +135,48 @@ class RunViewModel(
             )
         } else {
             _uiState.value.copy(
-                status = if (_uiState.value.hasPendingRecord) {
-                    RunStatus.FINISHED
-                } else {
-                    RunStatus.PERMISSION_REQUIRED
+                status = when {
+                    _uiState.value.status == RunStatus.RUNNING -> RunStatus.RUNNING
+                    _uiState.value.hasPendingRecord -> RunStatus.FINISHED
+                    else -> RunStatus.PERMISSION_REQUIRED
                 },
                 locating = false
             )
         }
+        if (started && _uiState.value.status == RunStatus.RUNNING) {
+            _uiState.value = _uiState.value.copy(
+                backgroundTrackingActive = locationTracker.enableBackgroundTracking()
+            )
+        }
         return started
+    }
+
+    fun setVirtualLocationEnabled(enabled: Boolean) {
+        val current = _uiState.value
+        if (current.virtualLocationEnabled == enabled) return
+        locationTracker.stop()
+        pendingLocationSourceChange = current.status == RunStatus.RUNNING
+        _uiState.value = current.withVirtualLocationMode(enabled)
+        if (enabled) {
+            startLocating()
+            current.virtualPoint?.let(::confirmVirtualPoint)
+        } else {
+            if (!startLocating()) {
+                _events.tryEmit(RunUiEvent.Message("真实定位未就绪，请检查定位权限；跑步计时不会重置"))
+            }
+        }
+    }
+
+    fun confirmVirtualPoint(point: TrackPoint) {
+        if (!_uiState.value.virtualLocationEnabled ||
+            !point.longitude.isFinite() || !point.latitude.isFinite() ||
+            point.longitude !in -180.0..180.0 || point.latitude !in -90.0..90.0
+        ) return
+        _uiState.value = _uiState.value.copy(virtualPoint = point)
+        onLocation(
+            LocationSample(point, accuracyMeters = 0f, timestampMillis = System.currentTimeMillis()),
+            virtual = true
+        )
     }
 
     fun stopLocatingIfIdle() {
@@ -135,10 +196,12 @@ class RunViewModel(
         points.clear()
         metricSamples.clear()
         pendingDraft = null
+        pendingLocationSourceChange = false
         startedAtMillis = System.currentTimeMillis()
         startedAtElapsedMillis = SystemClock.elapsedRealtime()
         metricSamples += RunMetricSample(elapsedMillis = 0L, distanceMeters = 0.0)
-        val backgroundTrackingActive = locationTracker.enableBackgroundTracking()
+        val isVirtual = _uiState.value.virtualLocationEnabled
+        val backgroundTrackingActive = !isVirtual && locationTracker.enableBackgroundTracking()
         _uiState.value = _uiState.value.copy(
             status = RunStatus.RUNNING,
             durationSeconds = 0,
@@ -150,8 +213,10 @@ class RunViewModel(
             backgroundTrackingActive = backgroundTrackingActive,
             recordSaveStatus = RecordSaveStatus.NONE,
             savedRecordId = null,
-            recordError = null
+            recordError = null,
+            usedVirtualLocation = isVirtual
         )
+        if (isVirtual) _uiState.value.virtualPoint?.let(::confirmVirtualPoint)
         stepCounter.start(::onStep)
         startTimer()
     }
@@ -180,7 +245,8 @@ class RunViewModel(
             durationSeconds = finishedState.durationSeconds,
             track = points.toList(),
             steps = finishedState.stepCount,
-            metricSamples = metricSamples.toList()
+            metricSamples = metricSamples.toList(),
+            usedVirtualLocation = finishedState.usedVirtualLocation
         )
         _uiState.value = finishedState
     }
@@ -200,7 +266,13 @@ class RunViewModel(
                     recordSaveStatus = RecordSaveStatus.SAVED,
                     savedRecordId = record.localId
                 )
-                _events.tryEmit(RunUiEvent.Message("记录已保存到本机，请在“记录”页添加图片或上传"))
+                _events.tryEmit(RunUiEvent.Message(
+                    if (record.usedVirtualLocation) {
+                        "虚拟定位测试记录已保存到本机，不上传官方服务器"
+                    } else {
+                        "记录已保存到本机，请在“记录”页添加图片或上传"
+                    }
+                ))
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
@@ -215,6 +287,7 @@ class RunViewModel(
     fun discardFinishedRecord() {
         if (!_uiState.value.hasPendingRecord || _uiState.value.isSavingRecord) return
         pendingDraft = null
+        pendingLocationSourceChange = false
         points.clear()
         metricSamples.clear()
         startedAtMillis = 0L
@@ -223,15 +296,19 @@ class RunViewModel(
         _uiState.value = RunUiState(
             currentPoint = current.currentPoint,
             accuracyMeters = current.accuracyMeters,
-            locating = current.locating
+            locating = current.locating,
+            virtualLocationEnabled = current.virtualLocationEnabled,
+            virtualPoint = current.virtualPoint
         )
         _events.tryEmit(RunUiEvent.Message("本次未保存记录已删除"))
     }
 
-    private fun onLocation(sample: LocationSample) {
+    private fun onLocation(sample: LocationSample, virtual: Boolean) {
         val current = _uiState.value
-        if (current.status == RunStatus.RUNNING && shouldAddToTrack(sample)) {
+        if (virtual != current.virtualLocationEnabled) return
+        if (current.status == RunStatus.RUNNING && shouldAddToTrack(sample, virtual)) {
             points += sample.point
+            pendingLocationSourceChange = false
             addMetricSample(
                 elapsedMillis = SystemClock.elapsedRealtime() - startedAtElapsedMillis,
                 distanceMeters = TrackDistance.polylineMeters(points)
@@ -243,7 +320,9 @@ class RunViewModel(
             distanceMeters = TrackDistance.polylineMeters(points).toInt(),
             pointCount = points.size,
             points = points.toList(),
-            locating = true
+            locating = true,
+            usedVirtualLocation = current.usedVirtualLocation ||
+                (virtual && current.status == RunStatus.RUNNING)
         ).withUpdatedPace()
     }
 
@@ -272,11 +351,13 @@ class RunViewModel(
         paceSecondsPerKm = RunMetrics.paceSecondsPerKm(durationSeconds, distanceMeters)
     )
 
-    private fun shouldAddToTrack(sample: LocationSample): Boolean {
+    private fun shouldAddToTrack(sample: LocationSample, virtual: Boolean): Boolean {
         if (points.isEmpty()) return true
         if (sample.accuracyMeters > 100f) return false
+        if (pendingLocationSourceChange) return true
         val distance = TrackDistance.haversineMeters(points.last(), sample.point)
-        return distance in 0.5..200.0
+        // Explicit map picks are test checkpoints, not noisy GPS jumps. Real GPS keeps its filter.
+        return if (virtual) distance >= 0.5 else distance in 0.5..200.0
     }
 
     private fun addMetricSample(elapsedMillis: Long, distanceMeters: Double) {
@@ -307,6 +388,18 @@ class RunViewModel(
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return RunViewModel(tracker, stepCounter, recordRepository) as T
+        }
+
+        companion object {
+            fun from(context: Context): Factory = Factory(
+                AndroidLocationTracker(context),
+                AccelerometerStepCounter(context),
+                RunRecordRepository(
+                    SessionStore(context),
+                    LocalRunRecordStore(context),
+                    RunPhotoStore(context)
+                )
+            )
         }
     }
 

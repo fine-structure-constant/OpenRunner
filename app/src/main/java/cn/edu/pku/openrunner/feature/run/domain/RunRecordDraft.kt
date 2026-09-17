@@ -6,7 +6,8 @@ data class RunRecordDraft(
     val durationSeconds: Int,
     val track: List<TrackPoint>,
     val steps: Int,
-    val metricSamples: List<RunMetricSample>
+    val metricSamples: List<RunMetricSample>,
+    val usedVirtualLocation: Boolean = false
 ) {
     val distanceMeters: Int
         get() = TrackDistance.polylineMeters(track).toInt()

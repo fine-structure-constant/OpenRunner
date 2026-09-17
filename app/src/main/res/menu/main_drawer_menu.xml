@@ -6,6 +6,10 @@
             android:title="@string/nav_run"
             android:icon="@android:drawable/ic_menu_mylocation" />
         <item
+            android:id="@+id/nav_virtual_location"
+            android:title="@string/nav_virtual_location"
+            android:icon="@android:drawable/ic_menu_mapmode" />
+        <item
             android:id="@+id/nav_records"
             android:title="@string/nav_records"
             android:icon="@android:drawable/ic_menu_recent_history" />
