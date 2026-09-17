@@ -29,9 +29,55 @@ class ApiModelsParsingTest {
         )
 
         val record = response.requireData().single()
+        assertEquals("42", record.recordId)
         assertEquals(345, record.duration.toInt())
         assertNotNull(record.date)
         assertEquals(116.3131, record.track!![0][0], 0.000001)
+    }
+
+    @Test
+    fun successfulUpload_acceptsOpaqueDatabaseIdAndLegacyNumericRecordId() {
+        val type = object : TypeToken<ApiResponse<RunRecordDto>>() {}.type
+        val response: ApiResponse<RunRecordDto> = gson.fromJson(
+            """{
+                "success": true,
+                "code": 0,
+                "data": {
+                    "id": "6aa5b123456789abcdef01234",
+                    "recordId": 42,
+                    "distance": 2000,
+                    "duration": 600,
+                    "verified": true
+                }
+            }""".trimIndent(),
+            type
+        )
+
+        val record = response.requireData()
+        assertEquals("6aa5b123456789abcdef01234", record.id)
+        assertEquals("42", record.serverId)
+        assertEquals(true, record.verified)
+    }
+
+    @Test
+    fun recordPayload_acceptsOpaqueRecordIdAndMongoIdAlias() {
+        val record = gson.fromJson(
+            """{"_id":"6aa5b123456789abcdef01234","recordId":"6aa5b234567890abcdef01234"}""",
+            RunRecordDto::class.java
+        )
+
+        assertEquals("6aa5b123456789abcdef01234", record.id)
+        assertEquals("6aa5b234567890abcdef01234", record.serverId)
+    }
+
+    @Test
+    fun absentOrLegacySentinelRecordId_fallsBackToDatabaseId() {
+        val record = gson.fromJson(
+            """{"id":"6aa5b123456789abcdef01234","recordId":-1}""",
+            RunRecordDto::class.java
+        )
+
+        assertEquals("6aa5b123456789abcdef01234", record.serverId)
     }
 
     @Test

@@ -134,37 +134,29 @@
                 android:textColor="@color/or_muted"
                 android:visibility="gone" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/run_action"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/run_start" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/run_photo"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:id="@+id/run_action"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    android:text="@string/record_photo_add"
-                    android:visibility="gone" />
+                    android:text="@string/run_start" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/run_upload"
+                    android:id="@+id/run_delete"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    android:text="@string/run_upload"
+                    android:text="@string/record_delete"
+                    android:textColor="@color/or_status_error"
                     android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>

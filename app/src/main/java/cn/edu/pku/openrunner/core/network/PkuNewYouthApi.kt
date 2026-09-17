@@ -30,7 +30,7 @@ interface PkuNewYouthApi {
     @GET("record/{userId}/{recordId}")
     suspend fun getRecord(
         @Path("userId") userId: String,
-        @Path("recordId") recordId: Int
+        @Path("recordId") recordId: String
     ): ApiResponse<RunRecordDto>
 
     @GET("record/status/{userId}")
@@ -61,7 +61,7 @@ interface PkuNewYouthApi {
     @POST("record2/{userId}/{recordId}")
     suspend fun verifyGymRecord(
         @Path("userId") userId: String,
-        @Path("recordId") recordId: Int,
+        @Path("recordId") recordId: String,
         @Field("token") token: String
     ): ApiResponse<RunRecordDto>
 

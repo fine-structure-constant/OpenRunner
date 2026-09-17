@@ -93,8 +93,8 @@ class RecordAdapter(
                 RecordUploadState.PENDING -> R.color.or_status_pending_container to R.color.or_status_pending
                 RecordUploadState.UPLOADING -> R.color.or_status_uploading_container to R.color.or_status_uploading
                 RecordUploadState.UPLOADED_VALID -> R.color.or_status_success_container to R.color.or_status_success
-                RecordUploadState.UPLOADED_INVALID -> R.color.or_status_error_container to R.color.or_status_error
-                RecordUploadState.FAILED -> R.color.or_status_uploading_container to R.color.or_status_uploading
+                RecordUploadState.UPLOADED_INVALID -> R.color.or_status_uploading_container to R.color.or_status_uploading
+                RecordUploadState.FAILED -> R.color.or_status_error_container to R.color.or_status_error
             }
             card.setCardBackgroundColor(ContextCompat.getColor(context, containerColor))
             card.strokeColor = ContextCompat.getColor(context, accentColor)

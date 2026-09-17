@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
@@ -40,16 +41,13 @@ import com.amap.api.maps.model.Polyline
 import com.amap.api.maps.model.PolylineOptions
 import kotlinx.coroutines.launch
 import android.widget.Toast
-import cn.edu.pku.openrunner.feature.records.ui.recordIssueText
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class RunFragment : Fragment() {
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
         if (hasLocationPermission()) viewModel.startLocating()
-    }
-    private val photoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let(viewModel::attachPhoto)
     }
 
     private val viewModel: RunViewModel by activityViewModels {
@@ -70,6 +68,7 @@ class RunFragment : Fragment() {
     private var currentMarker: Marker? = null
     private var accuracyCircle: Circle? = null
     private var followLocation = true
+    private var stopConfirmation: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,145 +95,105 @@ class RunFragment : Fragment() {
         val paceText = view.findViewById<TextView>(R.id.run_pace)
         val recordStatusText = view.findViewById<TextView>(R.id.run_record_status)
         val action = view.findViewById<Button>(R.id.run_action)
-        val upload = view.findViewById<Button>(R.id.run_upload)
-        val photo = view.findViewById<Button>(R.id.run_photo)
+        val delete = view.findViewById<Button>(R.id.run_delete)
         view.findViewById<View>(R.id.run_recenter).setOnClickListener {
             followLocation = true
             viewModel.uiState.value.currentPoint?.let { renderCurrentLocation(it, null, true) }
         }
         action.setOnClickListener {
-            when {
-                viewModel.uiState.value.status == RunStatus.RUNNING -> viewModel.stop()
-                hasLocationPermission() -> {
+            when (viewModel.uiState.value.primaryAction) {
+                RunPrimaryAction.STOP -> confirmStop()
+                RunPrimaryAction.SAVE -> viewModel.saveFinishedRecord()
+                RunPrimaryAction.START -> if (hasLocationPermission()) {
                     followLocation = true
                     viewModel.start()
+                } else {
+                    requestLocationPermission()
                 }
-                else -> requestLocationPermission()
             }
         }
-        upload.setOnClickListener { viewModel.uploadSavedRecord() }
-        photo.setOnClickListener { photoPicker.launch("image/*") }
+        delete.setOnClickListener { viewModel.discardFinishedRecord() }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.uiState.collect { state ->
-                    statusText.text = when (state.status) {
-                        RunStatus.IDLE -> if (state.currentPoint == null) {
-                            getString(R.string.run_locating)
-                        } else {
-                            getString(R.string.run_location_ready, state.accuracyMeters ?: 0)
+                        statusText.text = when (state.status) {
+                            RunStatus.IDLE -> if (state.currentPoint == null) {
+                                getString(R.string.run_locating)
+                            } else {
+                                getString(R.string.run_location_ready, state.accuracyMeters ?: 0)
+                            }
+                            RunStatus.RUNNING -> getString(
+                                if (state.backgroundTrackingActive) {
+                                    R.string.run_running_background
+                                } else {
+                                    R.string.run_running_foreground_only
+                                },
+                                state.pointCount,
+                                state.stepCount
+                            )
+                            RunStatus.FINISHED -> getString(
+                                R.string.run_finished,
+                                state.pointCount,
+                                state.stepCount
+                            )
+                            RunStatus.PERMISSION_REQUIRED -> getString(R.string.run_permission_required)
                         }
-                        RunStatus.RUNNING -> getString(
-                            if (state.backgroundTrackingActive) {
-                                R.string.run_running_background
-                            } else {
-                                R.string.run_running_foreground_only
-                            },
-                            state.pointCount,
-                            state.stepCount
-                        )
-                        RunStatus.FINISHED -> getString(
-                            R.string.run_finished,
-                            state.pointCount,
-                            state.stepCount
-                        )
-                        RunStatus.PERMISSION_REQUIRED -> getString(R.string.run_permission_required)
-                    }
-                    action.setText(
-                        if (state.status == RunStatus.RUNNING) R.string.run_stop else R.string.run_start
-                    )
-                    action.isEnabled = state.recordSaveStatus !in setOf(
-                        RecordSaveStatus.SAVING,
-                        RecordSaveStatus.ATTACHING_PHOTO,
-                        RecordSaveStatus.UPLOADING
-                    )
-                    distanceText.text = getString(R.string.run_metric_distance_value, state.distanceMeters)
-                    durationText.text = RunMetrics.formatDuration(state.durationSeconds)
-                    paceText.text = RunMetrics.formatPace(state.paceSecondsPerKm)
-                    recordStatusText.text = when (state.recordSaveStatus) {
-                        RecordSaveStatus.NONE -> ""
-                        RecordSaveStatus.SAVING -> getString(R.string.run_record_saving)
-                        RecordSaveStatus.SAVED -> getString(
-                            if (state.photoAttached) {
-                                R.string.run_record_saved_with_photo
-                            } else {
-                                R.string.run_record_saved
+                        action.setText(
+                            when (state.primaryAction) {
+                                RunPrimaryAction.START -> R.string.run_start
+                                RunPrimaryAction.STOP -> R.string.run_stop
+                                RunPrimaryAction.SAVE -> R.string.run_save
                             }
                         )
-                        RecordSaveStatus.ATTACHING_PHOTO -> getString(R.string.run_photo_processing)
-                        RecordSaveStatus.UPLOADING -> getString(R.string.run_record_uploading)
-                        RecordSaveStatus.UPLOADED -> getString(R.string.run_record_uploaded)
-                        RecordSaveStatus.UPLOADED_INVALID -> getString(
-                            R.string.run_record_uploaded_invalid,
-                            requireContext().recordIssueText(state.recordErrorCode)
-                        )
-                        RecordSaveStatus.ERROR -> getString(
-                            R.string.run_record_error,
-                            requireContext().recordIssueText(
-                                state.recordErrorCode,
+                        action.isEnabled = !state.isSavingRecord
+                        delete.visibility = if (state.hasPendingRecord) View.VISIBLE else View.GONE
+                        delete.isEnabled = !state.isSavingRecord
+                        distanceText.text = getString(R.string.run_metric_distance_value, state.distanceMeters)
+                        durationText.text = RunMetrics.formatDuration(state.durationSeconds)
+                        paceText.text = RunMetrics.formatPace(state.paceSecondsPerKm)
+                        recordStatusText.text = when (state.recordSaveStatus) {
+                            RecordSaveStatus.NONE -> if (state.hasPendingRecord) {
+                                getString(R.string.run_record_waiting)
+                            } else {
+                                ""
+                            }
+                            RecordSaveStatus.SAVING -> getString(R.string.run_record_saving)
+                            RecordSaveStatus.SAVED -> getString(R.string.run_record_saved)
+                            RecordSaveStatus.ERROR -> getString(
+                                R.string.run_record_error,
                                 state.recordError ?: getString(R.string.unknown_error)
                             )
+                        }
+                        recordStatusText.visibility = if (recordStatusText.text.isEmpty()) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
+                        recordStatusText.setTextColor(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                when (state.recordSaveStatus) {
+                                    RecordSaveStatus.SAVED -> R.color.or_status_success
+                                    RecordSaveStatus.ERROR -> R.color.or_status_error
+                                    RecordSaveStatus.SAVING -> R.color.or_status_uploading
+                                    else -> R.color.or_status_pending
+                                }
+                            )
                         )
-                    }
-                    recordStatusText.visibility = if (
-                        state.recordSaveStatus == RecordSaveStatus.NONE
-                    ) View.GONE else View.VISIBLE
-                    recordStatusText.setTextColor(
-                        ContextCompat.getColor(
-                            requireContext(),
-                            when (state.recordSaveStatus) {
-                                RecordSaveStatus.UPLOADED -> R.color.or_status_success
-                                RecordSaveStatus.UPLOADED_INVALID,
-                                RecordSaveStatus.ERROR -> R.color.or_status_error
-                                RecordSaveStatus.UPLOADING,
-                                RecordSaveStatus.ATTACHING_PHOTO -> R.color.or_status_uploading
-                                else -> R.color.or_status_pending
-                            }
-                        )
-                    )
-                    upload.isEnabled = state.recordSaveStatus in setOf(
-                        RecordSaveStatus.SAVED,
-                        RecordSaveStatus.ERROR
-                    )
-                    upload.visibility = if (
-                        state.savedRecordId != null && state.recordSaveStatus !in setOf(
-                            RecordSaveStatus.UPLOADED,
-                            RecordSaveStatus.UPLOADED_INVALID
-                        )
-                    ) View.VISIBLE else View.GONE
-                    photo.visibility = upload.visibility
-                    photo.isEnabled = state.recordSaveStatus in setOf(
-                        RecordSaveStatus.SAVED,
-                        RecordSaveStatus.ERROR
-                    )
-                    photo.setText(
-                        if (state.photoAttached) R.string.record_photo_replace else R.string.record_photo_add
-                    )
-                    state.currentPoint?.let {
-                        renderCurrentLocation(it, state.accuracyMeters, false)
-                    }
-                    renderTrack(state.points)
+                        state.currentPoint?.let {
+                            renderCurrentLocation(it, state.accuracyMeters, false)
+                        }
+                        renderTrack(state.points)
                     }
                 }
                 launch {
                     viewModel.events.collect { event ->
                         when (event) {
-                            is RunUiEvent.UploadCompleted -> Toast.makeText(
+                            is RunUiEvent.Message -> Toast.makeText(
                                 requireContext(),
-                                if (event.verified) {
-                                    getString(R.string.run_record_uploaded)
-                                } else {
-                                    getString(
-                                        R.string.run_record_uploaded_invalid,
-                                        requireContext().recordIssueText(event.invalidReason)
-                                    )
-                                },
-                                Toast.LENGTH_LONG
-                            ).show()
-                            RunUiEvent.AlreadyUploaded -> Toast.makeText(
-                                requireContext(),
-                                getString(R.string.record_issue_already_uploaded),
+                                event.text,
                                 Toast.LENGTH_LONG
                             ).show()
                         }
@@ -248,6 +207,17 @@ class RunFragment : Fragment() {
         } else {
             requestLocationPermission()
         }
+    }
+
+    private fun confirmStop() {
+        if (stopConfirmation != null || viewModel.uiState.value.status != RunStatus.RUNNING) return
+        stopConfirmation = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.run_stop_confirm_title)
+            .setMessage(R.string.run_stop_confirm_message)
+            .setPositiveButton(R.string.run_stop_confirm_yes) { _, _ -> viewModel.stop() }
+            .setNegativeButton(R.string.run_stop_confirm_no, null)
+            .setOnDismissListener { stopConfirmation = null }
+            .show()
     }
 
     private fun requestLocationPermission() {
@@ -343,6 +313,8 @@ class RunFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        stopConfirmation?.dismiss()
+        stopConfirmation = null
         viewModel.stopLocatingIfIdle()
         routePolyline?.remove()
         currentMarker?.remove()

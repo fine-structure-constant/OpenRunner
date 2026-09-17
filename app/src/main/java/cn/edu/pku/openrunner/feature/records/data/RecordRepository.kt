@@ -7,6 +7,7 @@ import cn.edu.pku.openrunner.core.network.UserStatusDto
 import cn.edu.pku.openrunner.core.session.SessionStore
 import cn.edu.pku.openrunner.feature.records.domain.RecordListItem
 import cn.edu.pku.openrunner.feature.records.domain.RecordOrdering
+import cn.edu.pku.openrunner.feature.records.domain.RecordReconciliation
 import cn.edu.pku.openrunner.feature.records.domain.RecordUploadState
 import cn.edu.pku.openrunner.feature.run.data.LocalRunRecord
 import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
@@ -33,7 +34,31 @@ class RecordRepository(
                     if (local.isEmpty()) throw error else emptyList()
                 }
         }
-        return merge(local, remote)
+        val claimedServerIds = mutableSetOf<String>()
+        val reconciledLocal = local.map { record ->
+            if (record.uploaded ||
+                !RecordReconciliation.isResponseParsingFailure(record.lastUploadError)
+            ) {
+                record
+            } else {
+                val matchingRemote = remote.firstOrNull { serverRecord ->
+                    serverRecord.serverId !in claimedServerIds &&
+                        RecordReconciliation.matchesSubmittedRun(
+                            record.completedAtMillis,
+                            record.distanceMeters,
+                            record.durationSeconds,
+                            serverRecord
+                        )
+                }
+                if (matchingRemote == null) {
+                    record
+                } else {
+                    matchingRemote.serverId?.let { claimedServerIds += it }
+                    runRecordRepository.confirmUploaded(record.localId, matchingRemote) ?: record
+                }
+            }
+        }
+        return merge(reconciledLocal, remote)
     }
 
     suspend fun upload(localId: String): RunRecordDto =
@@ -106,8 +131,7 @@ class RecordRepository(
         failureMessage = record.lastUploadError
     )
 
-    private fun serverId(record: RunRecordDto): Int? =
-        record.recordId.takeIf { it >= 0 } ?: record.id.takeIf { it >= 0 }
+    private fun serverId(record: RunRecordDto): String? = record.serverId
 
     private fun hasLocalDetails(record: LocalRunRecord): Boolean =
         record.metricSamples.orEmpty().size >= 2

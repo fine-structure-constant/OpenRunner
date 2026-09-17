@@ -23,7 +23,8 @@ data class LocalRunRecord(
     val track: List<TrackPoint>,
     val checkField: String?,
     val uploaded: Boolean = false,
-    val serverRecordId: Int? = null,
+    // String also reads legacy numeric JSON IDs through Gson without losing existing local details.
+    val serverRecordId: String? = null,
     val verified: Boolean = false,
     val invalidReason: Int = 0,
     val morningBonus: Boolean = false,
@@ -36,8 +37,8 @@ data class LocalRunRecord(
     val metricSamples: List<RunMetricSample>? = null
 ) {
     fun asDto(): RunRecordDto = RunRecordDto(
-        id = -1,
-        recordId = serverRecordId ?: -1,
+        id = null,
+        recordId = serverRecordId,
         distance = distanceMeters,
         duration = durationSeconds.toDouble(),
         date = Date(completedAtMillis),
@@ -121,10 +122,9 @@ class LocalRunRecordStore(context: Context) {
 
     fun markUploaded(localId: String, result: RunRecordDto): LocalRunRecord? =
         update(localId) { record ->
-            val serverId = result.recordId.takeIf { it >= 0 } ?: result.id.takeIf { it >= 0 }
             record.copy(
                 uploaded = true,
-                serverRecordId = serverId,
+                serverRecordId = result.serverId,
                 verified = result.verified,
                 invalidReason = result.invalidReason,
                 morningBonus = result.morningBonus,

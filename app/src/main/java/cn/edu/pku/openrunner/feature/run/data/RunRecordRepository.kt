@@ -111,6 +111,16 @@ class RunRecordRepository(
         localStore.all(sessionStore.userId)
     }
 
+    /** Repairs local state from an already-existing cloud record; never sends another upload. */
+    suspend fun confirmUploaded(localId: String, remote: RunRecordDto): LocalRunRecord? =
+        withContext(Dispatchers.IO) {
+            val record = localStore.find(localId) ?: return@withContext null
+            check(record.userId == sessionStore.userId) { "记录所属账号与当前账号不一致" }
+            val updated = localStore.markUploaded(localId, remote)
+            photoStore.delete(record.photoFilePath)
+            updated
+        }
+
     suspend fun deleteLocal(localId: String): Boolean = withContext(Dispatchers.IO) {
         val removed = localStore.delete(localId) ?: return@withContext false
         photoStore.delete(removed.photoFilePath)

@@ -48,8 +48,10 @@ data class TaskDto(
 }
 
 data class RunRecordDto(
-    @SerializedName("id") val id: Int = -1,
-    @SerializedName("recordId") val recordId: Int = -1,
+    // Server IDs are opaque: newer responses use Mongo-style strings, while older ones use numbers.
+    // Gson's String adapter accepts both JSON representations without parsing them as integers.
+    @SerializedName(value = "id", alternate = ["_id"]) val id: String? = null,
+    @SerializedName("recordId") val recordId: String? = null,
     @SerializedName("distance") val distance: Int = 0,
     @SerializedName("duration") val duration: Double = 0.0,
     @SerializedName("date") val date: Date? = null,
@@ -63,7 +65,13 @@ data class RunRecordDto(
     @SerializedName("photoPath") val photoPath: String? = null,
     /** Only set for a run saved on this device and still waiting to be uploaded. */
     @Transient val localId: String? = null
-)
+) {
+    val serverId: String?
+        get() = recordId.validIdentifier() ?: id.validIdentifier()
+
+    private fun String?.validIdentifier(): String? =
+        this?.trim()?.takeIf { it.isNotEmpty() && it != "-1" && it != "null" }
+}
 
 data class UserStatusDto(
     @SerializedName("beginDate") val beginDate: Date? = null,

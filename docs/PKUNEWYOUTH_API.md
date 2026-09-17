@@ -148,7 +148,7 @@ v2 对应接口：PkuNewYouthApi.exchangeIaaaToken。
     abstract   服务端要求的摘要字段
     photo      可选 JPEG 文件，multipart 文件名固定为 image.jpg
 
-v2 在 `PkuNewYouthApi.uploadRecord` 中声明上传边界。结束跑步时先保存本地记录，再由用户触发上传；网络失败的记录会保留在“记录”页供分别重试。可选图片通过系统文件选择器读取，在应用私有目录中压缩为不超过 640×480、JPEG 质量 50，并随对应记录上传。
+v2-pro 在 `PkuNewYouthApi.uploadRecord` 中声明上传边界。跑步页确认结束后，由用户选择保存或删除；保存后仅在“记录”页处理上传和图片，网络失败的记录可分别重试。可选图片通过系统文件选择器读取，在应用私有目录中压缩为不超过 640×480、JPEG 质量 50，并随对应记录上传。
 
 兼容旧 Android 客户端的字段生成规则：
 
@@ -174,7 +174,7 @@ v2 在 `PkuNewYouthApi.uploadRecord` 中声明上传边界。结束跑步时先�
 
     [[longitude, latitude, status], ...]
 
-v2 的 `RunRecordDto` 按该旧版协议建模，避免将日期强制转换为 Long 导致 `NumberFormatException`。
+v2-pro 的 `RunRecordDto` 按该协议建模，避免将日期强制转换为 Long 导致 `NumberFormatException`。`id`（含 `_id` 别名）和 `recordId` 均作为不透明字符串保存，同时接受旧版数字 JSON 值；不能将新服务端的 `6aa5b…` 字符串 ID 解析为整数。优先用有效 `recordId` 关联记录，缺失时使用 `id`。
 
 ## 场馆记录
 

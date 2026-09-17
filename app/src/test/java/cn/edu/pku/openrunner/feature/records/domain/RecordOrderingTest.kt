@@ -15,11 +15,11 @@ class RecordOrderingTest {
 
         val ordered = RecordOrdering.newestFirst(listOf(old, undated, newest, middle))
 
-        assertEquals(listOf(2, 3, 1, 4), ordered.map { it.record.recordId })
+        assertEquals(listOf("2", "3", "1", "4"), ordered.map { it.record.recordId })
     }
 
     private fun item(id: Int, time: Long?): RecordListItem = RecordListItem(
-        record = RunRecordDto(recordId = id, date = time?.let(::Date)),
+        record = RunRecordDto(recordId = id.toString(), date = time?.let(::Date)),
         uploadState = RecordUploadState.UPLOADED_VALID
     )
 }

@@ -1,7 +1,6 @@
 package cn.edu.pku.openrunner.feature.run.ui
 
 import android.os.SystemClock
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,13 +8,12 @@ import cn.edu.pku.openrunner.feature.run.data.AndroidLocationTracker
 import cn.edu.pku.openrunner.feature.run.data.AccelerometerStepCounter
 import cn.edu.pku.openrunner.feature.run.data.LocationSample
 import cn.edu.pku.openrunner.feature.run.data.RunRecordRepository
-import cn.edu.pku.openrunner.feature.run.data.RecordAlreadyUploadedException
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
 import cn.edu.pku.openrunner.feature.run.domain.RunMetricSample
 import cn.edu.pku.openrunner.feature.run.domain.RunRecordDraft
 import cn.edu.pku.openrunner.feature.run.domain.TrackDistance
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
-import cn.edu.pku.openrunner.core.network.ApiException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,16 +34,17 @@ enum class RecordSaveStatus {
     NONE,
     SAVING,
     SAVED,
-    ATTACHING_PHOTO,
-    UPLOADING,
-    UPLOADED,
-    UPLOADED_INVALID,
     ERROR
 }
 
+enum class RunPrimaryAction {
+    START,
+    STOP,
+    SAVE
+}
+
 sealed interface RunUiEvent {
-    data class UploadCompleted(val verified: Boolean, val invalidReason: Int) : RunUiEvent
-    data object AlreadyUploaded : RunUiEvent
+    data class Message(val text: String) : RunUiEvent
 }
 
 data class RunUiState(
@@ -62,10 +61,21 @@ data class RunUiState(
     val backgroundTrackingActive: Boolean = false,
     val recordSaveStatus: RecordSaveStatus = RecordSaveStatus.NONE,
     val savedRecordId: String? = null,
-    val photoAttached: Boolean = false,
-    val recordErrorCode: Int? = null,
     val recordError: String? = null
-)
+) {
+    val hasPendingRecord: Boolean
+        get() = status == RunStatus.FINISHED && recordSaveStatus != RecordSaveStatus.SAVED
+
+    val isSavingRecord: Boolean
+        get() = recordSaveStatus == RecordSaveStatus.SAVING
+
+    val primaryAction: RunPrimaryAction
+        get() = when {
+            status == RunStatus.RUNNING -> RunPrimaryAction.STOP
+            hasPendingRecord -> RunPrimaryAction.SAVE
+            else -> RunPrimaryAction.START
+        }
+}
 
 class RunViewModel(
     private val locationTracker: AndroidLocationTracker,
@@ -81,6 +91,7 @@ class RunViewModel(
     private var startedAtMillis = 0L
     private var startedAtElapsedMillis = 0L
     private var timerJob: Job? = null
+    private var pendingDraft: RunRecordDraft? = null
 
     fun startLocating(): Boolean {
         if (_uiState.value.locating) return true
@@ -95,7 +106,14 @@ class RunViewModel(
                 }
             )
         } else {
-            _uiState.value.copy(status = RunStatus.PERMISSION_REQUIRED, locating = false)
+            _uiState.value.copy(
+                status = if (_uiState.value.hasPendingRecord) {
+                    RunStatus.FINISHED
+                } else {
+                    RunStatus.PERMISSION_REQUIRED
+                },
+                locating = false
+            )
         }
         return started
     }
@@ -107,11 +125,8 @@ class RunViewModel(
     }
 
     fun start() {
-        if (_uiState.value.recordSaveStatus in setOf(
-                RecordSaveStatus.SAVING,
-                RecordSaveStatus.ATTACHING_PHOTO,
-                RecordSaveStatus.UPLOADING
-            )
+        if (_uiState.value.primaryAction != RunPrimaryAction.START ||
+            _uiState.value.isSavingRecord
         ) return
         if (!startLocating()) {
             _uiState.value = _uiState.value.copy(status = RunStatus.PERMISSION_REQUIRED)
@@ -119,6 +134,7 @@ class RunViewModel(
         }
         points.clear()
         metricSamples.clear()
+        pendingDraft = null
         startedAtMillis = System.currentTimeMillis()
         startedAtElapsedMillis = SystemClock.elapsedRealtime()
         metricSamples += RunMetricSample(elapsedMillis = 0L, distanceMeters = 0.0)
@@ -134,8 +150,6 @@ class RunViewModel(
             backgroundTrackingActive = backgroundTrackingActive,
             recordSaveStatus = RecordSaveStatus.NONE,
             savedRecordId = null,
-            photoAttached = false,
-            recordErrorCode = null,
             recordError = null
         )
         stepCounter.start(::onStep)
@@ -157,11 +171,10 @@ class RunViewModel(
         val finishedState = _uiState.value.copy(
             status = RunStatus.FINISHED,
             backgroundTrackingActive = false,
-            recordSaveStatus = RecordSaveStatus.SAVING,
+            recordSaveStatus = RecordSaveStatus.NONE,
             recordError = null
         )
-        _uiState.value = finishedState
-        val draft = RunRecordDraft(
+        pendingDraft = RunRecordDraft(
             startedAtMillis = startedAtMillis,
             completedAtMillis = startedAtMillis + completedElapsedMillis,
             durationSeconds = finishedState.durationSeconds,
@@ -169,96 +182,50 @@ class RunViewModel(
             steps = finishedState.stepCount,
             metricSamples = metricSamples.toList()
         )
-        viewModelScope.launch {
-            runCatching { recordRepository.save(draft) }
-                .onSuccess { record ->
-                    _uiState.value = _uiState.value.copy(
-                        recordSaveStatus = RecordSaveStatus.SAVED,
-                        savedRecordId = record.localId,
-                        photoAttached = false
-                    )
-                }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        recordSaveStatus = RecordSaveStatus.ERROR,
-                        recordError = error.message ?: "记录保存失败"
-                    )
-                }
-        }
+        _uiState.value = finishedState
     }
 
-    fun attachPhoto(source: Uri) {
-        val localId = _uiState.value.savedRecordId ?: return
-        if (_uiState.value.recordSaveStatus in setOf(
-                RecordSaveStatus.ATTACHING_PHOTO,
-                RecordSaveStatus.UPLOADING,
-                RecordSaveStatus.UPLOADED,
-                RecordSaveStatus.UPLOADED_INVALID
-            )
-        ) return
+    fun saveFinishedRecord() {
+        if (!_uiState.value.hasPendingRecord || _uiState.value.isSavingRecord) return
+        val draft = pendingDraft ?: return
         _uiState.value = _uiState.value.copy(
-            recordSaveStatus = RecordSaveStatus.ATTACHING_PHOTO,
-            recordErrorCode = null,
+            recordSaveStatus = RecordSaveStatus.SAVING,
             recordError = null
         )
         viewModelScope.launch {
-            runCatching { recordRepository.attachPhoto(localId, source) }
-                .onSuccess {
-                    _uiState.value = _uiState.value.copy(
-                        recordSaveStatus = RecordSaveStatus.SAVED,
-                        photoAttached = true
-                    )
-                }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        recordSaveStatus = RecordSaveStatus.ERROR,
-                        recordError = error.message ?: "图片处理失败"
-                    )
-                }
+            try {
+                val record = recordRepository.save(draft)
+                pendingDraft = null
+                _uiState.value = _uiState.value.copy(
+                    recordSaveStatus = RecordSaveStatus.SAVED,
+                    savedRecordId = record.localId
+                )
+                _events.tryEmit(RunUiEvent.Message("记录已保存到本机，请在“记录”页添加图片或上传"))
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    recordSaveStatus = RecordSaveStatus.ERROR,
+                    recordError = error.message ?: "记录保存失败"
+                )
+            }
         }
     }
 
-    fun uploadSavedRecord() {
-        val localId = _uiState.value.savedRecordId ?: return
-        if (_uiState.value.recordSaveStatus == RecordSaveStatus.UPLOADING) return
-        _uiState.value = _uiState.value.copy(
-            recordSaveStatus = RecordSaveStatus.UPLOADING,
-            recordError = null
+    fun discardFinishedRecord() {
+        if (!_uiState.value.hasPendingRecord || _uiState.value.isSavingRecord) return
+        pendingDraft = null
+        points.clear()
+        metricSamples.clear()
+        startedAtMillis = 0L
+        startedAtElapsedMillis = 0L
+        val current = _uiState.value
+        _uiState.value = RunUiState(
+            currentPoint = current.currentPoint,
+            accuracyMeters = current.accuracyMeters,
+            locating = current.locating
         )
-        viewModelScope.launch {
-            runCatching { recordRepository.upload(localId) }
-                .onSuccess { result ->
-                    _uiState.value = _uiState.value.copy(
-                        recordSaveStatus = if (result.verified) {
-                            RecordSaveStatus.UPLOADED
-                        } else {
-                            RecordSaveStatus.UPLOADED_INVALID
-                        },
-                        recordErrorCode = result.invalidReason,
-                        recordError = null
-                    )
-                    _events.tryEmit(
-                        RunUiEvent.UploadCompleted(result.verified, result.invalidReason)
-                    )
-                }
-                .onFailure { error ->
-                    if (error is RecordAlreadyUploadedException) {
-                        _uiState.value = _uiState.value.copy(
-                            recordSaveStatus = RecordSaveStatus.UPLOADED,
-                            savedRecordId = null,
-                            recordErrorCode = null,
-                            recordError = null
-                        )
-                        _events.tryEmit(RunUiEvent.AlreadyUploaded)
-                        return@onFailure
-                    }
-                    _uiState.value = _uiState.value.copy(
-                        recordSaveStatus = RecordSaveStatus.ERROR,
-                        recordErrorCode = (error as? ApiException)?.code,
-                        recordError = error.message ?: "记录上传失败"
-                    )
-                }
-        }
+        _events.tryEmit(RunUiEvent.Message("本次未保存记录已删除"))
     }
 
     private fun onLocation(sample: LocationSample) {
