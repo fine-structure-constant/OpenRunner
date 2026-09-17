@@ -40,6 +40,9 @@ data class LocalRunRecord(
 ) {
     val canUpload: Boolean get() = !usedVirtualLocation
 
+    val hasLocalDetails: Boolean
+        get() = track.orEmpty().any { it.isValidCoordinate } || metricSamples.orEmpty().size >= 2
+
     fun asDto(): RunRecordDto = RunRecordDto(
         id = null,
         recordId = serverRecordId,
@@ -47,7 +50,7 @@ data class LocalRunRecord(
         duration = durationSeconds.toDouble(),
         date = Date(completedAtMillis),
         step = steps,
-        track = track.map { listOf(it.longitude, it.latitude, it.status.toDouble()) },
+        track = track.orEmpty().map { listOf(it.longitude, it.latitude, it.status.toDouble()) },
         uploaded = uploaded,
         verified = verified,
         invalidReason = invalidReason,

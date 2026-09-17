@@ -16,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
-import cn.edu.pku.openrunner.feature.run.domain.TrackDistance
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
@@ -72,17 +71,12 @@ class VirtualLocationFragment : Fragment() {
                 initialPoint?.toLatLng() ?: CAMPUS_CENTER,
                 if (initialPoint == null) 15.5f else 17f
             ))
-            addMarker(MarkerOptions().position(WUSI_CENTER.toLatLng())
-                .title(getString(R.string.virtual_reference_wusi)))
-            addMarker(MarkerOptions().position(WEIMING_CENTER.toLatLng())
-                .title(getString(R.string.virtual_reference_weiming)))
         }
         val toggle = view.findViewById<Button>(R.id.virtual_toggle)
         val addPoint = view.findViewById<Button>(R.id.virtual_add_point)
         val confirm = view.findViewById<Button>(R.id.virtual_confirm_point)
         val hint = view.findViewById<TextView>(R.id.virtual_selection_hint)
         val status = view.findViewById<TextView>(R.id.virtual_status)
-        val reference = view.findViewById<TextView>(R.id.virtual_reference_distance)
 
         fun refreshSelection() {
             val enabled = viewModel.uiState.value.virtualLocationEnabled
@@ -94,15 +88,6 @@ class VirtualLocationFragment : Fragment() {
                 candidate == null -> R.string.virtual_hint_selecting
                 else -> R.string.virtual_hint_confirm
             })
-            val referencePoint = candidate ?: viewModel.uiState.value.virtualPoint
-            reference.visibility = if (referencePoint == null) View.GONE else View.VISIBLE
-            referencePoint?.let {
-                reference.text = getString(
-                    R.string.virtual_reference_distance,
-                    TrackDistance.haversineMeters(it, WUSI_CENTER).toInt(),
-                    TrackDistance.haversineMeters(it, WEIMING_CENTER).toInt()
-                )
-            }
         }
 
         toggle.setOnClickListener {
@@ -253,8 +238,5 @@ class VirtualLocationFragment : Fragment() {
         private const val KEY_LATITUDE = "virtual_candidate_latitude"
         private const val KEY_LONGITUDE = "virtual_candidate_longitude"
         private val CAMPUS_CENTER = LatLng(39.99281, 116.31088)
-        // Reference centers from the legacy project; these are not server validation boundaries.
-        private val WUSI_CENTER = TrackPoint(116.3131, 39.9876)
-        private val WEIMING_CENTER = TrackPoint(116.3090, 39.9950)
     }
 }

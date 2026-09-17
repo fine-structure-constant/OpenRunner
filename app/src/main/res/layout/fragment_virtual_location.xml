@@ -78,14 +78,6 @@
                 android:layout_marginTop="8dp"
                 android:textColor="@color/or_on_surface" />
 
-            <TextView
-                android:id="@+id/virtual_reference_distance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/or_muted"
-                android:textSize="12sp"
-                android:visibility="gone" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

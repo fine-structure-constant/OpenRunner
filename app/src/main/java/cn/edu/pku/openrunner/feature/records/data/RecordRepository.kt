@@ -135,7 +135,7 @@ class RecordRepository(
     private fun serverId(record: RunRecordDto): String? = record.serverId
 
     private fun hasLocalDetails(record: LocalRunRecord): Boolean =
-        record.metricSamples.orEmpty().size >= 2
+        record.hasLocalDetails
 
     private fun findLocalMatch(
         remote: RunRecordDto,

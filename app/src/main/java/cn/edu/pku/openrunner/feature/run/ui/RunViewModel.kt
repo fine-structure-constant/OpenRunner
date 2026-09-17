@@ -91,6 +91,26 @@ data class RunUiState(
         currentPoint = null,
         accuracyMeters = null
     )
+
+    fun withSavedRecord(localId: String): RunUiState = copy(
+        recordSaveStatus = RecordSaveStatus.SAVED,
+        savedRecordId = localId,
+        points = emptyList()
+    )
+
+    /** Idle location updates must not restore a saved route or erase the finished summary. */
+    fun withLocation(point: TrackPoint, accuracy: Int, activeTrack: List<TrackPoint>): RunUiState {
+        val located = copy(currentPoint = point, accuracyMeters = accuracy, locating = true)
+        if (status != RunStatus.RUNNING) return located
+        val distance = TrackDistance.polylineMeters(activeTrack).toInt()
+        return located.copy(
+            distanceMeters = distance,
+            pointCount = activeTrack.size,
+            points = activeTrack,
+            paceSecondsPerKm = RunMetrics.paceSecondsPerKm(durationSeconds, distance),
+            usedVirtualLocation = usedVirtualLocation || virtualLocationEnabled
+        )
+    }
 }
 
 class RunViewModel(
@@ -168,10 +188,7 @@ class RunViewModel(
     }
 
     fun confirmVirtualPoint(point: TrackPoint) {
-        if (!_uiState.value.virtualLocationEnabled ||
-            !point.longitude.isFinite() || !point.latitude.isFinite() ||
-            point.longitude !in -180.0..180.0 || point.latitude !in -90.0..90.0
-        ) return
+        if (!_uiState.value.virtualLocationEnabled || !point.isValidCoordinate) return
         _uiState.value = _uiState.value.copy(virtualPoint = point)
         onLocation(
             LocationSample(point, accuracyMeters = 0f, timestampMillis = System.currentTimeMillis()),
@@ -262,10 +279,10 @@ class RunViewModel(
             try {
                 val record = recordRepository.save(draft)
                 pendingDraft = null
-                _uiState.value = _uiState.value.copy(
-                    recordSaveStatus = RecordSaveStatus.SAVED,
-                    savedRecordId = record.localId
-                )
+                points.clear()
+                metricSamples.clear()
+                pendingLocationSourceChange = false
+                _uiState.value = _uiState.value.withSavedRecord(record.localId)
                 _events.tryEmit(RunUiEvent.Message(
                     if (record.usedVirtualLocation) {
                         "虚拟定位测试记录已保存到本机，不上传官方服务器"
@@ -314,16 +331,9 @@ class RunViewModel(
                 distanceMeters = TrackDistance.polylineMeters(points)
             )
         }
-        _uiState.value = current.copy(
-            currentPoint = sample.point,
-            accuracyMeters = sample.accuracyMeters.toInt(),
-            distanceMeters = TrackDistance.polylineMeters(points).toInt(),
-            pointCount = points.size,
-            points = points.toList(),
-            locating = true,
-            usedVirtualLocation = current.usedVirtualLocation ||
-                (virtual && current.status == RunStatus.RUNNING)
-        ).withUpdatedPace()
+        _uiState.value = current.withLocation(
+            sample.point, sample.accuracyMeters.toInt(), points.toList()
+        )
     }
 
     private fun onStep() {
