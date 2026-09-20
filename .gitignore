@@ -40,3 +40,5 @@ output-metadata.json
 .DS_Store
 Thumbs.db
 desktop.ini
+
+docs/

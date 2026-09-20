@@ -9,6 +9,7 @@ import cn.edu.pku.openrunner.core.network.PkuNewYouthApi
 import cn.edu.pku.openrunner.core.network.RunRecordDto
 import cn.edu.pku.openrunner.core.network.UserStatusDto
 import cn.edu.pku.openrunner.core.session.SessionStore
+import cn.edu.pku.openrunner.feature.records.domain.RecordOrdering
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,7 +64,7 @@ class AccountViewModel(
                     department = sessionStore.department,
                     token = token,
                     status = status,
-                    records = records
+                    records = RecordOrdering.newestRecordsFirst(records)
                 )
             } catch (error: Exception) {
                 if (isAuthenticationFailure(error)) {

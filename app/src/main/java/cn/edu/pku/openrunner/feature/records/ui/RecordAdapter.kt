@@ -64,12 +64,14 @@ class RecordAdapter(
                 record.step
             )
             val localId = item.localId
-            val canUpload = localId != null && item.uploadState in setOf(
+            val canUpload = !item.isVirtualTest && localId != null && item.uploadState in setOf(
                 RecordUploadState.PENDING,
                 RecordUploadState.FAILED
             )
             val isAttachingPhoto = item.isPhotoProcessing
-            status.text = when (item.uploadState) {
+            status.text = if (item.isVirtualTest) {
+                context.getString(R.string.record_virtual_test)
+            } else when (item.uploadState) {
                 RecordUploadState.PENDING -> context.getString(R.string.record_pending)
                 RecordUploadState.UPLOADING -> context.getString(R.string.record_uploading)
                 RecordUploadState.UPLOADED_VALID -> context.getString(
@@ -89,7 +91,9 @@ class RecordAdapter(
                 )
             }
             status.visibility = View.VISIBLE
-            val (containerColor, accentColor) = when (item.uploadState) {
+            val (containerColor, accentColor) = if (item.isVirtualTest) {
+                R.color.or_status_virtual_container to R.color.or_status_virtual
+            } else when (item.uploadState) {
                 RecordUploadState.PENDING -> R.color.or_status_pending_container to R.color.or_status_pending
                 RecordUploadState.UPLOADING -> R.color.or_status_uploading_container to R.color.or_status_uploading
                 RecordUploadState.UPLOADED_VALID -> R.color.or_status_success_container to R.color.or_status_success
@@ -113,7 +117,9 @@ class RecordAdapter(
             photoStatus.setText(
                 if (record.uploaded) R.string.record_photo_uploaded else R.string.record_photo_attached
             )
-            upload.visibility = if (canUpload || item.uploadState == RecordUploadState.UPLOADING) {
+            upload.visibility = if (!item.isVirtualTest &&
+                (canUpload || item.uploadState == RecordUploadState.UPLOADING)
+            ) {
                 View.VISIBLE
             } else {
                 View.GONE

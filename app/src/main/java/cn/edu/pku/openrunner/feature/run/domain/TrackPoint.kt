@@ -10,7 +10,11 @@ data class TrackPoint(
     val longitude: Double,
     val latitude: Double,
     val status: Int = 0
-)
+) {
+    val isValidCoordinate: Boolean
+        get() = longitude.isFinite() && latitude.isFinite() &&
+            longitude in -180.0..180.0 && latitude in -90.0..90.0
+}
 
 object TrackDistance {
     private const val EARTH_RADIUS_METERS = 6_371_000.0

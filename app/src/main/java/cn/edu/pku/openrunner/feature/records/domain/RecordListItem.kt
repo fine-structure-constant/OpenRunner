@@ -41,6 +41,7 @@ data class RecordListItem(
     val localId: String? = null,
     val detailLocalId: String? = null,
     val hasLocalDetails: Boolean = false,
+    val isVirtualTest: Boolean = false,
     val uploadState: RecordUploadState,
     val hasPhoto: Boolean = false,
     val isPhotoProcessing: Boolean = false,
@@ -55,4 +56,7 @@ data class RecordListItem(
 object RecordOrdering {
     fun newestFirst(items: List<RecordListItem>): List<RecordListItem> =
         items.sortedByDescending { it.record.date?.time ?: Long.MIN_VALUE }
+
+    fun newestRecordsFirst(records: List<RunRecordDto>): List<RunRecordDto> =
+        records.sortedByDescending { it.date?.time ?: Long.MIN_VALUE }
 }

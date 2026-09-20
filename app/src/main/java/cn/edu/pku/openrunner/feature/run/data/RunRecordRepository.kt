@@ -38,16 +38,18 @@ class RunRecordRepository(
             distanceMeters = draft.distanceMeters,
             steps = draft.steps,
             track = track,
-            checkField = userId?.let {
+            checkField = userId?.takeUnless { draft.usedVirtualLocation }?.let {
                 RunRecordSecurity.generateCheckField(it, completedAt)
             },
-            metricSamples = draft.metricSamples
+            metricSamples = draft.metricSamples,
+            usedVirtualLocation = draft.usedVirtualLocation
         )
     }
 
     suspend fun attachPhoto(localId: String, source: Uri): LocalRunRecord =
         withContext(Dispatchers.IO) {
             val record = localStore.find(localId) ?: error("本地记录不存在")
+            check(record.canUpload) { "虚拟定位测试记录无需上传图片" }
             check(!record.uploaded) { "已上传的记录不能更换图片" }
             val path = photoStore.save(source, localId)
             localStore.setPhoto(localId, path) ?: error("图片信息保存失败")
@@ -55,6 +57,7 @@ class RunRecordRepository(
 
     suspend fun upload(localId: String): RunRecordDto = withContext(Dispatchers.IO) {
         val record = localStore.find(localId) ?: error("本地记录不存在")
+        check(record.canUpload) { "虚拟定位测试记录仅保存在本机，不能上传官方服务器" }
         check(!record.uploaded) { "记录已经上传" }
         try {
             val userId = sessionStore.userId ?: error("请先登录再上传记录")
@@ -115,6 +118,7 @@ class RunRecordRepository(
     suspend fun confirmUploaded(localId: String, remote: RunRecordDto): LocalRunRecord? =
         withContext(Dispatchers.IO) {
             val record = localStore.find(localId) ?: return@withContext null
+            check(record.canUpload) { "虚拟定位测试记录不能关联为云端正式记录" }
             check(record.userId == sessionStore.userId) { "记录所属账号与当前账号不一致" }
             val updated = localStore.markUploaded(localId, remote)
             photoStore.delete(record.photoFilePath)

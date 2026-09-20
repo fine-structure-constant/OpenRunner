@@ -7,6 +7,16 @@ import org.junit.Test
 
 class RecordOrderingTest {
     @Test
+    fun accountHistory_sortsBeforeTakingLatestTwelveAndPlacesUndatedLast() {
+        val records = (1..14).map { RunRecordDto(id = "$it", date = Date(it * 1_000L)) } +
+            RunRecordDto(id = "undated")
+        val ordered = RecordOrdering.newestRecordsFirst(records)
+
+        assertEquals((14 downTo 3).map { "$it" }, ordered.take(12).map { it.id })
+        assertEquals("undated", ordered.last().id)
+    }
+
+    @Test
     fun `newest records are shown first and missing dates are last`() {
         val old = item(id = 1, time = 1_000L)
         val newest = item(id = 2, time = 3_000L)

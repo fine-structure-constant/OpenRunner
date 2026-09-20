@@ -34,8 +34,15 @@ data class LocalRunRecord(
     val lastUploadErrorCode: Int? = null,
     val lastUploadError: String? = null,
     // Nullable for Gson compatibility with records saved before local chart data was introduced.
-    val metricSamples: List<RunMetricSample>? = null
+    val metricSamples: List<RunMetricSample>? = null,
+    // Missing in legacy JSON means false; once saved this provenance must never be cleared.
+    val usedVirtualLocation: Boolean = false
 ) {
+    val canUpload: Boolean get() = !usedVirtualLocation
+
+    val hasLocalDetails: Boolean
+        get() = track.orEmpty().any { it.isValidCoordinate } || metricSamples.orEmpty().size >= 2
+
     fun asDto(): RunRecordDto = RunRecordDto(
         id = null,
         recordId = serverRecordId,
@@ -43,7 +50,7 @@ data class LocalRunRecord(
         duration = durationSeconds.toDouble(),
         date = Date(completedAtMillis),
         step = steps,
-        track = track.map { listOf(it.longitude, it.latitude, it.status.toDouble()) },
+        track = track.orEmpty().map { listOf(it.longitude, it.latitude, it.status.toDouble()) },
         uploaded = uploaded,
         verified = verified,
         invalidReason = invalidReason,
@@ -70,7 +77,8 @@ class LocalRunRecordStore(context: Context) {
         steps: Int,
         track: List<TrackPoint>,
         checkField: String?,
-        metricSamples: List<RunMetricSample>
+        metricSamples: List<RunMetricSample>,
+        usedVirtualLocation: Boolean
     ): LocalRunRecord = synchronized(STORE_LOCK) {
         val record = LocalRunRecord(
             localId = UUID.randomUUID().toString(),
@@ -82,7 +90,8 @@ class LocalRunRecordStore(context: Context) {
             steps = steps,
             track = track,
             checkField = checkField,
-            metricSamples = metricSamples
+            metricSamples = metricSamples,
+            usedVirtualLocation = usedVirtualLocation
         )
         val records = readRecords()
         records += record
@@ -122,6 +131,7 @@ class LocalRunRecordStore(context: Context) {
 
     fun markUploaded(localId: String, result: RunRecordDto): LocalRunRecord? =
         update(localId) { record ->
+            check(record.canUpload) { "虚拟定位测试记录仅保存在本机，不能上传官方服务器" }
             record.copy(
                 uploaded = true,
                 serverRecordId = result.serverId,
