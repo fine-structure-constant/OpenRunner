@@ -124,12 +124,10 @@ class RunFragment : Fragment() {
                                 } else {
                                     R.string.run_running_foreground_only
                                 },
-                                state.pointCount,
                                 state.stepCount
                             )
                             RunStatus.FINISHED -> getString(
                                 R.string.run_finished,
-                                state.pointCount,
                                 state.stepCount
                             )
                             RunStatus.PERMISSION_REQUIRED -> getString(R.string.run_permission_required)

@@ -10,7 +10,7 @@
         android:layout_height="160dp"
         android:importantForAccessibility="no"
         android:scaleType="centerCrop"
-        android:src="@drawable/cover" />
+        android:src="@drawable/icon" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"

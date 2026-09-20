@@ -23,5 +23,5 @@
     <color name="or_status_error_container">#FCEBE9</color>
     <color name="or_status_virtual">#006875</color>
     <color name="or_status_virtual_container">#D0F4F7</color>
-    <color name="launcher_icon_background">#292633</color>
+    <color name="launcher_icon_background">#FFFFFF</color>
 </resources>
