@@ -51,7 +51,7 @@ class RunRecordRepository(
             distanceMeters = draft.distanceMeters,
             steps = steps1,
             track = track,
-            checkField = userId?.takeUnless { draft.usedVirtualLocation }?.let {
+            checkField = userId?.takeUnless { useVirtual }?.let {
                 RunRecordSecurity.generateCheckField(it, completedAt)
             },
             metricSamples = draft.metricSamples,
