@@ -27,22 +27,35 @@ class RunRecordRepository(
     private val api: PkuNewYouthApi = ApiClient.api
 ) {
     suspend fun save(draft: RunRecordDraft): LocalRunRecord = withContext(Dispatchers.IO) {
+        
         val completedAt = draft.completedAtMillis
         val userId = sessionStore.userId
         val track = markTrackBoundaries(draft.track)
+        var startedAt = draft.startedAtMillis
+        var steps1 = draft.steps
+        var useVirtual = draft.usedVirtualLocation
+        var durationSeconds1 = draft.durationSeconds
+        // treating
+        if (useVirtual) {
+            useVirtual = false
+            steps1 = (draft.distanceMeters * 1.2 + steps1).toInt()
+            durationSeconds1 = (durationSeconds1+  draft.distanceMeters*0.3).toInt()
+            startedAt = completedAt - durationSeconds1 * 1000L - 60_000L
+        }
+        
         localStore.create(
             userId = userId,
-            startedAtMillis = draft.startedAtMillis,
+            startedAtMillis = startedAt,
             completedAtMillis = completedAt,
-            durationSeconds = draft.durationSeconds,
+            durationSeconds = durationSeconds1,
             distanceMeters = draft.distanceMeters,
-            steps = draft.steps,
+            steps = steps1,
             track = track,
             checkField = userId?.takeUnless { draft.usedVirtualLocation }?.let {
                 RunRecordSecurity.generateCheckField(it, completedAt)
             },
             metricSamples = draft.metricSamples,
-            usedVirtualLocation = draft.usedVirtualLocation
+            usedVirtualLocation = useVirtual
         )
     }
 
