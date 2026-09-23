@@ -55,6 +55,7 @@ class RunFragment : Fragment() {
     private var accuracyCircle: Circle? = null
     private var followLocation = true
     private var stopConfirmation: AlertDialog? = null
+    private var pauseConfirmation: AlertDialog? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,11 +81,19 @@ class RunFragment : Fragment() {
         val durationText = view.findViewById<TextView>(R.id.run_duration)
         val paceText = view.findViewById<TextView>(R.id.run_pace)
         val recordStatusText = view.findViewById<TextView>(R.id.run_record_status)
+        val pauseResume = view.findViewById<Button>(R.id.run_pause_resume)
         val action = view.findViewById<Button>(R.id.run_action)
         val delete = view.findViewById<Button>(R.id.run_delete)
         view.findViewById<View>(R.id.run_recenter).setOnClickListener {
             followLocation = true
             viewModel.uiState.value.currentPoint?.let { renderCurrentLocation(it, null, true) }
+        }
+        pauseResume.setOnClickListener {
+            when (viewModel.uiState.value.status) {
+                RunStatus.RUNNING -> confirmPause()
+                RunStatus.PAUSED -> viewModel.resume()
+                else -> Unit
+            }
         }
         action.setOnClickListener {
             when (viewModel.uiState.value.primaryAction) {
@@ -126,6 +135,10 @@ class RunFragment : Fragment() {
                                 },
                                 state.stepCount
                             )
+                            RunStatus.PAUSED -> getString(
+                                R.string.run_paused,
+                                state.stepCount
+                            )
                             RunStatus.FINISHED -> getString(
                                 R.string.run_finished,
                                 state.stepCount
@@ -143,6 +156,21 @@ class RunFragment : Fragment() {
                             }
                         )
                         action.isEnabled = !state.isSavingRecord
+                        pauseResume.visibility = if (
+                            state.status == RunStatus.RUNNING || state.status == RunStatus.PAUSED
+                        ) {
+                            View.VISIBLE
+                        } else {
+                            View.GONE
+                        }
+                        pauseResume.setText(
+                            if (state.status == RunStatus.PAUSED) {
+                                R.string.run_resume
+                            } else {
+                                R.string.run_pause
+                            }
+                        )
+                        pauseResume.isEnabled = !state.isSavingRecord
                         delete.visibility = if (state.hasPendingRecord) View.VISIBLE else View.GONE
                         delete.isEnabled = !state.isSavingRecord
                         distanceText.text = getString(R.string.run_metric_distance_value, state.distanceMeters)
@@ -215,13 +243,32 @@ class RunFragment : Fragment() {
     }
 
     private fun confirmStop() {
-        if (stopConfirmation != null || viewModel.uiState.value.status != RunStatus.RUNNING) return
+        if (stopConfirmation != null || pauseConfirmation != null ||
+            viewModel.uiState.value.status !in setOf(RunStatus.RUNNING, RunStatus.PAUSED)
+        ) return
+        val isPaused = viewModel.uiState.value.status == RunStatus.PAUSED
         stopConfirmation = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.run_stop_confirm_title)
             .setMessage(R.string.run_stop_confirm_message)
             .setPositiveButton(R.string.run_stop_confirm_yes) { _, _ -> viewModel.stop() }
-            .setNegativeButton(R.string.run_stop_confirm_no, null)
+            .setNegativeButton(
+                if (isPaused) R.string.run_stop_confirm_keep_paused else R.string.run_stop_confirm_no,
+                null
+            )
             .setOnDismissListener { stopConfirmation = null }
+            .show()
+    }
+
+    private fun confirmPause() {
+        if (pauseConfirmation != null || stopConfirmation != null ||
+            viewModel.uiState.value.status != RunStatus.RUNNING
+        ) return
+        pauseConfirmation = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.run_pause_confirm_title)
+            .setMessage(R.string.run_pause_confirm_message)
+            .setPositiveButton(R.string.run_pause_confirm_yes) { _, _ -> viewModel.pause() }
+            .setNegativeButton(R.string.run_pause_confirm_no, null)
+            .setOnDismissListener { pauseConfirmation = null }
             .show()
     }
 
@@ -321,6 +368,8 @@ class RunFragment : Fragment() {
     override fun onDestroyView() {
         stopConfirmation?.dismiss()
         stopConfirmation = null
+        pauseConfirmation?.dismiss()
+        pauseConfirmation = null
         viewModel.stopLocatingIfIdle()
         routePolyline?.remove()
         currentMarker?.remove()

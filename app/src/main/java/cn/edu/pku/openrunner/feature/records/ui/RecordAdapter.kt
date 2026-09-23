@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.feature.records.domain.RecordListItem
 import cn.edu.pku.openrunner.feature.records.domain.RecordUploadState
+import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
 import com.google.android.material.card.MaterialCardView
 import java.text.DateFormat
 
@@ -34,6 +35,8 @@ class RecordAdapter(
     class RecordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val card: MaterialCardView = itemView as MaterialCardView
         private val distance: TextView = itemView.findViewById(R.id.record_distance)
+        private val duration: TextView = itemView.findViewById(R.id.record_duration)
+        private val pace: TextView = itemView.findViewById(R.id.record_pace)
         private val date: TextView = itemView.findViewById(R.id.record_date)
         private val detail: TextView = itemView.findViewById(R.id.record_detail)
         private val status: TextView = itemView.findViewById(R.id.record_status)
@@ -54,15 +57,23 @@ class RecordAdapter(
         ) {
             val record = item.record
             val context = itemView.context
-            distance.text = itemView.context.getString(R.string.record_distance, record.distance)
+            val durationSeconds = record.duration.toInt().coerceAtLeast(0)
+            distance.text = context.getString(
+                R.string.record_distance_value,
+                record.distance.coerceAtLeast(0) / 1_000.0
+            )
+            duration.text = context.getString(
+                R.string.record_duration_minutes_seconds,
+                durationSeconds / 60,
+                durationSeconds % 60
+            )
+            pace.text = RunMetrics.formatPace(
+                RunMetrics.paceSecondsPerKm(durationSeconds, record.distance)
+            )
             date.text = record.date?.let {
                 DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(it)
-            } ?: itemView.context.getString(R.string.record_date_unknown)
-            detail.text = itemView.context.getString(
-                R.string.record_duration,
-                record.duration.toInt(),
-                record.step
-            )
+            } ?: context.getString(R.string.record_date_unknown)
+            detail.text = context.getString(R.string.record_steps, record.step)
             val localId = item.localId
             val canUpload = !item.isVirtualTest && localId != null && item.uploadState in setOf(
                 RecordUploadState.PENDING,

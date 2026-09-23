@@ -67,6 +67,28 @@ class RunWorkflowTest {
     }
 
     @Test
+    fun pausedLocationUpdates_onlyRefreshCurrentPosition() {
+        val existingTrack = listOf(TrackPoint(116.31, 39.99))
+        val paused = RunUiState(
+            status = RunStatus.PAUSED,
+            durationSeconds = 120,
+            distanceMeters = 300,
+            paceSecondsPerKm = 400,
+            pointCount = 1,
+            points = existingTrack
+        )
+        val currentPosition = TrackPoint(116.32, 39.99)
+        val updated = paused.withLocation(currentPosition, 5, existingTrack + currentPosition)
+
+        assertEquals(existingTrack, updated.points)
+        assertEquals(1, updated.pointCount)
+        assertEquals(300, updated.distanceMeters)
+        assertEquals(400, updated.paceSecondsPerKm)
+        assertEquals(currentPosition, updated.currentPoint)
+        assertEquals(RunPrimaryAction.STOP, updated.primaryAction)
+    }
+
+    @Test
     fun virtualMode_doesNotResetRunMetricsAndItsProvenanceCannotBeCleared() {
         val running = RunUiState(
             status = RunStatus.RUNNING,
@@ -93,6 +115,15 @@ class RunWorkflowTest {
 
         assertFalse(finished.usedVirtualLocation)
         assertEquals(RunPrimaryAction.SAVE, finished.primaryAction)
+    }
+
+    @Test
+    fun enablingVirtualModeWhilePaused_marksTheActiveRun() {
+        val paused = RunUiState(status = RunStatus.PAUSED)
+            .withVirtualLocationMode(true)
+
+        assertTrue(paused.usedVirtualLocation)
+        assertEquals(RunPrimaryAction.STOP, paused.primaryAction)
     }
 
     @Test

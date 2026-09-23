@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 enum class RunStatus {
     IDLE,
     RUNNING,
+    PAUSED,
     FINISHED,
     PERMISSION_REQUIRED
 }
@@ -78,14 +79,15 @@ data class RunUiState(
 
     val primaryAction: RunPrimaryAction
         get() = when {
-            status == RunStatus.RUNNING -> RunPrimaryAction.STOP
+            status == RunStatus.RUNNING || status == RunStatus.PAUSED -> RunPrimaryAction.STOP
             hasPendingRecord -> RunPrimaryAction.SAVE
             else -> RunPrimaryAction.START
         }
 
     fun withVirtualLocationMode(enabled: Boolean): RunUiState = copy(
         virtualLocationEnabled = enabled,
-        usedVirtualLocation = usedVirtualLocation || (enabled && status == RunStatus.RUNNING),
+        usedVirtualLocation = usedVirtualLocation ||
+            (enabled && status in setOf(RunStatus.RUNNING, RunStatus.PAUSED)),
         locating = false,
         backgroundTrackingActive = false,
         currentPoint = null,
@@ -125,7 +127,9 @@ class RunViewModel(
     private val _events = MutableSharedFlow<RunUiEvent>(extraBufferCapacity = 2)
     val events = _events
     private var startedAtMillis = 0L
-    private var startedAtElapsedMillis = 0L
+    private var sessionStartedAtElapsedMillis = 0L
+    private var activeSegmentStartedAtElapsedMillis = 0L
+    private var accumulatedActiveElapsedMillis = 0L
     private var timerJob: Job? = null
     private var pendingDraft: RunRecordDraft? = null
     private var pendingLocationSourceChange = false
@@ -157,6 +161,7 @@ class RunViewModel(
             _uiState.value.copy(
                 status = when {
                     _uiState.value.status == RunStatus.RUNNING -> RunStatus.RUNNING
+                    _uiState.value.status == RunStatus.PAUSED -> RunStatus.PAUSED
                     _uiState.value.hasPendingRecord -> RunStatus.FINISHED
                     else -> RunStatus.PERMISSION_REQUIRED
                 },
@@ -175,7 +180,7 @@ class RunViewModel(
         val current = _uiState.value
         if (current.virtualLocationEnabled == enabled) return
         locationTracker.stop()
-        pendingLocationSourceChange = current.status == RunStatus.RUNNING
+        pendingLocationSourceChange = current.status in setOf(RunStatus.RUNNING, RunStatus.PAUSED)
         _uiState.value = current.withVirtualLocationMode(enabled)
         if (enabled) {
             startLocating()
@@ -197,7 +202,7 @@ class RunViewModel(
     }
 
     fun stopLocatingIfIdle() {
-        if (_uiState.value.status == RunStatus.RUNNING) return
+        if (_uiState.value.status in setOf(RunStatus.RUNNING, RunStatus.PAUSED)) return
         locationTracker.stop()
         _uiState.value = _uiState.value.copy(locating = false)
     }
@@ -215,7 +220,9 @@ class RunViewModel(
         pendingDraft = null
         pendingLocationSourceChange = false
         startedAtMillis = System.currentTimeMillis()
-        startedAtElapsedMillis = SystemClock.elapsedRealtime()
+        sessionStartedAtElapsedMillis = SystemClock.elapsedRealtime()
+        activeSegmentStartedAtElapsedMillis = sessionStartedAtElapsedMillis
+        accumulatedActiveElapsedMillis = 0L
         metricSamples += RunMetricSample(elapsedMillis = 0L, distanceMeters = 0.0)
         val isVirtual = _uiState.value.virtualLocationEnabled
         val backgroundTrackingActive = !isVirtual && locationTracker.enableBackgroundTracking()
@@ -238,27 +245,71 @@ class RunViewModel(
         startTimer()
     }
 
-    fun stop() {
+    fun pause() {
         if (_uiState.value.status != RunStatus.RUNNING) return
-        updateElapsedTime()
+        val elapsedMillis = activeElapsedMillis()
+        accumulatedActiveElapsedMillis = elapsedMillis
+        activeSegmentStartedAtElapsedMillis = 0L
         timerJob?.cancel()
         timerJob = null
         stepCounter.stop()
         locationTracker.disableBackgroundTracking()
-        val completedElapsedMillis = SystemClock.elapsedRealtime() - startedAtElapsedMillis
+        pendingLocationSourceChange = true
+        addMetricSample(
+            elapsedMillis = elapsedMillis,
+            distanceMeters = TrackDistance.polylineMeters(points)
+        )
+        _uiState.value = _uiState.value.copy(
+            status = RunStatus.PAUSED,
+            durationSeconds = (elapsedMillis / 1_000L).toInt(),
+            backgroundTrackingActive = false
+        ).withUpdatedPace()
+    }
+
+    fun resume() {
+        if (_uiState.value.status != RunStatus.PAUSED) return
+        if (!startLocating()) {
+            _events.tryEmit(RunUiEvent.Message("定位未就绪，暂时无法继续跑步"))
+            return
+        }
+        val isVirtual = _uiState.value.virtualLocationEnabled
+        activeSegmentStartedAtElapsedMillis = SystemClock.elapsedRealtime()
+        val backgroundTrackingActive = !isVirtual && locationTracker.enableBackgroundTracking()
+        _uiState.value = _uiState.value.copy(
+            status = RunStatus.RUNNING,
+            backgroundTrackingActive = backgroundTrackingActive,
+            usedVirtualLocation = _uiState.value.usedVirtualLocation || isVirtual
+        )
+        if (isVirtual) _uiState.value.virtualPoint?.let(::confirmVirtualPoint)
+        stepCounter.start(::onStep)
+        startTimer()
+    }
+
+    fun stop() {
+        if (_uiState.value.status !in setOf(RunStatus.RUNNING, RunStatus.PAUSED)) return
+        val completedElapsedMillis = activeElapsedMillis()
+        val completedAtMillis = startedAtMillis +
+            (SystemClock.elapsedRealtime() - sessionStartedAtElapsedMillis).coerceAtLeast(0L)
+        accumulatedActiveElapsedMillis = completedElapsedMillis
+        activeSegmentStartedAtElapsedMillis = 0L
+        timerJob?.cancel()
+        timerJob = null
+        stepCounter.stop()
+        locationTracker.disableBackgroundTracking()
         addMetricSample(
             elapsedMillis = completedElapsedMillis,
             distanceMeters = TrackDistance.polylineMeters(points)
         )
         val finishedState = _uiState.value.copy(
             status = RunStatus.FINISHED,
+            durationSeconds = (completedElapsedMillis / 1_000L).toInt(),
             backgroundTrackingActive = false,
             recordSaveStatus = RecordSaveStatus.NONE,
             recordError = null
-        )
+        ).withUpdatedPace()
         pendingDraft = RunRecordDraft(
             startedAtMillis = startedAtMillis,
-            completedAtMillis = startedAtMillis + completedElapsedMillis,
+            completedAtMillis = completedAtMillis,
             durationSeconds = finishedState.durationSeconds,
             track = points.toList(),
             steps = finishedState.stepCount,
@@ -308,7 +359,9 @@ class RunViewModel(
         points.clear()
         metricSamples.clear()
         startedAtMillis = 0L
-        startedAtElapsedMillis = 0L
+        sessionStartedAtElapsedMillis = 0L
+        activeSegmentStartedAtElapsedMillis = 0L
+        accumulatedActiveElapsedMillis = 0L
         val current = _uiState.value
         _uiState.value = RunUiState(
             currentPoint = current.currentPoint,
@@ -327,7 +380,7 @@ class RunViewModel(
             points += sample.point
             pendingLocationSourceChange = false
             addMetricSample(
-                elapsedMillis = SystemClock.elapsedRealtime() - startedAtElapsedMillis,
+                elapsedMillis = activeElapsedMillis(),
                 distanceMeters = TrackDistance.polylineMeters(points)
             )
         }
@@ -352,9 +405,20 @@ class RunViewModel(
     }
 
     private fun updateElapsedTime() {
-        if (startedAtElapsedMillis == 0L) return
-        val seconds = ((SystemClock.elapsedRealtime() - startedAtElapsedMillis) / 1_000L).toInt()
+        if (_uiState.value.status != RunStatus.RUNNING ||
+            activeSegmentStartedAtElapsedMillis == 0L
+        ) return
+        val seconds = (activeElapsedMillis() / 1_000L).toInt()
         _uiState.value = _uiState.value.copy(durationSeconds = seconds).withUpdatedPace()
+    }
+
+    private fun activeElapsedMillis(now: Long = SystemClock.elapsedRealtime()): Long {
+        val currentSegmentMillis = if (activeSegmentStartedAtElapsedMillis == 0L) {
+            0L
+        } else {
+            (now - activeSegmentStartedAtElapsedMillis).coerceAtLeast(0L)
+        }
+        return accumulatedActiveElapsedMillis + currentSegmentMillis
     }
 
     private fun RunUiState.withUpdatedPace(): RunUiState = copy(
