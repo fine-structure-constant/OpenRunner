@@ -140,6 +140,7 @@ class VirtualLocationFragment : Fragment() {
                             pointLabel,
                             getString(when (state.status) {
                                 RunStatus.RUNNING -> R.string.virtual_run_active
+                                RunStatus.PAUSED -> R.string.virtual_run_paused
                                 RunStatus.FINISHED -> R.string.virtual_run_finished
                                 else -> R.string.virtual_run_idle
                             }),
