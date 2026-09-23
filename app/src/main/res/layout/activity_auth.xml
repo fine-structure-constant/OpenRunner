@@ -9,14 +9,42 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingStart="@dimen/or_page_pad"
+        android:paddingTop="@dimen/or_page_pad"
+        android:paddingEnd="@dimen/or_page_pad"
+        android:paddingBottom="@dimen/or_space_xxl">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Widget.OpenRunner.Seal"
+                android:text="@string/or_seal_auth" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="@string/login_title"
+                android:textAppearance="@style/TextAppearance.OpenRunner.PageTitle" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="26dp"
+            android:layout_height="@dimen/or_rule_height_strong"
+            android:layout_marginTop="@dimen/or_space_md"
+            android:background="@color/or_primary"
+            android:importantForAccessibility="no" />
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.OpenRunner.Card.Soft"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="20dp"
-            app:strokeWidth="0dp">
+            android:layout_height="168dp"
+            android:layout_marginTop="@dimen/or_space_lg">
 
             <ImageView
                 android:layout_width="match_parent"
@@ -29,21 +57,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/login_title"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textColor="@color/or_on_surface" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/or_space_lg"
             android:text="@string/login_official_notice"
-            android:textColor="@color/or_muted" />
+            android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp">
+            android:layout_marginTop="@dimen/or_space_xl">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/auth_username"
                 android:layout_width="match_parent"
@@ -55,7 +77,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="@dimen/or_space_md">
+
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/auth_password"
                 android:layout_width="match_parent"
@@ -68,7 +91,8 @@
             android:id="@+id/auth_code_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/or_space_md"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:visibility="gone">
 
@@ -76,6 +100,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
+
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/auth_code"
                     android:layout_width="match_parent"
@@ -86,24 +111,26 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/auth_send_code"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.OpenRunner.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/or_space_sm"
                 android:text="@string/login_send_code" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/auth_submit"
+            style="@style/Widget.OpenRunner.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/or_space_xl"
             android:text="@string/login_action" />
 
         <TextView
             android:id="@+id/auth_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textColor="@color/or_on_surface" />
+            android:layout_marginTop="@dimen/or_space_lg"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

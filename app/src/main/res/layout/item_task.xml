@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.OpenRunner.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp">
+    android:layout_marginBottom="@dimen/or_card_gap">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/or_card_pad">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,21 +23,26 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/or_on_surface" />
+                android:textAppearance="@style/TextAppearance.OpenRunner.CardTitle" />
 
             <TextView
                 android:id="@+id/task_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceLabelMedium" />
+                android:layout_marginStart="@dimen/or_space_sm"
+                android:letterSpacing="0.08"
+                android:textSize="12sp" />
         </LinearLayout>
+
+        <View
+            style="@style/Widget.OpenRunner.Rule"
+            android:layout_marginTop="@dimen/or_space_md" />
 
         <TextView
             android:id="@+id/task_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textColor="@color/or_muted" />
+            android:layout_marginTop="@dimen/or_space_md"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

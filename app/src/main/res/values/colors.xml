@@ -1,27 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="or_primary">#315B49</color>
-    <color name="or_on_primary">#FFFFFF</color>
-    <color name="or_primary_container">#D5E8DD</color>
-    <color name="or_on_primary_container">#142C22</color>
-    <color name="or_hero">#315B49</color>
-    <color name="or_on_hero">#FFFFFF</color>
-    <color name="or_surface">#FAF9F6</color>
-    <color name="or_on_surface">#1B1B1B</color>
-    <color name="or_muted">#6F746F</color>
-    <color name="or_accent">#EF8137</color>
-    <color name="or_surface_container">#F0F1ED</color>
-    <color name="or_surface_container_high">#E7E9E4</color>
-    <color name="or_outline">#CDD2CC</color>
-    <color name="map_route">#315B49</color>
-    <color name="or_status_pending">#A35400</color>
-    <color name="or_status_pending_container">#FFF3DF</color>
-    <color name="or_status_uploading">#1565A8</color>
-    <color name="or_status_uploading_container">#E8F2FA</color>
-    <color name="or_status_success">#216E39</color>
-    <color name="or_status_success_container">#E7F4EA</color>
-    <color name="or_status_error">#B3261E</color>
-    <color name="or_status_error_container">#FCEBE9</color>
-    <color name="or_status_virtual">#006875</color>
-    <color name="or_status_virtual_container">#D0F4F7</color>
-    <color name="launcher_icon_background">#FFFFFF</color>
+    <!--
+        燕园学院派配色。色名与 v2-pro 保持一致，因此所有布局无需改动即可随本文件切换风格。
+        主视觉：燕园红 + 宣纸米白 + 松柏绿。数字与西文使用衬线体，中文标题使用大字距无衬线。
+    -->
+
+    <!-- 品牌与主操作 -->
+    <color name="or_primary">#8C1F28</color>
+    <color name="or_on_primary">#FFF8F4</color>
+    <color name="or_primary_container">#F3E4E1</color>
+    <color name="or_on_primary_container">#4A1216</color>
+
+    <!-- 深色主视觉区块（天气主卡、账户名片） -->
+    <color name="or_hero">#1F3A2E</color>
+    <color name="or_on_hero">#F2EFE6</color>
+
+    <!-- 纸面 -->
+    <color name="or_surface">#F7F3EC</color>
+    <color name="or_on_surface">#241F19</color>
+    <color name="or_muted">#8A7A64</color>
+    <color name="or_accent">#C05621</color>
+    <color name="or_surface_container">#FFFDF8</color>
+    <color name="or_surface_container_high">#F0E9DC</color>
+    <color name="or_outline">#E2D8C6</color>
+
+    <!-- 地图轨迹 -->
+    <color name="map_route">#8C1F28</color>
+
+    <!-- 记录状态五态 -->
+    <color name="or_status_pending">#8A5A12</color>
+    <color name="or_status_pending_container">#FAF0DC</color>
+    <color name="or_status_uploading">#1D4E77</color>
+    <color name="or_status_uploading_container">#E9F0F7</color>
+    <color name="or_status_success">#1F5C34</color>
+    <color name="or_status_success_container">#EAF2EC</color>
+    <color name="or_status_error">#A8321F</color>
+    <color name="or_status_error_container">#FAEAE5</color>
+    <!--
+        虚拟定位测试记录。原先沿用旧版的青绿（#006875 / #D0F4F7），
+        色相与宣纸暖调不搭，看着像没改过的旧样式，因此换到紫檀色系。
+        紫在暖调纸面上成立，且与琥珀 / 靛蓝 / 松绿 / 砖红四态都不撞色相。
+    -->
+    <color name="or_status_virtual">#6B4A8F</color>
+    <color name="or_status_virtual_container">#F0EAF6</color>
+
+    <!--
+        桌面图标底色，燕园红，与 or_primary 同值。
+        这里没有直接引用 or_primary：那个颜色在 values-night 里被覆盖成浅粉，
+        跟着它走会让桌面图标在深色模式下变粉。启动器图标不该随主题变色，
+        所以单独存一个固定值。
+    -->
+    <color name="launcher_icon_background">#8C1F28</color>
+
+    <!--
+        跑步中 HUD：墨色仪表，仅深色模式生效（见 values-night/themes.xml）。
+        底色取暖墨而非冷黑，与宣纸 / 燕园红同属一个家族。
+        浅色模式下跑步页走普通宣纸主题，不使用这组色。
+    -->
+    <color name="hud_surface">#171310</color>
+    <color name="hud_surface_high">#221C16</color>
+    <color name="hud_outline">#332B22</color>
+    <color name="hud_text">#F2EFE6</color>
+    <color name="hud_muted">#A99C87</color>
+    <color name="hud_primary">#C4343C</color>
+    <color name="hud_on_primary">#FFF8F4</color>
+    <color name="hud_accent">#E8A06A</color>
 </resources>

@@ -42,9 +42,19 @@ class RunLineChartView @JvmOverloads constructor(
     private var points: List<RunChartPoint> = emptyList()
     private var type: RunChartType = RunChartType.DISTANCE
 
+    // Axis maxima, recomputed only when the data changes.
+    // They used to be recomputed on demand from inside the per-point draw loop, so a
+    // distance chart did one full scan of the series for every point it drew: O(n^2)
+    // per frame, and a marathon-length record carries tens of thousands of samples.
+    private var maximumElapsedMillis = 1f
+    private var maximumDistanceKilometres = 0.1
+
     fun setData(points: List<RunChartPoint>, type: RunChartType) {
-        this.points = points.sortedBy(RunChartPoint::elapsedMillis)
+        val ordered = points.sortedBy(RunChartPoint::elapsedMillis)
+        this.points = ordered
         this.type = type
+        maximumElapsedMillis = max(ordered.lastOrNull()?.elapsedMillis?.toFloat() ?: 0f, 1f)
+        maximumDistanceKilometres = max(ordered.maxOfOrNull(RunChartPoint::value) ?: 0.0, 0.1)
         contentDescription = context.getString(
             if (type == RunChartType.DISTANCE) {
                 R.string.record_chart_distance_description
@@ -97,7 +107,7 @@ class RunLineChartView @JvmOverloads constructor(
                 else -> Paint.Align.CENTER
             }
             canvas.drawText(
-                RunMetrics.formatDuration((maximumElapsedMillis() * ratio / 1_000f).toInt()),
+                RunMetrics.formatDuration((maximumElapsedMillis * ratio / 1_000f).toInt()),
                 x,
                 bottom + dp(20f),
                 labelPaint
@@ -118,7 +128,7 @@ class RunLineChartView @JvmOverloads constructor(
         linePath.reset()
         points.forEachIndexed { index, point ->
             val x = left + (right - left) *
-                (point.elapsedMillis.toFloat() / maximumElapsedMillis())
+                (point.elapsedMillis.toFloat() / maximumElapsedMillis)
             val y = valueToY(point.value, top, bottom)
             if (index == 0) linePath.moveTo(x, y) else linePath.lineTo(x, y)
         }
@@ -126,7 +136,7 @@ class RunLineChartView @JvmOverloads constructor(
         if (points.size == 1) {
             canvas.drawCircle(
                 left + (right - left) *
-                    (points.first().elapsedMillis.toFloat() / maximumElapsedMillis()),
+                    (points.first().elapsedMillis.toFloat() / maximumElapsedMillis),
                 valueToY(points.first().value, top, bottom),
                 dp(3f),
                 linePaint
@@ -137,8 +147,8 @@ class RunLineChartView @JvmOverloads constructor(
     private fun valueToY(value: Double, top: Float, bottom: Float): Float {
         return when (type) {
             RunChartType.DISTANCE -> {
-                val maximum = maximumDistanceKilometres()
-                bottom - ((value / maximum).coerceIn(0.0, 1.0) * (bottom - top)).toFloat()
+                bottom - ((value / maximumDistanceKilometres)
+                    .coerceIn(0.0, 1.0) * (bottom - top)).toFloat()
             }
             RunChartType.PACE -> {
                 val ratio = (value - RunChartData.MIN_PACE_MINUTES_PER_KM) /
@@ -153,7 +163,7 @@ class RunLineChartView @JvmOverloads constructor(
         RunChartType.DISTANCE -> String.format(
             Locale.getDefault(),
             "%.1f",
-            maximumDistanceKilometres() * (1f - ratio)
+            maximumDistanceKilometres * (1f - ratio)
         )
         RunChartType.PACE -> {
             val pace = RunChartData.MIN_PACE_MINUTES_PER_KM + ratio *
@@ -162,12 +172,6 @@ class RunLineChartView @JvmOverloads constructor(
             RunMetrics.formatPace((pace * 60).toInt())
         }
     }
-
-    private fun maximumElapsedMillis(): Float =
-        max(points.lastOrNull()?.elapsedMillis?.toFloat() ?: 0f, 1f)
-
-    private fun maximumDistanceKilometres(): Double =
-        max(points.maxOfOrNull(RunChartPoint::value) ?: 0.0, 0.1)
 
     private fun dp(value: Float): Float = value * resources.displayMetrics.density
 

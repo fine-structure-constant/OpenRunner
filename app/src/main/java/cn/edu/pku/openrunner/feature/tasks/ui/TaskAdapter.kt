@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.core.network.TaskDto
@@ -40,6 +41,12 @@ class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
                 .joinToString("\n")
             status.text = itemView.context.getString(
                 if (task.isAcquired) R.string.task_acquired else R.string.task_not_acquired
+            )
+            status.setTextColor(
+                ContextCompat.getColor(
+                    itemView.context,
+                    if (task.isAcquired) R.color.or_status_success else R.color.or_muted
+                )
             )
         }
     }

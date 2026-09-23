@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Android 8.0 及以上的自适应图标。遮罩形状由启动器决定（圆形 / 方圆 / 圆角方形…），
+    所以这里只给两层：纯色底 + 居中的「跑」字前景。字落在 66dp 安全圆内，不会被裁。
+
+    这里不要放 mipmap-anydpi/ic_launcher.xml：anydpi 的优先级高于所有具体密度桶，
+    留一个 anydpi 的位图包装会让 mipmap-*/ic_launcher.png 在 API 25 及以下永远选不中。
+-->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/launcher_icon_background" />
-    <foreground android:drawable="@drawable/icon_1" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
 </adaptive-icon>

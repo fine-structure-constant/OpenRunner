@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">OpenRunner</string>
+    <!--
+        仅用于桌面图标与最近任务列表，与应用内标题分开。
+        作用：让本构建与已安装的旧版 / 原 v2 / v2-pro 在桌面上可区分，
+        而应用内工具栏仍显示干净的 app_name。
+    -->
+    <string name="app_launcher_name">OpenRunner 新UI</string>
     <string name="nav_run">跑步</string>
     <string name="nav_virtual_location">虚拟定位</string>
     <string name="virtual_test_notice">应用内手动定位测试，应用内hook，慎用</string>
@@ -29,6 +35,16 @@
     <string name="theme_system">跟随系统</string>
     <string name="theme_light">浅色模式</string>
     <string name="theme_dark">深色模式</string>
+
+    <!-- 印章标记：每个页面一枚，构成统一识别符号 -->
+    <string name="or_seal_run">跑</string>
+    <string name="or_seal_records">录</string>
+    <string name="or_seal_tasks">课</string>
+    <string name="or_seal_weather">天</string>
+    <string name="or_seal_account">我</string>
+    <string name="or_seal_auth">登</string>
+    <string name="or_seal_virtual">测</string>
+
     <string name="amap_privacy_title">地图与定位隐私说明</string>
     <string name="amap_privacy_message">跑步地图和持续定位由高德开放平台 SDK 提供。\n\n高德隐私政策：https://lbs.amap.com/pages/privacy/</string>
     <string name="amap_privacy_accept">同意隐私政策</string>
@@ -127,13 +143,19 @@
     <string name="record_details_available">本地有详细数据</string>
     <string name="record_detail_title">跑步详情</string>
     <string name="record_detail_missing">本机没有详细数据</string>
-    <string name="record_detail_start">开始：%1$s</string>
-    <string name="record_detail_end">结束：%1$s</string>
-    <string name="record_detail_distance">里程\n%1$.2f km</string>
-    <string name="record_detail_duration">用时\n%1$s</string>
-    <string name="record_detail_steps">步数\n%1$d</string>
-    <string name="record_detail_fastest_pace">最快配速\n%1$s min/km</string>
-    <string name="record_detail_samples">采样点：%1$d 个</string>
+    <string name="record_detail_label_start">开始时间</string>
+    <string name="record_detail_label_end">结束时间</string>
+    <string name="record_detail_label_distance">里程</string>
+    <string name="record_detail_label_duration">用时</string>
+    <string name="record_detail_label_steps">步数</string>
+    <string name="record_detail_label_fastest_pace">最快配速</string>
+    <string name="record_detail_start">%1$s</string>
+    <string name="record_detail_end">%1$s</string>
+    <string name="record_detail_distance">%1$.2f km</string>
+    <string name="record_detail_duration">%1$s</string>
+    <string name="record_detail_steps">%1$d</string>
+    <string name="record_detail_fastest_pace">%1$s</string>
+    <string name="record_detail_samples">轨迹采样点：%1$d 个</string>
     <string name="record_route_title">跑步路径</string>
     <string name="record_route_hint">绿色为起点，红色为终点</string>
     <string name="record_route_empty">这条记录没有本地定位点</string>
@@ -178,6 +200,11 @@
     <string name="record_goal_unavailable">目标数据暂不可用</string>
     <string name="account_title">我的账户</string>
     <string name="account_login_hint">未检测到有效登录状态。</string>
+    <string name="account_label_id">学号</string>
+    <string name="account_label_department">院系</string>
+    <string name="account_stats_title">学期统计</string>
+    <string name="account_token_title">会话令牌</string>
+    <string name="account_token_note">长按可选择复制。请勿分享给他人。</string>
     <string name="account_stats">学期里程 %1$.1f km · 奖励 %2$.1f km\n目标 %3$.1f km · 有效记录 %4$d 次 · %5$s\n历史记录 %6$d 条</string>
     <string name="account_passed">已达标</string>
     <string name="account_in_progress">进行中</string>

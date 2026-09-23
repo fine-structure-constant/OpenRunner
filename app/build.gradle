@@ -7,8 +7,13 @@ android {
     compileSdk 36
 
     defaultConfig {
-        // Keep the Kotlin namespace stable, but give v2-pro its own install identity.
-        applicationId "cn.edu.pku.openrunner.v2pro"
+        // Keep the Kotlin namespace stable, but give each UI generation its own install identity.
+        // Install IDs in use:
+        //   cn.edu.pku.openrunner       legacy
+        //   cn.edu.pku.openrunner.v2    original v2
+        //   cn.edu.pku.openrunner.v2pro v2-pro (default look)
+        //   cn.edu.pku.openrunner.newui this build (new UI), installs alongside all of the above
+        applicationId "cn.edu.pku.openrunner.newui"
         minSdk 21
         targetSdk 36
         versionCode 2

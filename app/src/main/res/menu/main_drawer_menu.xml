@@ -3,33 +3,33 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_run"
-            android:title="@string/nav_run"
-            android:icon="@android:drawable/ic_menu_mylocation" />
+            android:icon="@drawable/ic_or_run"
+            android:title="@string/nav_run" />
         <item
             android:id="@+id/nav_virtual_location"
-            android:title="@string/nav_virtual_location"
-            android:icon="@android:drawable/ic_menu_mapmode" />
+            android:icon="@drawable/ic_or_virtual_location"
+            android:title="@string/nav_virtual_location" />
         <item
             android:id="@+id/nav_records"
-            android:title="@string/nav_records"
-            android:icon="@android:drawable/ic_menu_recent_history" />
+            android:icon="@drawable/ic_or_records"
+            android:title="@string/nav_records" />
         <item
             android:id="@+id/nav_tasks"
-            android:title="@string/nav_tasks"
-            android:icon="@android:drawable/ic_menu_agenda" />
+            android:icon="@drawable/ic_or_tasks"
+            android:title="@string/nav_tasks" />
         <item
             android:id="@+id/nav_weather"
-            android:title="@string/nav_weather"
-            android:icon="@android:drawable/ic_menu_compass" />
+            android:icon="@drawable/ic_or_weather"
+            android:title="@string/nav_weather" />
     </group>
     <item
         android:id="@+id/nav_login"
-        android:title="@string/nav_login"
-        android:icon="@android:drawable/ic_lock_lock" />
+        android:icon="@drawable/ic_or_account"
+        android:title="@string/nav_login" />
     <item
         android:id="@+id/nav_appearance"
-        android:title="@string/nav_appearance"
-        android:icon="@android:drawable/ic_menu_manage">
+        android:icon="@drawable/ic_or_appearance"
+        android:title="@string/nav_appearance">
         <menu>
             <group
                 android:id="@+id/theme_group"

@@ -32,6 +32,8 @@ import cn.edu.pku.openrunner.core.AmapPrivacyStore
 import cn.edu.pku.openrunner.core.AppThemeMode
 import cn.edu.pku.openrunner.core.AppThemeStore
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -72,7 +74,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         drawer.addDrawerListener(toggle)
         drawer.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
-                drawerSummary.refresh(force = true)
+                // Not forced: the summary only moves when an upload lands, and the upload path
+                // refreshes it itself. Opening the drawer repeatedly should not query the
+                // server each time — the cache in DrawerSummaryViewModel covers this.
+                drawerSummary.refresh()
             }
         })
         toggle.syncState()
@@ -81,8 +86,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { drawerSummary.uiState.collect(::renderDrawerSummary) }
                 launch {
+                    var settle: Job? = null
                     LocalRunRecordStore(applicationContext).observeChanges().collect {
-                        drawerSummary.refresh(force = true)
+                        // Saving or uploading a record writes several fields, so the store
+                        // notifies once per write. Wait for the burst to settle before asking
+                        // the server, otherwise one save fires a handful of identical requests.
+                        settle?.cancel()
+                        settle = launch {
+                            delay(RECORD_SETTLE_MILLIS)
+                            drawerSummary.refresh(force = true)
+                        }
                     }
                 }
             }
@@ -165,13 +178,25 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         header.findViewById<TextView>(R.id.drawer_sync_status).apply {
             visibility = if (status != null) View.VISIBLE else View.GONE
+            // While there are already numbers on screen, this line stays on those numbers.
+            // It used to show the loading text during every refresh, so a background sync
+            // flipped "官方统计 · 进行中" to "正在同步跑步里程…" and back — a flash carrying no
+            // information. The loading text is only worth showing when there is nothing else
+            // to look at.
             text = when {
+                status != null -> if (state.syncFailed) {
+                    getString(R.string.drawer_mileage_stale)
+                } else {
+                    getString(
+                        R.string.drawer_mileage_current,
+                        getString(
+                            if (status.isPassed) R.string.account_passed
+                            else R.string.account_in_progress
+                        )
+                    )
+                }
                 state.loading -> getString(R.string.drawer_mileage_loading)
-                state.syncFailed -> getString(R.string.drawer_mileage_stale)
-                else -> getString(R.string.drawer_mileage_current,
-                    getString(if (status?.isPassed == true) {
-                        R.string.account_passed
-                    } else R.string.account_in_progress))
+                else -> getString(R.string.drawer_mileage_error)
             }
         }
     }
@@ -232,5 +257,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
             .setOnDismissListener { privacyDialogVisible = false }
             .show()
+    }
+
+    private companion object {
+        /** Quiet period after a local record write before the drawer summary is re-fetched. */
+        private const val RECORD_SETTLE_MILLIS = 800L
     }
 }

@@ -1,26 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="or_primary">#91D5B5</color>
-    <color name="or_on_primary">#10261C</color>
-    <color name="or_primary_container">#244737</color>
-    <color name="or_on_primary_container">#D6F6E5</color>
-    <color name="or_hero">#244737</color>
-    <color name="or_on_hero">#D6F6E5</color>
-    <color name="or_surface">#111411</color>
-    <color name="or_on_surface">#E2E5E1</color>
-    <color name="or_muted">#B8C2BA</color>
-    <color name="or_accent">#FFB77D</color>
-    <color name="or_surface_container">#1B201C</color>
-    <color name="or_surface_container_high">#252B26</color>
-    <color name="or_outline">#89938B</color>
-    <color name="map_route">#9ADAB8</color>
-    <color name="or_status_pending">#FFB866</color>
-    <color name="or_status_pending_container">#3B2A16</color>
-    <color name="or_status_uploading">#8FC9FF</color>
-    <color name="or_status_uploading_container">#152B3D</color>
-    <color name="or_status_success">#8DD7A2</color>
-    <color name="or_status_success_container">#173522</color>
-    <color name="or_status_error">#FFB4AB</color>
-    <color name="or_status_error_container">#45201D</color>
-    <color name="or_status_virtual">#72D6E3</color>
-    <color name="or_status_virtual_container">#10363D</color>
+    <!-- 燕园学院派 · 深色。与 values/colors.xml 一一对应。 -->
+
+    <color name="or_primary">#E8A0A6</color>
+    <color name="or_on_primary">#3A0E12</color>
+    <color name="or_primary_container">#4A1216</color>
+    <color name="or_on_primary_container">#F7D9DA</color>
+
+    <color name="or_hero">#2A4234</color>
+    <color name="or_on_hero">#E4E9E0</color>
+
+    <color name="or_surface">#16130F</color>
+    <color name="or_on_surface">#EDE6DA</color>
+    <color name="or_muted">#B3A691</color>
+    <color name="or_accent">#E8A06A</color>
+    <color name="or_surface_container">#201C16</color>
+    <color name="or_surface_container_high">#2A241C</color>
+    <color name="or_outline">#4A4238</color>
+
+    <color name="map_route">#F0A9A6</color>
+
+    <color name="or_status_pending">#E8B070</color>
+    <color name="or_status_pending_container">#3B2E17</color>
+    <color name="or_status_uploading">#93C4E8</color>
+    <color name="or_status_uploading_container">#17293A</color>
+    <color name="or_status_success">#93CFA4</color>
+    <color name="or_status_success_container">#1B3524</color>
+    <color name="or_status_error">#F0A79A</color>
+    <color name="or_status_error_container">#452019</color>
+    <color name="or_status_virtual">#C4A5E0</color>
+    <color name="or_status_virtual_container">#33254A</color>
 </resources>

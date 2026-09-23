@@ -113,7 +113,7 @@ class RecordAdapter(
             }
             card.setCardBackgroundColor(ContextCompat.getColor(context, containerColor))
             card.strokeColor = ContextCompat.getColor(context, accentColor)
-            card.strokeWidth = dp(if (item.hasLocalDetails) 4 else 1)
+            card.strokeWidth = dp(if (item.hasLocalDetails) 2 else 1)
             card.isClickable = item.hasLocalDetails
             card.isFocusable = item.hasLocalDetails
             card.setOnClickListener(if (item.hasLocalDetails) {

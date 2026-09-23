@@ -9,50 +9,71 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/or_page_pad"
+        android:paddingTop="@dimen/or_page_pad"
+        android:paddingEnd="@dimen/or_page_pad"
+        android:paddingBottom="@dimen/or_space_xxl">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/account_title"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textColor="@color/or_on_surface" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Widget.OpenRunner.Seal"
+                android:text="@string/or_seal_account" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:text="@string/account_title"
+                android:textAppearance="@style/TextAppearance.OpenRunner.PageTitle" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="26dp"
+            android:layout_height="@dimen/or_rule_height_strong"
+            android:layout_marginTop="@dimen/or_space_md"
+            android:background="@color/or_primary"
+            android:importantForAccessibility="no" />
 
         <TextView
             android:id="@+id/account_error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/or_space_md"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body"
             android:textColor="@color/or_accent"
             android:visibility="gone" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/account_login_panel"
+            style="@style/Widget.OpenRunner.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/or_surface_container"
-            app:cardCornerRadius="20dp"
-            app:strokeColor="@color/or_outline"
-            app:strokeWidth="1dp">
+            android:layout_marginTop="@dimen/or_space_lg">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="@dimen/or_space_xl">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/account_login_hint"
-                    android:textColor="@color/or_muted" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/account_login"
+                    style="@style/Widget.OpenRunner.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/or_space_lg"
                     android:text="@string/nav_login" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -65,98 +86,182 @@
             android:visibility="gone">
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.OpenRunner.Card.Hero"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/or_hero"
-                app:cardCornerRadius="22dp"
-                app:cardElevation="2dp">
+                android:layout_marginTop="@dimen/or_space_lg">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="@dimen/or_space_xl">
 
                     <TextView
                         android:id="@+id/account_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textColor="@color/or_on_hero" />
+                        android:textColor="?attr/orOnHeroSurface"
+                        android:textSize="20sp"
+                        android:letterSpacing="0.1" />
 
-                    <TextView
-                        android:id="@+id/account_id"
+                    <View
+                        android:layout_width="26dp"
+                        android:layout_height="@dimen/or_rule_height_strong"
+                        android:layout_marginTop="@dimen/or_space_md"
+                        android:alpha="0.55"
+                        android:background="?attr/orOnHeroSurface"
+                        android:importantForAccessibility="no" />
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@color/or_on_hero" />
+                        android:layout_marginTop="@dimen/or_space_lg"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/account_department"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:alpha="0.7"
+                            android:letterSpacing="0.16"
+                            android:text="@string/account_label_id"
+                            android:textColor="?attr/orOnHeroSurface"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/account_id"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="?attr/orOnHeroSurface"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/or_on_hero" />
+                        android:layout_marginTop="@dimen/or_space_sm"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:alpha="0.7"
+                            android:letterSpacing="0.16"
+                            android:text="@string/account_label_department"
+                            android:textColor="?attr/orOnHeroSurface"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/account_department"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="?attr/orOnHeroSurface"
+                            android:textSize="14sp" />
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.OpenRunner.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="@color/or_surface_container"
-                app:cardCornerRadius="18dp"
-                app:strokeColor="@color/or_outline"
-                app:strokeWidth="1dp">
+                android:layout_marginTop="@dimen/or_card_gap">
 
-                <TextView
-                    android:id="@+id/account_stats"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textColor="@color/or_on_surface" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/or_card_pad">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/account_stats_title"
+                        android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+                    <View
+                        style="@style/Widget.OpenRunner.Rule"
+                        android:layout_marginTop="@dimen/or_space_md" />
+
+                    <TextView
+                        android:id="@+id/account_stats"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/or_space_md"
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.OpenRunner.Card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardBackgroundColor="@color/or_surface_container"
-                app:cardCornerRadius="18dp"
-                app:strokeColor="@color/or_outline"
-                app:strokeWidth="1dp">
+                android:layout_marginTop="@dimen/or_card_gap">
 
-                <TextView
-                    android:id="@+id/account_token"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:textIsSelectable="true"
-                    android:textColor="@color/or_muted" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/or_card_pad">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/account_token_title"
+                        android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+                    <View
+                        style="@style/Widget.OpenRunner.Rule"
+                        android:layout_marginTop="@dimen/or_space_md" />
+
+                    <TextView
+                        android:id="@+id/account_token"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/or_space_md"
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                        android:textIsSelectable="true" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/or_space_sm"
+                        android:text="@string/account_token_note"
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="@dimen/or_space_xxl"
                 android:text="@string/account_history"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="@color/or_on_surface" />
+                android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+            <View
+                android:layout_width="26dp"
+                android:layout_height="@dimen/or_rule_height_strong"
+                android:layout_marginTop="@dimen/or_space_sm"
+                android:background="@color/or_primary"
+                android:importantForAccessibility="no" />
 
             <LinearLayout
                 android:id="@+id/account_records"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="2dp" />
+                android:layout_marginTop="@dimen/or_space_md"
+                android:orientation="vertical" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/account_logout"
-                style="@style/Widget.Material3.Button.TonalButton"
+                style="@style/Widget.OpenRunner.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/or_space_xl"
                 android:text="@string/account_logout" />
         </LinearLayout>
     </LinearLayout>

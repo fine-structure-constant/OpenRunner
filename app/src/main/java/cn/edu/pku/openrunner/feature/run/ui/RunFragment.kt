@@ -200,6 +200,9 @@ class RunFragment : Fragment() {
                         } else {
                             View.VISIBLE
                         }
+                        // 该文本位于跑步页浮层上。浮层底色随亮暗主题切换
+                        // （浅色为 #FFFDF8，深色为墨色 #221C16），
+                        // 所以直接用随主题解析的状态色即可，两边都有足够对比度。
                         recordStatusText.setTextColor(
                             ContextCompat.getColor(
                                 requireContext(),

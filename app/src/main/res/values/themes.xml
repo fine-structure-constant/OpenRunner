@@ -1,21 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.OpenRunner.Base" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:colorAccent">@color/or_accent</item>
+
         <item name="colorPrimary">@color/or_primary</item>
         <item name="colorOnPrimary">@color/or_on_primary</item>
         <item name="colorPrimaryContainer">@color/or_primary_container</item>
         <item name="colorOnPrimaryContainer">@color/or_on_primary_container</item>
+
         <item name="colorSecondary">@color/or_accent</item>
+        <item name="colorOnSecondary">@color/or_on_primary</item>
+        <item name="colorSecondaryContainer">@color/or_surface_container_high</item>
+        <item name="colorOnSecondaryContainer">@color/or_on_surface</item>
+
+        <item name="colorTertiary">@color/or_accent</item>
+        <item name="colorOnTertiary">@color/or_on_primary</item>
+
         <item name="colorSurface">@color/or_surface</item>
         <item name="colorOnSurface">@color/or_on_surface</item>
         <item name="colorSurfaceVariant">@color/or_surface_container</item>
         <item name="colorOnSurfaceVariant">@color/or_muted</item>
         <item name="colorOutline">@color/or_outline</item>
+        <item name="colorOutlineVariant">@color/or_outline</item>
+
+        <item name="colorError">@color/or_status_error</item>
+        <item name="colorOnError">@color/or_on_primary</item>
+        <item name="colorErrorContainer">@color/or_status_error_container</item>
+        <item name="colorOnErrorContainer">@color/or_status_error</item>
+
+        <item name="android:textColorPrimary">@color/or_on_surface</item>
+        <item name="android:textColorSecondary">@color/or_muted</item>
+        <item name="android:textColorHint">@color/or_muted</item>
+
+        <!-- 自定义色角色，见 values/attrs.xml。深浅两套值分别来自 values/ 与 values-night/ -->
+        <item name="orHeroSurface">@color/or_hero</item>
+        <item name="orOnHeroSurface">@color/or_on_hero</item>
+
         <item name="android:windowBackground">@color/or_surface</item>
         <item name="android:navigationBarColor">@color/or_surface</item>
         <item name="android:statusBarColor">@color/or_surface</item>
+
+        <!-- 全站默认组件样式，保证不写 style 的控件也落在同一套设计语言里 -->
+        <item name="materialCardViewStyle">@style/Widget.OpenRunner.Card</item>
+        <item name="materialButtonStyle">@style/Widget.OpenRunner.Button</item>
+        <item name="toolbarStyle">@style/Widget.OpenRunner.Toolbar</item>
+        <item name="textInputStyle">@style/Widget.OpenRunner.TextInput</item>
     </style>
 
     <style name="Theme.OpenRunner" parent="Theme.OpenRunner.Base" />
+
+    <!--
+        跑步页 HUD 的「浅色模式」形态。
+        这里刻意留空：浅色模式下跑步页就走普通宣纸主题，
+        与工具栏、状态栏、日景地图完全一致，不再出现「亮工具栏 + 墨色浮层」的混搭。
+        真正的墨色仪表在 values-night/themes.xml 里覆盖。
+
+        两边都必须定义同名样式：若只写在 values-night/，
+        android:theme="@style/Theme.OpenRunner.Hud" 在浅色配置下会解析不到该资源。
+    -->
+    <style name="Theme.OpenRunner.Hud" parent="Theme.OpenRunner" />
 </resources>

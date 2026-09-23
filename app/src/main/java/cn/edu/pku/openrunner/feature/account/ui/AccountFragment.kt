@@ -58,10 +58,10 @@ class AccountFragment : Fragment() {
                     profilePanel.visibility = if (state.authenticated) View.VISIBLE else View.GONE
                     error.text = state.errorMessage.orEmpty()
                     error.visibility = if (state.errorMessage.isNullOrBlank()) View.GONE else View.VISIBLE
-                    name.text = "姓名：" + (state.userName?.takeIf { it.isNotBlank() } ?: "未同步")
-                    id.text = "学号：" + (state.userId ?: "—")
-                    department.text = "院系：" + (state.department?.takeIf { it.isNotBlank() } ?: "—")
-                    token.text = "Token：" + (state.token ?: "—")
+                    name.text = state.userName?.takeIf { it.isNotBlank() } ?: "未同步"
+                    id.text = state.userId ?: "—"
+                    department.text = state.department?.takeIf { it.isNotBlank() } ?: "—"
+                    token.text = state.token ?: "—"
                     state.status?.let { current ->
                         stats.text = getString(
                             R.string.account_stats,

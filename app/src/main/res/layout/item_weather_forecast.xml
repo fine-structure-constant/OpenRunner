@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    app:cardBackgroundColor="@color/or_surface_container"
-    app:cardCornerRadius="16dp"
-    app:strokeColor="@color/or_outline"
-    app:strokeWidth="1dp">
+    android:orientation="vertical">
+
+    <View
+        style="@style/Widget.OpenRunner.Rule" />
 
     <TextView
         android:id="@+id/weather_forecast_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:textColor="@color/or_on_surface" />
-</com.google.android.material.card.MaterialCardView>
+        android:paddingTop="@dimen/or_space_md"
+        android:paddingBottom="@dimen/or_space_md"
+        android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
+</LinearLayout>

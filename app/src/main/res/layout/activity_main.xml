@@ -10,15 +10,20 @@
         android:id="@+id/main_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/or_surface">
+        android:background="@color/or_surface"
+        android:orientation="vertical">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/main_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:title="@string/app_name"
-            android:titleTextColor="@color/or_on_surface" />
+            android:title="@string/app_name" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/or_rule_height"
+            android:background="@color/or_outline"
+            android:importantForAccessibility="no" />
 
         <FrameLayout
             android:id="@+id/main_content"
@@ -29,11 +34,19 @@
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/main_navigation"
-        android:layout_width="300dp"
+        android:layout_width="304dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:background="@color/or_surface_container"
         android:fitsSystemWindows="true"
-        app:itemTextColor="@color/or_on_surface"
         app:headerLayout="@layout/main_drawer_header"
+        app:itemHorizontalPadding="24dp"
+        app:itemIconTint="@color/or_nav_item_content"
+        app:itemShapeAppearanceOverlay="@style/ShapeAppearance.OpenRunner.Card"
+        app:itemShapeFillColor="@color/or_nav_item_fill"
+        app:itemShapeInsetEnd="10dp"
+        app:itemShapeInsetStart="10dp"
+        app:itemTextAppearance="@style/TextAppearance.OpenRunner.Body"
+        app:itemTextColor="@color/or_nav_item_content"
         app:menu="@menu/main_drawer_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

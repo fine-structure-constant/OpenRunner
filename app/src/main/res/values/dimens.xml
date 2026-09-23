@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 间距节奏。学院派依赖克制的留白差异，不再所有页面统一 16dp。 -->
+    <dimen name="or_space_xs">4dp</dimen>
+    <dimen name="or_space_sm">8dp</dimen>
+    <dimen name="or_space_md">12dp</dimen>
+    <dimen name="or_space_lg">16dp</dimen>
+    <dimen name="or_space_xl">22dp</dimen>
+    <dimen name="or_space_xxl">30dp</dimen>
+
+    <dimen name="or_page_pad">20dp</dimen>
+    <dimen name="or_card_pad">18dp</dimen>
+    <dimen name="or_card_gap">12dp</dimen>
+
+    <!-- 圆角分档：印章 3 / 卡片 6 / 浮层 20 / 药丸 999 -->
+    <dimen name="or_radius_seal">3dp</dimen>
+    <dimen name="or_radius_card">6dp</dimen>
+    <dimen name="or_radius_card_soft">10dp</dimen>
+    <dimen name="or_radius_sheet">20dp</dimen>
+    <dimen name="or_radius_button">4dp</dimen>
+    <dimen name="or_radius_pill">999dp</dimen>
+
+    <!-- 装饰线 -->
+    <dimen name="or_rule_height">1dp</dimen>
+    <dimen name="or_rule_height_strong">2dp</dimen>
+
+    <!-- 印章 -->
+    <dimen name="or_seal_size">22dp</dimen>
+    <dimen name="or_seal_size_lg">26dp</dimen>
+
+    <!-- 进度环 -->
+    <dimen name="or_ring_size">104dp</dimen>
+    <dimen name="or_ring_thickness">8dp</dimen>
+</resources>

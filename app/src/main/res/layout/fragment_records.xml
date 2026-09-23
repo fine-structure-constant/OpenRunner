@@ -5,18 +5,44 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="4dp"
-        app:cardBackgroundColor="@color/or_surface_container"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="0dp"
-        app:strokeColor="@color/or_outline"
-        app:strokeWidth="1dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/or_page_pad"
+        android:paddingTop="@dimen/or_page_pad"
+        android:paddingEnd="@dimen/or_page_pad">
+
+        <TextView
+            style="@style/Widget.OpenRunner.Seal"
+            android:text="@string/or_seal_records" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="@string/nav_records"
+            android:textAppearance="@style/TextAppearance.OpenRunner.PageTitle" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="26dp"
+        android:layout_height="@dimen/or_rule_height_strong"
+        android:layout_marginStart="@dimen/or_page_pad"
+        android:layout_marginTop="@dimen/or_space_md"
+        android:background="@color/or_primary"
+        android:importantForAccessibility="no" />
+
+    <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.OpenRunner.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/or_page_pad"
+        android:layout_marginTop="@dimen/or_space_lg"
+        android:layout_marginEnd="@dimen/or_page_pad"
+        android:layout_marginBottom="@dimen/or_space_sm">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,7 +50,7 @@
             android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp">
+            android:padding="@dimen/or_card_pad">
 
             <FrameLayout
                 android:layout_width="104dp"
@@ -38,9 +64,9 @@
                     android:indeterminate="false"
                     android:max="100"
                     app:indicatorColor="@color/or_primary"
-                    app:indicatorSize="96dp"
+                    app:indicatorSize="@dimen/or_ring_size"
                     app:trackColor="@color/or_surface_container_high"
-                    app:trackThickness="9dp" />
+                    app:trackThickness="@dimen/or_ring_thickness" />
 
                 <TextView
                     android:id="@+id/records_goal_percent"
@@ -48,14 +74,13 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/record_goal_percent_unavailable"
-                    android:textAppearance="?attr/textAppearanceTitleLarge"
-                    android:textColor="@color/or_on_surface" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric" />
             </FrameLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="@dimen/or_space_lg"
                 android:layout_weight="1"
                 android:orientation="vertical">
 
@@ -63,27 +88,39 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/record_goal_title"
-                    android:textAppearance="?attr/textAppearanceTitleMedium"
-                    android:textColor="@color/or_on_surface" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.CardTitle" />
+
+                <View
+                    style="@style/Widget.OpenRunner.Rule"
+                    android:layout_marginTop="@dimen/or_space_md" />
 
                 <TextView
                     android:id="@+id/records_goal_distance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
+                    android:layout_marginTop="@dimen/or_space_md"
                     android:text="@string/record_goal_loading"
-                    android:textColor="@color/or_on_surface" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
 
                 <TextView
                     android:id="@+id/records_goal_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
+                    android:layout_marginTop="@dimen/or_space_xs"
                     android:text="@string/record_goal_detail_loading"
-                    android:textColor="@color/or_muted" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
+
+    <!--
+        固定头部与可滚动列表的分界线。
+        下面是一个独立滚动的 RecyclerView，滚动时会贴着这条线上沿滑过，
+        没有这条线的话内容会在卡片下方"凭空出现"，边界读不出来。
+        用通栏细分隔线而非缩进，让它读作结构分界而不是卡片的一部分。
+        上方间距由卡片的 marginBottom 提供，与列表的 paddingTop 相等，上下各 8dp。
+    -->
+    <View style="@style/Widget.OpenRunner.Rule" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -100,7 +137,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:padding="12dp" />
+                android:paddingStart="@dimen/or_page_pad"
+                android:paddingTop="@dimen/or_space_sm"
+                android:paddingEnd="@dimen/or_page_pad"
+                android:paddingBottom="@dimen/or_page_pad" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <ProgressBar
@@ -116,7 +156,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/records_empty"
-            android:textColor="@color/or_muted"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted"
             android:visibility="gone" />
     </FrameLayout>
 </LinearLayout>

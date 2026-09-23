@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        ============================================================
+        排版层级
+        ============================================================
+        字体分三类，由"字体族间接层"按配置解析（见下方）：
+
+          · 中文标题、印章 —— 宋体 SemiBold。这是"学院派"气质的主要来源。
+          · 数字与西文   —— 衬线体 Regular，加 tnum 特性保持数字等宽。
+          · 正文 / 说明 / 小标签 —— 无衬线。12–13sp 的宋体在手机上横画过细，
+            可读性不如黑体，因此正文不跟随标题走宋体（这也是中文排版的通行做法：
+            标题与正文分属两种字体族）。
+
+        API 21–25 上引用不到 res/font/ 的字体资源，会退回系统 serif/sans；
+        26 及以上才加载内置的 Noto Serif SC 子集。
+        ============================================================
+    -->
+
+    <!--
+        颜色一律引用主题属性（?attr/colorXxx）而非具体色值。
+        主题 overlay 只能覆盖主题属性，覆盖不了写死的色值 —— 写死会让它在深色子树上静默失效。
+        跑步页的墨色 HUD 就是靠这条约定实现的，不需要复制任何布局。
+    -->
+
+    <!--
+        ============================================================
+        字体族间接层
+        ============================================================
+        这里只声明"用哪种字体族"，具体指向由配置决定：
+
+          values/      系统 serif / sans
+                       API 21–25 无法引用 res/font/ 里的字体资源，
+                       所以在这些版本上退回系统字体。
+          values-v26/  内置的 Noto Serif SC 子集（中文宋体 + 衬线数字）
+
+        中间加这一层是为了避免把整套 TextAppearance 在 values-v26/ 里复制一遍：
+        下面的样式只管字号 / 颜色 / 字距，字体族交给这两个样式按配置解析。
+        ============================================================
+    -->
+
+    <!-- 数字与西文：衬线体 -->
+    <style name="TextAppearance.OpenRunner.Font.Serif" parent="android:TextAppearance">
+        <item name="android:fontFamily">serif</item>
+    </style>
+
+    <!-- 中文标题：宋体，需要更重的字重 -->
+    <style name="TextAppearance.OpenRunner.Font.Serif.Bold" parent="android:TextAppearance">
+        <item name="android:fontFamily">serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- 跑步页主指标、记录详情里程 -->
+    <style name="TextAppearance.OpenRunner.Display" parent="TextAppearance.OpenRunner.Font.Serif">
+        <item name="android:textSize">42sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!-- 次级指标 -->
+    <style name="TextAppearance.OpenRunner.Metric" parent="TextAppearance.OpenRunner.Font.Serif">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.Metric.Small" parent="TextAppearance.OpenRunner.Metric">
+        <item name="android:textSize">19sp</item>
+    </style>
+
+    <!-- 指标标签：小字号 + 宽字距 -->
+    <style name="TextAppearance.OpenRunner.Label" parent="android:TextAppearance">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:letterSpacing">0.16</item>
+    </style>
+
+    <!-- 页面标题：中文宋体，字距收敛以免宋体本身的书卷气被拉散 -->
+    <style name="TextAppearance.OpenRunner.PageTitle" parent="TextAppearance.OpenRunner.Font.Serif.Bold">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.SectionTitle" parent="TextAppearance.OpenRunner.Font.Serif.Bold">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.CardTitle" parent="TextAppearance.OpenRunner.Font.Serif.Bold">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.ToolbarTitle" parent="TextAppearance.OpenRunner.Font.Serif.Bold">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.Body" parent="android:TextAppearance">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.Body.Muted" parent="TextAppearance.OpenRunner.Body">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.Caption" parent="android:TextAppearance">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+    <!-- 印章文字 -->
+    <style name="TextAppearance.OpenRunner.Seal" parent="TextAppearance.OpenRunner.Font.Serif.Bold">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <!--
+        ============================================================
+        形状分档：印章 3 / 按钮 4 / 卡片 6 / 柔和卡 10 / 浮层 20
+        ============================================================
+    -->
+
+    <style name="ShapeAppearance.OpenRunner.Seal" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/or_radius_seal</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Card" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/or_radius_card</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Card.Soft" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/or_radius_card_soft</item>
+    </style>
+
+    <!-- 跑步页浮层：只圆上方两角 -->
+    <style name="ShapeAppearance.OpenRunner.Sheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/or_radius_sheet</item>
+        <item name="cornerSizeTopRight">@dimen/or_radius_sheet</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Button" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/or_radius_button</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Pill" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/or_radius_pill</item>
+    </style>
+
+    <!--
+        ============================================================
+        组件样式
+        ============================================================
+    -->
+
+    <style name="Widget.OpenRunner.Card" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardBackgroundColor">?attr/colorSurfaceVariant</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+        <item name="strokeWidth">@dimen/or_rule_height</item>
+        <item name="cardElevation">0dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Card</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Card.Soft">
+        <item name="strokeWidth">0dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Card.Soft</item>
+    </style>
+
+    <!-- 深色主视觉卡（天气主卡、账户名片）：无描边，靠色块分层 -->
+    <style name="Widget.OpenRunner.Card.Hero">
+        <item name="cardBackgroundColor">?attr/orHeroSurface</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Card.Soft</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Card.Sheet">
+        <item name="strokeWidth">0dp</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Sheet</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Button</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="iconTint">?attr/colorOnPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:minHeight">46dp</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Button</item>
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+        <item name="strokeWidth">@dimen/or_rule_height</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorOnSurface</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:minHeight">46dp</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.Outlined.Danger">
+        <item name="strokeColor">?attr/colorError</item>
+        <item name="android:textColor">?attr/colorError</item>
+        <item name="iconTint">?attr/colorError</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Button</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.Text.Danger">
+        <item name="android:textColor">?attr/colorError</item>
+        <item name="iconTint">?attr/colorError</item>
+    </style>
+
+    <!-- 小尺寸浮层按钮（跑步页"定位"） -->
+    <style name="Widget.OpenRunner.Button.Chip" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Card</item>
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+        <item name="strokeWidth">@dimen/or_rule_height</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorPrimary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">14dp</item>
+        <item name="android:paddingTop">7dp</item>
+        <item name="android:paddingBottom">7dp</item>
+        <item name="iconPadding">6dp</item>
+        <item name="iconSize">16dp</item>
+    </style>
+
+    <!-- 印章：22dp 方形，底色随主题（日常燕园红 / HUD 朱红） -->
+    <style name="Widget.OpenRunner.Seal" parent="">
+        <item name="android:layout_width">@dimen/or_seal_size</item>
+        <item name="android:layout_height">@dimen/or_seal_size</item>
+        <item name="android:background">@drawable/or_seal</item>
+        <item name="android:backgroundTint">?attr/colorPrimary</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">@style/TextAppearance.OpenRunner.Seal</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <!-- 短横装饰线：品牌色，作为分区标记 -->
+    <style name="Widget.OpenRunner.Rule.Accent" parent="">
+        <item name="android:layout_width">26dp</item>
+        <item name="android:layout_height">@dimen/or_rule_height_strong</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <!-- 细分隔线 -->
+    <style name="Widget.OpenRunner.Rule" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/or_rule_height</item>
+        <item name="android:background">?attr/colorOutline</item>
+        <item name="android:importantForAccessibility">no</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="titleTextAppearance">@style/TextAppearance.OpenRunner.ToolbarTitle</item>
+        <item name="android:background">?attr/colorSurface</item>
+    </style>
+
+    <style name="Widget.OpenRunner.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/or_radius_card</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/or_radius_card</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/or_radius_card</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/or_radius_card</item>
+        <item name="boxStrokeColor">?attr/colorPrimary</item>
+        <item name="boxStrokeWidth">@dimen/or_rule_height</item>
+        <item name="hintTextColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+</resources>

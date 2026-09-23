@@ -65,8 +65,11 @@ class RecordDetailActivity : AppCompatActivity(R.layout.activity_record_detail) 
         findViewById<View>(R.id.record_detail_content).visibility = View.VISIBLE
         val dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM)
         val samples = record.metricSamples.orEmpty()
-        val paceSeries = RunChartData.paceMinutesPerKm(samples)
-        val fastestPace = RunChartData.fastestPaceMinutesPerKm(samples)
+        // One normalisation pass feeds both charts and the headline pace. Deriving the
+        // three of them separately re-sorted the samples three times and rebuilt the
+        // pace series twice, and this runs on the main thread.
+        val series = RunChartData.series(samples)
+        val fastestPace = series.fastestPaceMinutesPerKm
         findViewById<TextView>(R.id.record_detail_source).visibility =
             if (record.usedVirtualLocation) View.VISIBLE else View.GONE
 
@@ -99,11 +102,11 @@ class RecordDetailActivity : AppCompatActivity(R.layout.activity_record_detail) 
             samples.size
         )
         findViewById<RunLineChartView>(R.id.record_distance_chart).setData(
-            RunChartData.distanceKilometres(samples),
+            series.distanceKilometres,
             RunChartType.DISTANCE
         )
         findViewById<RunLineChartView>(R.id.record_pace_chart).setData(
-            paceSeries,
+            series.paceMinutesPerKm,
             RunChartType.PACE
         )
         val chartsVisible = if (samples.size >= 2) View.VISIBLE else View.GONE

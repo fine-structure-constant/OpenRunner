@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="?attr/colorSurface"
+    android:orientation="vertical"
+    android:theme="@style/Theme.OpenRunner.Hud">
 
     <com.amap.api.maps.MapView
         android:id="@+id/virtual_map"
@@ -11,54 +13,78 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <!--
+        与跑步页共用同一套浮层：同样的中性底色、同样的上方两角圆角、同样贴底。
+        虚拟定位的"测试"语义只由印章底色与提示文字承担（紫色），
+        不再把整块浮层染成紫调，否则它会看起来像另一个应用的组件。
+    -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.OpenRunner.Card.Sheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardBackgroundColor="@color/or_status_virtual_container"
-        app:cardCornerRadius="18dp"
-        app:strokeColor="@color/or_status_virtual"
-        app:strokeWidth="1dp">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="@dimen/or_page_pad"
+            android:paddingTop="@dimen/or_space_lg"
+            android:paddingEnd="@dimen/or_page_pad"
+            android:paddingBottom="@dimen/or_page_pad">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/virtual_test_notice"
-                android:textColor="@color/or_on_surface" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Widget.OpenRunner.Seal"
+                    android:backgroundTint="@color/or_status_virtual"
+                    android:text="@string/or_seal_virtual" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="@string/virtual_test_notice"
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
+            </LinearLayout>
+
+            <View
+                style="@style/Widget.OpenRunner.Rule"
+                android:layout_marginTop="@dimen/or_space_lg" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/virtual_toggle"
+                style="@style/Widget.OpenRunner.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/or_space_lg"
                 android:text="@string/virtual_toggle_off" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/or_space_sm"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/virtual_add_point"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.OpenRunner.Button.Outlined"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="@dimen/or_space_xs"
                     android:layout_weight="1"
                     android:text="@string/virtual_add_point" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/virtual_confirm_point"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.OpenRunner.Button.Outlined"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/or_space_xs"
                     android:layout_weight="1"
                     android:text="@string/virtual_confirm_point" />
             </LinearLayout>
@@ -67,17 +93,17 @@
                 android:id="@+id/virtual_selection_hint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/or_space_md"
                 android:text="@string/virtual_hint_off"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
                 android:textColor="@color/or_status_virtual" />
 
             <TextView
                 android:id="@+id/virtual_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/or_on_surface" />
-
+                android:layout_marginTop="@dimen/or_space_sm"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </LinearLayout>

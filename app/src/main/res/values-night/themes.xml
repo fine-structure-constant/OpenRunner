@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        ============================================================
+        跑步中墨色 HUD（仅深色模式）
+        ============================================================
+        只覆盖颜色属性，不复制任何布局：fragment_run 的根布局挂了
+        android:theme="@style/Theme.OpenRunner.Hud"，深色模式下整棵子树切到墨色仪表，
+        RunFragment 里的地图、定位、计步、轨迹绘制代码完全不受影响。
+
+        浅色模式下的同名样式在 values/themes.xml，是空的（走普通宣纸主题）。
+        这样跑步页在浅色模式与工具栏、状态栏、日景地图完全一致，
+        深色模式才进入墨色仪表，两种模式各自内部统一。
+
+        墨色用暖墨 #171310 而非纯黑、朱红 #C4343C 而非荧光绿，
+        保证变暗后仍属于「宣纸 + 燕园红」这个家族。
+        ============================================================
+    -->
+    <style name="Theme.OpenRunner.Hud" parent="Theme.OpenRunner">
+        <item name="colorPrimary">@color/hud_primary</item>
+        <item name="colorOnPrimary">@color/hud_on_primary</item>
+        <item name="colorPrimaryContainer">@color/hud_surface_high</item>
+        <item name="colorOnPrimaryContainer">@color/hud_text</item>
+
+        <item name="colorSecondary">@color/hud_accent</item>
+        <item name="colorOnSecondary">@color/hud_on_primary</item>
+        <item name="colorSecondaryContainer">@color/hud_surface_high</item>
+        <item name="colorOnSecondaryContainer">@color/hud_text</item>
+
+        <item name="colorSurface">@color/hud_surface</item>
+        <item name="colorOnSurface">@color/hud_text</item>
+        <!--
+            浮层卡片底色必须比页面底色亮一档，否则卡片与页面同色，
+            上方两角的圆角会落在同色背景上而完全读不出来。
+            这与浅色主题的层级逻辑一致：卡片 #FFFDF8 亮于页面 #F7F3EC。
+        -->
+        <item name="colorSurfaceVariant">@color/hud_surface_high</item>
+        <item name="colorOnSurfaceVariant">@color/hud_muted</item>
+        <item name="colorOutline">@color/hud_outline</item>
+        <item name="colorOutlineVariant">@color/hud_outline</item>
+
+        <item name="colorError">@color/or_status_error</item>
+        <item name="colorOnError">@color/hud_on_primary</item>
+        <item name="colorErrorContainer">@color/hud_surface_high</item>
+        <item name="colorOnErrorContainer">@color/or_status_error</item>
+
+        <item name="android:colorAccent">@color/hud_accent</item>
+        <item name="android:textColorPrimary">@color/hud_text</item>
+        <item name="android:textColorSecondary">@color/hud_muted</item>
+        <item name="android:textColorHint">@color/hud_muted</item>
+    </style>
+
+</resources>

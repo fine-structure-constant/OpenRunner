@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:background="?attr/colorSurface"
+    android:orientation="vertical"
+    android:theme="@style/Theme.OpenRunner.Hud">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -17,68 +19,83 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/run_recenter"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.OpenRunner.Button.Chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
-            android:layout_margin="12dp"
+            android:layout_margin="@dimen/or_space_lg"
             android:text="@string/run_recenter"
-            app:icon="@android:drawable/ic_menu_mylocation" />
+            app:icon="@drawable/ic_or_recenter" />
     </FrameLayout>
 
     <com.google.android.material.card.MaterialCardView
+        style="@style/Widget.OpenRunner.Card.Sheet"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardBackgroundColor="@color/or_surface_container"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="2dp"
-        app:strokeColor="@color/or_outline"
-        app:strokeWidth="1dp">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/run_status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/run_locating"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                android:textColor="@color/or_on_surface" />
+            android:paddingStart="@dimen/or_page_pad"
+            android:paddingTop="@dimen/or_space_lg"
+            android:paddingEnd="@dimen/or_page_pad"
+            android:paddingBottom="@dimen/or_page_pad">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:baselineAligned="false"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <LinearLayout
+                <TextView
+                    style="@style/Widget.OpenRunner.Seal"
+                    android:text="@string/or_seal_run" />
+
+                <TextView
+                    android:id="@+id/run_status"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:text="@string/run_locating"
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Body"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/run_distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/run_metric_distance_initial"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textColor="@color/or_on_surface" />
+            <View
+                style="@style/Widget.OpenRunner.Rule"
+                android:layout_marginTop="@dimen/or_space_lg" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/run_metric_distance"
-                        android:textColor="@color/or_muted" />
-                </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/or_space_xl"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/run_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/run_metric_distance_initial"
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Display" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/or_space_xs"
+                    android:text="@string/run_metric_distance"
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/or_space_xl"
+                android:baselineAligned="false"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -92,15 +109,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/run_metric_time_initial"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textColor="@color/or_on_surface" />
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/or_space_xs"
                         android:text="@string/run_metric_time"
-                        android:textColor="@color/or_muted" />
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="@dimen/or_rule_height"
+                    android:layout_height="34dp"
+                    android:background="?attr/colorOutline"
+                    android:importantForAccessibility="no" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -114,14 +137,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/run_metric_pace_initial"
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textColor="@color/or_on_surface" />
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/or_space_xs"
                         android:text="@string/run_metric_pace"
-                        android:textColor="@color/or_muted" />
+                        android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -129,45 +152,45 @@
                 android:id="@+id/run_record_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/or_space_md"
                 android:gravity="center"
-                android:textColor="@color/or_muted"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
                 android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/or_space_lg"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/run_pause_resume"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.OpenRunner.Button.Outlined"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="@dimen/or_space_xs"
                     android:layout_weight="1"
                     android:text="@string/run_pause"
                     android:visibility="gone" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/run_action"
+                    style="@style/Widget.OpenRunner.Button"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginStart="@dimen/or_space_xs"
+                    android:layout_marginEnd="@dimen/or_space_xs"
                     android:layout_weight="1"
                     android:text="@string/run_start" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/run_delete"
-                    style="@style/Widget.Material3.Button.TonalButton"
+                    style="@style/Widget.OpenRunner.Button.Outlined.Danger"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="@dimen/or_space_xs"
                     android:layout_weight="1"
                     android:text="@string/record_delete"
-                    android:textColor="@color/or_status_error"
                     android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>

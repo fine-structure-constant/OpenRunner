@@ -1,34 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/tasks_refresh"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/or_page_pad"
+        android:paddingTop="@dimen/or_page_pad"
+        android:paddingEnd="@dimen/or_page_pad">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/tasks_list"
+        <TextView
+            style="@style/Widget.OpenRunner.Seal"
+            android:text="@string/or_seal_tasks" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="@string/nav_tasks"
+            android:textAppearance="@style/TextAppearance.OpenRunner.PageTitle" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="26dp"
+        android:layout_height="@dimen/or_rule_height_strong"
+        android:layout_marginStart="@dimen/or_page_pad"
+        android:layout_marginTop="@dimen/or_space_md"
+        android:background="@color/or_primary"
+        android:importantForAccessibility="no" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/or_space_lg"
+        android:layout_weight="1">
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/tasks_refresh"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="12dp" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_height="match_parent">
 
-    <ProgressBar
-        android:id="@+id/tasks_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tasks_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingStart="@dimen/or_page_pad"
+                android:paddingEnd="@dimen/or_page_pad"
+                android:paddingBottom="@dimen/or_page_pad" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <TextView
-        android:id="@+id/tasks_empty"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="@string/tasks_empty"
-        android:textColor="@color/or_muted"
-        android:visibility="gone" />
-</FrameLayout>
+        <ProgressBar
+            android:id="@+id/tasks_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/tasks_empty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/tasks_empty"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

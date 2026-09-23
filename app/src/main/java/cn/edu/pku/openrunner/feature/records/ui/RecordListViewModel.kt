@@ -10,7 +10,9 @@ import cn.edu.pku.openrunner.feature.records.domain.RecordUploadState
 import cn.edu.pku.openrunner.core.network.ApiException
 import cn.edu.pku.openrunner.core.network.UserStatusDto
 import cn.edu.pku.openrunner.feature.run.data.RecordAlreadyUploadedException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +42,18 @@ class RecordListViewModel(private val repository: RecordRepository) : ViewModel(
 
     init {
         viewModelScope.launch {
-            repository.observeLocalChanges().collect { loadRecords(showLoading = false) }
+            var settle: Job? = null
+            repository.observeLocalChanges().collect {
+                // A save or an upload writes several fields, so the repository notifies once per
+                // write. Reloading the server list on each of those sent a handful of identical
+                // requests per record. Wait for the burst to settle; the optimistic update in
+                // upload() already keeps the row responsive in the meantime.
+                settle?.cancel()
+                settle = launch {
+                    delay(LOCAL_CHANGE_SETTLE_MILLIS)
+                    loadRecords(showLoading = false)
+                }
+            }
         }
     }
 
@@ -248,5 +261,10 @@ class RecordListViewModel(private val repository: RecordRepository) : ViewModel(
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return RecordListViewModel(repository) as T
         }
+    }
+
+    private companion object {
+        /** Quiet period after a local record write before the server list is reloaded. */
+        private const val LOCAL_CHANGE_SETTLE_MILLIS = 600L
     }
 }

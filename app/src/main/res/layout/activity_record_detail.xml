@@ -3,17 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/or_surface"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/record_detail_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/or_surface"
         android:title="@string/record_detail_title"
         app:navigationIcon="?attr/homeAsUpIndicator"
-        app:navigationIconTint="@color/or_on_surface"
-        app:titleTextColor="@color/or_on_surface" />
+        app:navigationIconTint="@color/or_on_surface" />
+
+    <View
+        style="@style/Widget.OpenRunner.Rule" />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -38,122 +40,207 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:paddingStart="@dimen/or_page_pad"
+                android:paddingTop="@dimen/or_page_pad"
+                android:paddingEnd="@dimen/or_page_pad"
+                android:paddingBottom="@dimen/or_space_xxl">
 
                 <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.OpenRunner.Card"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/or_surface_container"
-                    app:cardCornerRadius="18dp"
-                    app:strokeColor="@color/or_outline"
-                    app:strokeWidth="1dp">
+                    android:layout_height="wrap_content">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="18dp">
+                        android:padding="@dimen/or_space_xl">
 
                         <TextView
                             android:id="@+id/record_detail_source"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
+                            android:layout_marginBottom="@dimen/or_space_md"
+                            android:letterSpacing="0.1"
                             android:text="@string/record_virtual_test"
                             android:textColor="@color/or_status_virtual"
-                            android:textStyle="bold"
+                            android:textSize="12sp"
                             android:visibility="gone" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/record_detail_label_start"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
 
                         <TextView
                             android:id="@+id/record_detail_start"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/or_on_surface"
-                            android:textStyle="bold" />
+                            android:layout_marginTop="@dimen/or_space_xs"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/or_space_md"
+                            android:text="@string/record_detail_label_end"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
 
                         <TextView
                             android:id="@+id/record_detail_end"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:textColor="@color/or_muted" />
+                            android:layout_marginTop="@dimen/or_space_xs"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted" />
+
+                        <View
+                            style="@style/Widget.OpenRunner.Rule"
+                            android:layout_marginTop="@dimen/or_space_lg" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:orientation="horizontal">
+                            android:layout_marginTop="@dimen/or_space_lg"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:id="@+id/record_detail_distance"
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textColor="@color/or_on_surface" />
+                                android:textAppearance="@style/TextAppearance.OpenRunner.Display" />
 
                             <TextView
-                                android:id="@+id/record_detail_duration"
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:textColor="@color/or_on_surface" />
+                                android:layout_marginTop="@dimen/or_space_xs"
+                                android:text="@string/record_detail_label_distance"
+                                android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
+                            android:layout_marginTop="@dimen/or_space_xl"
+                            android:baselineAligned="false"
+                            android:gravity="center_vertical"
                             android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/record_detail_steps"
+                            <LinearLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textColor="@color/or_on_surface" />
+                                android:gravity="center"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/record_detail_fastest_pace"
+                                <TextView
+                                    android:id="@+id/record_detail_duration"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/or_space_xs"
+                                    android:text="@string/record_detail_label_duration"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="@dimen/or_rule_height"
+                                android:layout_height="34dp"
+                                android:background="@color/or_outline"
+                                android:importantForAccessibility="no" />
+
+                            <LinearLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:textColor="@color/or_on_surface" />
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/record_detail_steps"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/or_space_xs"
+                                    android:text="@string/record_detail_label_steps"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="@dimen/or_rule_height"
+                                android:layout_height="34dp"
+                                android:background="@color/or_outline"
+                                android:importantForAccessibility="no" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/record_detail_fastest_pace"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="@dimen/or_space_xs"
+                                    android:text="@string/record_detail_label_fastest_pace"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
+                            </LinearLayout>
                         </LinearLayout>
+
+                        <View
+                            style="@style/Widget.OpenRunner.Rule"
+                            android:layout_marginTop="@dimen/or_space_lg" />
 
                         <TextView
                             android:id="@+id/record_detail_samples"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:textColor="@color/or_muted" />
+                            android:layout_marginTop="@dimen/or_space_md"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/record_distance_chart_card"
+                    style="@style/Widget.OpenRunner.Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/or_surface_container"
-                    app:cardCornerRadius="18dp"
-                    app:strokeColor="@color/or_outline"
-                    app:strokeWidth="1dp">
+                    android:layout_marginTop="@dimen/or_card_gap">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="@dimen/or_card_pad">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingStart="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingEnd="6dp"
                             android:text="@string/record_chart_distance_title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textColor="@color/or_on_surface" />
+                            android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+                        <View
+                            android:layout_width="26dp"
+                            android:layout_height="@dimen/or_rule_height_strong"
+                            android:layout_marginTop="@dimen/or_space_sm"
+                            android:background="@color/or_primary"
+                            android:importantForAccessibility="no" />
 
                         <cn.edu.pku.openrunner.feature.records.ui.RunLineChartView
                             android:id="@+id/record_distance_chart"
@@ -165,39 +252,36 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/record_pace_chart_card"
+                    style="@style/Widget.OpenRunner.Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/or_surface_container"
-                    app:cardCornerRadius="18dp"
-                    app:strokeColor="@color/or_outline"
-                    app:strokeWidth="1dp">
+                    android:layout_marginTop="@dimen/or_card_gap">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="12dp">
+                        android:padding="@dimen/or_card_pad">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingStart="6dp"
-                            android:paddingTop="4dp"
-                            android:paddingEnd="6dp"
                             android:text="@string/record_chart_pace_title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textColor="@color/or_on_surface" />
+                            android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+                        <View
+                            android:layout_width="26dp"
+                            android:layout_height="@dimen/or_rule_height_strong"
+                            android:layout_marginTop="@dimen/or_space_sm"
+                            android:background="@color/or_primary"
+                            android:importantForAccessibility="no" />
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:paddingStart="6dp"
-                            android:paddingTop="3dp"
-                            android:paddingEnd="6dp"
+                            android:layout_marginTop="@dimen/or_space_sm"
                             android:text="@string/record_chart_pace_hint"
-                            android:textColor="@color/or_muted"
-                            android:textSize="12sp" />
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
 
                         <cn.edu.pku.openrunner.feature.records.ui.RunLineChartView
                             android:id="@+id/record_pace_chart"
@@ -209,54 +293,65 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/record_route_card"
+                    style="@style/Widget.OpenRunner.Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    android:layout_marginBottom="16dp"
-                    app:cardBackgroundColor="@color/or_surface_container"
-                    app:cardCornerRadius="18dp"
-                    app:strokeColor="@color/or_outline"
-                    app:strokeWidth="1dp">
+                    android:layout_marginTop="@dimen/or_card_gap"
+                    android:layout_marginBottom="@dimen/or_space_lg">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <TextView
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="18dp"
-                            android:text="@string/record_route_title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textColor="@color/or_on_surface" />
+                            android:orientation="vertical"
+                            android:paddingStart="@dimen/or_card_pad"
+                            android:paddingTop="@dimen/or_card_pad"
+                            android:paddingEnd="@dimen/or_card_pad">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/record_route_title"
+                                android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+                            <View
+                                android:layout_width="26dp"
+                                android:layout_height="@dimen/or_rule_height_strong"
+                                android:layout_marginTop="@dimen/or_space_sm"
+                                android:background="@color/or_primary"
+                                android:importantForAccessibility="no" />
+                        </LinearLayout>
 
                         <FrameLayout
                             android:id="@+id/record_route_container"
                             android:layout_width="match_parent"
                             android:layout_height="260dp"
+                            android:layout_marginTop="@dimen/or_space_lg"
                             android:background="@color/or_surface_container"
                             android:clipChildren="true"
                             android:clipToPadding="true">
 
                             <TextView
                                 android:id="@+id/record_route_placeholder"
-                                android:background="@color/or_surface_container"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
+                                android:background="@color/or_surface_container"
                                 android:gravity="center"
-                                android:padding="24dp"
+                                android:padding="@dimen/or_space_xl"
                                 android:text="@string/record_route_empty"
-                                android:textColor="@color/or_muted" />
+                                android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
                         </FrameLayout>
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="12dp"
+                            android:padding="@dimen/or_card_pad"
                             android:text="@string/record_route_hint"
-                            android:textColor="@color/or_muted"
-                            android:textSize="12sp" />
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

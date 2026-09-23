@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+        API 26（Android 8.0）起才支持在 android:fontFamily 里引用 res/font/ 的字体资源，
+        因此字体族的实际指向放在这里，values/ 保留系统字体作为 21–25 的回退。
+
+        字体由 tools/build_serif_font.py 从 Noto Serif SC 可变字体生成：
+        只保留应用实际会渲染的字符，并把 0-9 改成等宽（源字体没有 tnum，
+        比例宽度会让计时器每秒刷新时整串数字左右跳动）。
+        新增中文文案后需要重跑该脚本，否则新字会回退到系统字体。
+        （有单元测试 FontCoverageTest 守着这条线）
+    -->
+    <style name="TextAppearance.OpenRunner.Font.Serif" parent="android:TextAppearance">
+        <item name="android:fontFamily">@font/or_serif_regular</item>
+    </style>
+
+    <style name="TextAppearance.OpenRunner.Font.Serif.Bold" parent="android:TextAppearance">
+        <item name="android:fontFamily">@font/or_serif_semibold</item>
+    </style>
+
+</resources>

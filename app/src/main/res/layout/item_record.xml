@@ -2,31 +2,57 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.OpenRunner.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardBackgroundColor="@color/or_surface_container"
-    app:cardCornerRadius="16dp"
-    app:strokeColor="@color/or_outline"
-    app:strokeWidth="1dp">
+    android:layout_marginBottom="@dimen/or_card_gap">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/or_card_pad">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/record_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
+
+            <TextView
+                android:id="@+id/record_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/or_space_sm"
+                android:letterSpacing="0.06"
+                android:text="@string/record_pending"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <View
+            style="@style/Widget.OpenRunner.Rule"
+            android:layout_marginTop="@dimen/or_space_md" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/or_space_lg"
             android:baselineAligned="false"
+            android:gravity="bottom"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
                 android:orientation="vertical">
 
                 <TextView
@@ -34,24 +60,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:textAppearance="?attr/textAppearanceTitleLarge"
-                    android:textColor="@color/or_on_surface"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_marginTop="@dimen/or_space_xs"
                     android:text="@string/record_metric_distance"
-                    android:textColor="@color/or_muted"
-                    android:textSize="12sp" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
             </LinearLayout>
+
+            <View
+                android:layout_width="@dimen/or_rule_height"
+                android:layout_height="30dp"
+                android:background="@color/or_outline"
+                android:importantForAccessibility="no" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <TextView
@@ -59,24 +88,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:textAppearance="?attr/textAppearanceTitleLarge"
-                    android:textColor="@color/or_on_surface"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_marginTop="@dimen/or_space_xs"
                     android:text="@string/record_metric_duration"
-                    android:textColor="@color/or_muted"
-                    android:textSize="12sp" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
             </LinearLayout>
+
+            <View
+                android:layout_width="@dimen/or_rule_height"
+                android:layout_height="30dp"
+                android:background="@color/or_outline"
+                android:importantForAccessibility="no" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <TextView
@@ -84,77 +116,62 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:textAppearance="?attr/textAppearanceTitleLarge"
-                    android:textColor="@color/or_on_surface"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric.Small" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_marginTop="@dimen/or_space_xs"
                     android:text="@string/record_metric_average_pace"
-                    android:textColor="@color/or_muted"
-                    android:textSize="12sp" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Label" />
             </LinearLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/record_detail"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:textColor="@color/or_muted" />
+            android:layout_marginTop="@dimen/or_space_md"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/record_date"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/or_muted" />
+            <TextView
+                android:id="@+id/record_detail"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
 
-        <TextView
-            android:id="@+id/record_photo_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/record_photo_attached"
-            android:textColor="@color/or_muted"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/record_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/record_pending"
-            android:textColor="@color/or_muted"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/record_photo_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/or_space_sm"
+                android:text="@string/record_photo_attached"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/record_details_available"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="@dimen/or_space_sm"
+            android:letterSpacing="0.08"
             android:text="@string/record_details_available"
             android:textColor="@color/or_primary"
-            android:textStyle="bold"
+            android:textSize="12sp"
             android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:gravity="center_vertical"
+            android:layout_marginTop="@dimen/or_space_sm"
+            android:gravity="center_vertical|end"
             android:orientation="horizontal">
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/record_photo"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.OpenRunner.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/record_photo_add"
@@ -162,7 +179,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/record_upload"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.OpenRunner.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/record_upload"
@@ -170,11 +187,10 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/record_delete"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.OpenRunner.Button.Text.Danger"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/record_delete"
-                android:textColor="@color/or_status_error" />
+                android:text="@string/record_delete" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

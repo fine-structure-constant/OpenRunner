@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    圆形图标入口，对应 Manifest 的 roundIcon。
+
+    自适应图标本身不需要「圆形版本」，遮罩由启动器决定。这个文件与 ic_launcher.xml
+    内容相同，作用是让 roundIcon 在 API 26 及以上也落到自适应图标上，
+    而不是退回 mipmap-*/ic_launcher_round.png 那套位图（位图不会被套遮罩）。
+
+    真正需要独立圆形位图的是 API 25 及以下，见 mipmap-*/ic_launcher_round.png。
+-->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/launcher_icon_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+</adaptive-icon>
