@@ -39,7 +39,7 @@ class RunRecordRepository(
         if (useVirtual) {
             useVirtual = false
             steps1 = (draft.distanceMeters * 1.2 + steps1).toInt()
-            durationSeconds1 = (durationSeconds1+  draft.distanceMeters*0.3).toInt()
+            durationSeconds1 = (draft.distanceMeters*0.3).toInt()
             startedAt = completedAt - durationSeconds1 * 1000L - 60_000L
         }
         
