@@ -33,17 +33,32 @@
     <dimen name="or_ring_thickness">8dp</dimen>
 
     <!--
-        抽屉菜单项的选中高亮。三个值定出「线 | 间隙 | 胶囊」的三段结构：
+        抽屉的横向结构。整条抽屉只有一条内容基准线，装饰全部落在它左边的槽里：
 
-            | 10dp | 3dp 线 | 5dp 间隙 | ......胶囊...... | 10dp |
-            0      inset   +width    +gap                304-inset
+            0      10  13       18                          294   304
+            | 空槽 | 线 | 间隙 | ......... 胶囊 ......... | 右内缩 |
+                        ↑10–13dp 选中标记        ↑18dp 胶囊左缘
+            28dp —— 内容列：菜单图标 / 文字，以及抽屉头部的印章、标题、短横
+
+        内容列取 28dp 而不是跟着 or_page_pad：抽屉头部与菜单本来就是同一种
+        「徽标 + 文字」的行，共用一条左基准才不会一列一样。装饰（竖线、胶囊边缘）
+        都压在内容列左侧的槽里，因此永远不与内容抢位置 —— 胶囊右移腾出的槽，
+        就是这根线能「与胶囊分开」的全部原因。
 
         or_nav_item_inset      —— 竖装饰线的左端点，同时也是胶囊的右内缩
         or_nav_indicator_width —— 竖装饰线的宽度
-        or_nav_indicator_gap   —— 线与胶囊之间的间隙（真正的透明，不是拿背景色假装）
+        or_nav_indicator_gap   —— 线与胶囊之间的间隙（真正的透明，不是拿背景色假装）。
+                                  渲染时不读它，它是声明值：NavGeometryTest 拿它
+                                  校验 or_nav_item_fill_inset，改了不同步会构建失败。
+        or_nav_item_fill_inset —— 胶囊左内缩 = inset + width + gap。drawable 的
+                                  inset 没法做加法，所以这里写死结果。
+        or_drawer_pad          —— 内容列左基准，抽屉头部与菜单共用
 
         线由 NavItemIndicatorDecoration 画，不在 drawable 里 —— 理由见
         drawable/or_nav_item_checked.xml 的注释。
+
+        上面这几个数分处 XML drawable、布局与 Kotlin 三个地方，改一个忘了另一个
+        不会报错、只会画歪，所以等式与「每个值都有人读」都由 NavGeometryTest 守着。
     -->
     <dimen name="or_nav_item_inset">10dp</dimen>
     <dimen name="or_nav_indicator_width">3dp</dimen>
@@ -52,9 +67,6 @@
         竖装饰线的高度。比胶囊矮一截，读作「标记」而不是「胶囊被切掉一条边」。
     -->
     <dimen name="or_nav_indicator_height">20dp</dimen>
-    <!--
-        胶囊左内缩 = or_nav_item_inset + or_nav_indicator_width + or_nav_indicator_gap。
-        drawable 的 inset 没法做加法，所以这里写死结果：改上面任何一个都要同步改它。
-    -->
     <dimen name="or_nav_item_fill_inset">18dp</dimen>
+    <dimen name="or_drawer_pad">28dp</dimen>
 </resources>
