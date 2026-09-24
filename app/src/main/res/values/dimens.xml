@@ -33,10 +33,28 @@
     <dimen name="or_ring_thickness">8dp</dimen>
 
     <!--
-        抽屉菜单项的选中高亮。or_nav_item_inset 是胶囊离菜单项边缘的内缩，
-        or_nav_item_fill_inset 是底色左缘的内缩；两者之差（3dp）就是
-        左缘那根竖装饰线的宽度。改宽度只改后者，不要在 drawable 里写死。
+        抽屉菜单项的选中高亮。三个值定出「线 | 间隙 | 胶囊」的三段结构：
+
+            | 10dp | 3dp 线 | 5dp 间隙 | ......胶囊...... | 10dp |
+            0      inset   +width    +gap                304-inset
+
+        or_nav_item_inset      —— 竖装饰线的左端点，同时也是胶囊的右内缩
+        or_nav_indicator_width —— 竖装饰线的宽度
+        or_nav_indicator_gap   —— 线与胶囊之间的间隙（真正的透明，不是拿背景色假装）
+
+        线由 NavItemIndicatorDecoration 画，不在 drawable 里 —— 理由见
+        drawable/or_nav_item_checked.xml 的注释。
     -->
     <dimen name="or_nav_item_inset">10dp</dimen>
-    <dimen name="or_nav_item_fill_inset">13dp</dimen>
+    <dimen name="or_nav_indicator_width">3dp</dimen>
+    <dimen name="or_nav_indicator_gap">5dp</dimen>
+    <!--
+        竖装饰线的高度。比胶囊矮一截，读作「标记」而不是「胶囊被切掉一条边」。
+    -->
+    <dimen name="or_nav_indicator_height">20dp</dimen>
+    <!--
+        胶囊左内缩 = or_nav_item_inset + or_nav_indicator_width + or_nav_indicator_gap。
+        drawable 的 inset 没法做加法，所以这里写死结果：改上面任何一个都要同步改它。
+    -->
+    <dimen name="or_nav_item_fill_inset">18dp</dimen>
 </resources>

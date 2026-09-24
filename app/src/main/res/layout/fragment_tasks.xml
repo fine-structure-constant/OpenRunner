@@ -13,7 +13,7 @@
         android:paddingTop="@dimen/or_page_pad"
         android:paddingEnd="@dimen/or_page_pad">
 
-        <TextView
+        <cn.edu.pku.openrunner.ui.SealView
             style="@style/Widget.OpenRunner.Seal"
             android:text="@string/or_seal_tasks" />
 

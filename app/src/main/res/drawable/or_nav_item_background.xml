@@ -2,11 +2,16 @@
 <!--
     抽屉菜单项的背景，挂在 NavigationView 的 app:itemBackground 上。
 
-    为什么要自己画：Material 的 itemShapeFillColor 一个菜单项只给一个形状，
-    而选中态需要「胶囊底色 + 左缘竖装饰线」两层。菜单项身上只有背景和前景
-    两个 drawable 槽位，前景被 NavigationView 自己拿去放水波纹了
-    （NavigationMenuPresenter 里 itemBackground 走 setBackground、
-    itemRippleColor 走 setForeground），所以两层只能一起塞进背景。
+    为什么要自己画：Material 的 itemShapeFillColor / itemShapeInsetStart 那套
+    只能给菜单项一个形状，而且形状是从菜单项边缘起算的，做不出「胶囊从 18dp
+    才开始」这种内缩（那是给左侧那根竖装饰线留的位置）。这里换成自己的一张
+    drawable，胶囊的内缩量就完全由 or_nav_item_fill_inset 说了算。
+
+    注意这根装饰线**不在**这张 drawable 里 —— 它由 NavItemIndicatorDecoration
+    画，理由见那个类（layer-list 画不出固定宽度又不贴边的线）。
+    菜单项身上只有背景和前景两个 drawable 槽位，前景被 NavigationView 自己
+    拿去放水波纹了（NavigationMenuPresenter 里 itemBackground 走 setBackground、
+    itemRippleColor 走 setForeground），所以这里只剩背景一个槽位可用。
 
     顶层必须是 ripple：一旦设了 app:itemBackground，NavigationView 就整段跳过
     默认分支，而 itemRippleColor 恰好只在那个分支里被读取 —— 反编译确认过。

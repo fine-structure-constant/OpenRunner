@@ -35,8 +35,15 @@
     <!--
         选中项的高亮不用 Material 的 itemShapeFillColor / itemShapeAppearanceOverlay /
         itemShapeInset*：那套只能给菜单项一个形状，而选中态要的是
-        「胶囊底色 + 左缘竖装饰线」两层。整块背景改由 itemBackground 提供，
-        见 drawable/or_nav_item_background.xml（含为什么必须自带 ripple）。
+        「胶囊 + 左侧一根独立的竖装饰线」两件东西。整块背景改由 itemBackground
+        提供（见 drawable/or_nav_item_background.xml，含为什么必须自带 ripple），
+        竖装饰线由 NavItemIndicatorDecoration 画 —— 理由见该类的注释。
+
+        itemHorizontalPadding 比胶囊左内缩（or_nav_item_fill_inset = 18dp）多 10dp：
+        这个差值就是图标离胶囊左缘的空档。它只影响内容（反编译
+        NavigationMenuItemView.setHorizontalPadding 确认是设在这个 View 的 padding
+        上），背景仍铺满整行，所以线、胶囊、内容三者的位置互不牵扯。
+        值由 24dp 提到 28dp，是为了给「线 + 间隙」腾出位置而不压缩胶囊内的空档。
     -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/main_navigation"
@@ -47,7 +54,7 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/main_drawer_header"
         app:itemBackground="@drawable/or_nav_item_background"
-        app:itemHorizontalPadding="24dp"
+        app:itemHorizontalPadding="28dp"
         app:itemIconTint="@color/or_nav_item_content"
         app:itemTextAppearance="@style/TextAppearance.OpenRunner.Body"
         app:itemTextColor="@color/or_nav_item_content"

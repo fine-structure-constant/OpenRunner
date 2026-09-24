@@ -1,49 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    选中项：胶囊底色 + 左缘竖装饰线。
+    选中项的胶囊底色 —— 只画胶囊，不画左边那根竖装饰线。
 
-    没有单独画那根线，而是拿两块圆角矩形叠出来。原因是 layer-list 的 <item>
-    想按固定宽度画一根 3dp 的线，得靠 android:width + android:gravity，
-    这两个属性是 API 23 才有的（本工程 minSdk 21，低版本上属性会被忽略，
-    整块胶囊会被线铺满，属于静默的坏结果）。换成叠法之后任何版本都成立，
-    也不必把抽屉的 304dp 宽度写进 drawable。
+    线改由 NavItemIndicatorDecoration 在 RecyclerView 的 onDraw 里画。原因是
+    layer-list 的 <item> 想按固定宽度画一根 3dp 的线，只能靠 android:width +
+    android:gravity，而这两个属性是 API 23 才有的（本工程 minSdk 21，低版本上
+    属性会被忽略，整块胶囊被线铺满，属于静默的坏结果）。
 
-    叠法：底层整块胶囊染成品牌色，上层底色再把左边缘多让出 3dp，
-    于是只剩左边那 3dp 品牌色露出来。两层圆角相同、上层整体内缩 3dp，
-    所以品牌色会顺着左上 / 左下圆角走成一道等宽的弧，拐角处不会露出方角。
+    上一版是绕开这两个属性的办法：底层整块胶囊染品牌色，上层底色左移 3dp，
+    把线「叠」出来。任何版本都成立，但代价是那根线必然贴着胶囊左缘 —— 两层
+    之间没有第三个位置可以放间隙。而这根线要的恰恰是「与胶囊分开」。
 
-    内缩量走 dimen：or_nav_item_fill_inset 与 or_nav_item_inset 之差
-    就是这根线的宽度。
+    交给 ItemDecoration 之后：
+      - 线的宽度、位置、高度都是显式数值，不受 API 版本限制；
+      - 线所在的区域在 item 背景里本来就是透明的，所以间隙是真的透明，
+        不是拿背景色假装（换成非纯色抽屉背景也不会露馅）；
+      - 胶囊内缩量可以和线宽解耦，各自单独调。
 
-    注意 layer-list 的 inset 只有物理 left/right，没有 start/end 版本，
-    而 Manifest 里 supportsRtl="true"。本工程中文单语、没有 RTL 资源，
-    界面方向实际不会解析成 RTL，所以按 LTR 写就够。若将来要支持 RTL，
-    需要再补一份 drawable-ldrtl/or_nav_item_checked.xml 把两侧内缩对调。
+    内缩量走 dimen，几何见 values/dimens.xml 里那段注释。
+
+    inset 只有物理 left/right，没有 start/end 版本，而 Manifest 里
+    supportsRtl="true"。本工程中文单语、没有 RTL 资源，界面方向实际不会解析成
+    RTL，所以按 LTR 写就够；装饰线同样按物理左侧画。若将来要支持 RTL，
+    需要补一份 drawable-ldrtl/ 并把两侧内缩对调。
 -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 底层：品牌色胶囊。除了左缘 3dp，其余部分都会被上层盖住 -->
-    <item
-        android:left="@dimen/or_nav_item_inset"
-        android:right="@dimen/or_nav_item_inset">
-        <shape android:shape="rectangle">
-            <solid android:color="@color/or_primary" />
-            <corners android:radius="@dimen/or_radius_card" />
-        </shape>
-    </item>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="@dimen/or_nav_item_fill_inset"
+    android:insetRight="@dimen/or_nav_item_inset">
 
-    <!-- 上层：选中胶囊底色，左边缘让位给装饰线 -->
-    <item
-        android:left="@dimen/or_nav_item_fill_inset"
-        android:right="@dimen/or_nav_item_inset">
-        <shape android:shape="rectangle">
-            <!--
-                底色取自 or_nav_item_fill（一个 state_checked 驱动的颜色状态列表），
-                而不是直接写 or_primary_container：菜单项的两组颜色成对命名，
-                文字与图标在 or_nav_item_content 里，底色就在这里。
-                这一层只在选中时才会被画到，state 传下来必然命中 checked 那一档。
-            -->
-            <solid android:color="@color/or_nav_item_fill" />
-            <corners android:radius="@dimen/or_radius_card" />
-        </shape>
-    </item>
-</layer-list>
+    <shape android:shape="rectangle">
+        <!--
+            底色取自 or_nav_item_fill（state_checked 驱动的颜色状态列表），
+            而不是直接写 or_primary_container：菜单项的两组颜色成对命名，
+            文字与图标在 or_nav_item_content 里，底色就在这里。
+            这一层只在选中时才会被画到，state 传下来必然命中 checked 那一档。
+        -->
+        <solid android:color="@color/or_nav_item_fill" />
+        <corners android:radius="@dimen/or_radius_card" />
+    </shape>
+</inset>

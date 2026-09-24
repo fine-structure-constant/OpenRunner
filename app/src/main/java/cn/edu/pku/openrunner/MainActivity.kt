@@ -15,6 +15,7 @@ import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import cn.edu.pku.openrunner.feature.auth.ui.AuthActivity
 import cn.edu.pku.openrunner.core.session.SessionStore
@@ -31,6 +32,7 @@ import cn.edu.pku.openrunner.core.AmapPrivacyController
 import cn.edu.pku.openrunner.core.AmapPrivacyStore
 import cn.edu.pku.openrunner.core.AppThemeMode
 import cn.edu.pku.openrunner.core.AppThemeStore
+import cn.edu.pku.openrunner.ui.NavItemIndicatorDecoration
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -50,10 +52,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
      * 是否已经显示过第一个页面。
      *
      * fade through 的前提是「有一个旧页面要让路」，冷启动时并没有 —— 第一屏
-     * 直接淡入会显得像加载慢了一拍，跑步页首帧上的 MapView 还要额外吃一次缩放动画。
-     * 所以只从第二次切换开始做转场。进程被回收后重建时 FragmentManager 自己会把
-     * 页面还原回来，那条路径也不走 showFragment，所以恢复后要把它标成「已经有页面了」，
-     * 否则重建之后第一次点菜单会没有转场。
+     * 直接淡入会显得像加载慢了一拍。所以只从第二次切换开始做转场。进程被回收后
+     * 重建时 FragmentManager 自己会把页面还原回来，那条路径也不走 showFragment，
+     * 所以恢复后要把它标成「已经有页面了」，否则重建之后第一次点菜单会没有转场。
+     *
+     * 地图页另有豁免，见 [showFragment] 的 transition 参数。
      */
     private var firstPageShown = false
     private val authLauncher = registerForActivityResult(
@@ -115,7 +118,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
 
-        findViewById<NavigationView>(R.id.main_navigation)
+        val navigation = findViewById<NavigationView>(R.id.main_navigation)
+        attachNavIndicator(navigation)
+        navigation
             .setNavigationItemSelectedListener { item ->
                 when (item.itemId) {
                     R.id.nav_run -> openRunPage()
@@ -220,9 +225,36 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return !session.userId.isNullOrBlank() && !session.token.isNullOrBlank()
     }
 
-    private fun showFragment(fragment: androidx.fragment.app.Fragment) {
+    /**
+     * 把左侧菜单选中项那根竖装饰线挂上去。
+     *
+     * 线画在菜单列表的 onDraw 里（[NavItemIndicatorDecoration]），所以要拿到那个
+     * 列表 —— 它就是 NavigationView 内部的 NavigationMenuView，一个 RecyclerView。
+     * 按类型找而不是认子 View 的下标：NavigationView 还会把 header 也塞成子 View，
+     * 下标不稳。找不到就什么都不做，菜单照常能用，只是没有那根线。
+     */
+    private fun attachNavIndicator(navigation: NavigationView) {
+        val menu = (0 until navigation.childCount)
+            .map(navigation::getChildAt)
+            .filterIsInstance<RecyclerView>()
+            .firstOrNull() ?: return
+        menu.addItemDecoration(NavItemIndicatorDecoration(this))
+    }
+
+    /**
+     * 切到新页面。
+     *
+     * @param transition 是否做 fade through 转场。跑步页与虚拟定位页传 `false`：
+     *   这两页的首帧是一张还没加载完的地图，转场里的缩放与淡入会把「地图还没画出来」
+     *   的那一瞬放大给用户看 —— 表现为进页面时闪一下黑边。地图页直接硬切，
+     *   地图就绪与否交给它自己的加载态交代。
+     */
+    private fun showFragment(
+        fragment: androidx.fragment.app.Fragment,
+        transition: Boolean = true
+    ) {
         // 只从第二次切换开始做转场，理由见 firstPageShown 的注释。
-        val animate = firstPageShown
+        val animate = firstPageShown && transition
         firstPageShown = true
         supportFragmentManager.commit {
             if (animate) {
@@ -247,7 +279,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             return
         }
         findViewById<NavigationView>(R.id.main_navigation).setCheckedItem(R.id.nav_run)
-        showFragment(RunFragment())
+        showFragment(RunFragment(), transition = false)
     }
 
     private fun openVirtualLocationPage() {
@@ -258,7 +290,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         findViewById<NavigationView>(R.id.main_navigation)
             .setCheckedItem(R.id.nav_virtual_location)
-        showFragment(VirtualLocationFragment())
+        showFragment(VirtualLocationFragment(), transition = false)
     }
 
     private fun showAmapPrivacyDialog() {

@@ -20,7 +20,7 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <cn.edu.pku.openrunner.ui.SealView
                 style="@style/Widget.OpenRunner.Seal"
                 android:text="@string/or_seal_auth" />
 
