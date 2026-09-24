@@ -37,8 +37,9 @@ import cn.edu.pku.openrunner.R
  * 所以查 `state_checked` 就是查「这一行是不是当前选中项」。比去翻 NavigationView
  * 内部持有的 MenuItem 稳 —— 后者没有公开 API。
  *
- * 主题里的单选项（跟随系统 / 浅色 / 深色）也是 checkable，选中时同样会拿到
- * 胶囊与这根线，与它们已有的高亮表现一致。
+ * 主题里的单选项（跟随系统 / 浅色 / 深色）**不**走这条路径：它们刻意不可选中，
+ * 否则会顶掉页面的选中标记（NavigationView 全局只有一个选中槽，理由见
+ * res/menu/main_drawer_menu.xml）。
  *
  * **为什么画在 onDraw 而不是 onDrawOver**
  *
@@ -60,8 +61,13 @@ class NavItemIndicatorDecoration(context: Context) : RecyclerView.ItemDecoration
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        // 与抽屉头部那根 26dp 品牌色短横取同一个 token。不用 ?attr/colorPrimary：
-        // 深色主题把它映射到 hud_primary，而抽屉自己的色板走 or_* 的 values-night 变体。
+        // 与抽屉头部那根 26dp 品牌色短横同一个 token（Widget.OpenRunner.Rule.Accent
+        // 用 ?attr/colorPrimary，基主题两套都指向 or_primary，取值相同）。
+        //
+        // 代码里直接取色资源而不是解主题属性：or_primary 自带 values-night 变体，
+        // ContextCompat.getColor 已经把深浅两套选好了；走主题属性要多一个 View 与
+        // MaterialColors.getColor。抽屉不在任何 overlay 子树里（activity_main 用基主题），
+        // 两者等价。
         color = ContextCompat.getColor(context, R.color.or_primary)
     }
 

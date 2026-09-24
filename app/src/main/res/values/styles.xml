@@ -272,7 +272,25 @@
         <item name="android:importantForAccessibility">no</item>
     </style>
 
-    <!-- 短横装饰线：品牌色，作为分区标记 -->
+    <!--
+        短横装饰线：品牌色，作为分区标记。装饰线三件套里的「分区标记」那一件
+        （另两件是 Widget.OpenRunner.Rule 细分隔线，与并列指标之间的竖分隔线）。
+
+        原先它在 12 个布局里各写一遍（26dp × or_rule_height_strong × @color/or_primary
+        × importantForAccessibility=no），而这个 token 谁也没用 —— 同一个东西有两份
+        真相，改一处不会影响另一处。现在尺寸与颜色只在这里定义，布局里只留自己的
+        外边距。
+
+        颜色用主题属性而不是 @color/or_primary：基主题（浅色与深色两套）都把
+        colorPrimary 指向 or_primary，所以两者在页面与抽屉里取值相同；但**只有
+        Theme.OpenRunner.Hud 会重映射 colorPrimary**，所以万一将来有分区标记落在
+        跑步页那种 overlay 子树里，主题属性会自动跟着 overlay 走，写死色值不会。
+
+        （曾有一条「深色主题把 colorPrimary 映射到 hud_primary，所以这里不能用主题
+        属性」的说法 —— 那是把 overlay 当成了主题，见 DESIGN_SYSTEM.md 的更正。）
+
+        长度 26dp 只在这里定义；高度走 or_rule_height_strong。
+    -->
     <style name="Widget.OpenRunner.Rule.Accent" parent="">
         <item name="android:layout_width">26dp</item>
         <item name="android:layout_height">@dimen/or_rule_height_strong</item>

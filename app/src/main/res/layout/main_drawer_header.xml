@@ -12,17 +12,16 @@
         android:src="@drawable/icon" />
 
     <!--
-        26dp 品牌色短横，分区标记。左端站 or_drawer_pad —— 与下方印章、菜单图标
-        同一条内容列，不落在左侧那条装饰槽里：它是「这一块内容」的抬头，
-        不是菜单选中标记那种与内容无关的状态记号。
+        分区标记（26dp 品牌色短横），样式走 Widget.OpenRunner.Rule.Accent ——
+        尺寸与颜色都在那个 token 里，这里只留自己的外边距。
+
+        左端站 or_drawer_pad：与下方印章、菜单图标同一条内容列，不落在左侧那条
+        装饰槽里 —— 它是「这一块内容」的抬头，不是菜单选中标记那种与内容无关的状态记号。
     -->
     <View
-        android:layout_width="26dp"
-        android:layout_height="@dimen/or_rule_height_strong"
+        style="@style/Widget.OpenRunner.Rule.Accent"
         android:layout_marginStart="@dimen/or_drawer_pad"
-        android:layout_marginTop="@dimen/or_space_lg"
-        android:background="@color/or_primary"
-        android:importantForAccessibility="no" />
+        android:layout_marginTop="@dimen/or_space_lg" />
 
     <!--
         内容块走 or_drawer_pad 而不是 or_page_pad：印章（22dp）与菜单图标（24dp）

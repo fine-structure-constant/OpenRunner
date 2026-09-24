@@ -34,11 +34,8 @@
         </LinearLayout>
 
         <View
-            android:layout_width="26dp"
-            android:layout_height="@dimen/or_rule_height_strong"
-            android:layout_marginTop="@dimen/or_space_md"
-            android:background="@color/or_primary"
-            android:importantForAccessibility="no" />
+            style="@style/Widget.OpenRunner.Rule.Accent"
+            android:layout_marginTop="@dimen/or_space_md" />
 
         <TextView
             android:id="@+id/account_error"
@@ -243,11 +240,8 @@
                 android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
 
             <View
-                android:layout_width="26dp"
-                android:layout_height="@dimen/or_rule_height_strong"
-                android:layout_marginTop="@dimen/or_space_sm"
-                android:background="@color/or_primary"
-                android:importantForAccessibility="no" />
+                style="@style/Widget.OpenRunner.Rule.Accent"
+                android:layout_marginTop="@dimen/or_space_sm" />
 
             <LinearLayout
                 android:id="@+id/account_records"

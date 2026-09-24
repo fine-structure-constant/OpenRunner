@@ -236,11 +236,8 @@
                             android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
 
                         <View
-                            android:layout_width="26dp"
-                            android:layout_height="@dimen/or_rule_height_strong"
-                            android:layout_marginTop="@dimen/or_space_sm"
-                            android:background="@color/or_primary"
-                            android:importantForAccessibility="no" />
+                            style="@style/Widget.OpenRunner.Rule.Accent"
+                            android:layout_marginTop="@dimen/or_space_sm" />
 
                         <cn.edu.pku.openrunner.feature.records.ui.RunLineChartView
                             android:id="@+id/record_distance_chart"
@@ -270,11 +267,8 @@
                             android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
 
                         <View
-                            android:layout_width="26dp"
-                            android:layout_height="@dimen/or_rule_height_strong"
-                            android:layout_marginTop="@dimen/or_space_sm"
-                            android:background="@color/or_primary"
-                            android:importantForAccessibility="no" />
+                            style="@style/Widget.OpenRunner.Rule.Accent"
+                            android:layout_marginTop="@dimen/or_space_sm" />
 
                         <TextView
                             android:layout_width="match_parent"
@@ -319,11 +313,8 @@
                                 android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
 
                             <View
-                                android:layout_width="26dp"
-                                android:layout_height="@dimen/or_rule_height_strong"
-                                android:layout_marginTop="@dimen/or_space_sm"
-                                android:background="@color/or_primary"
-                                android:importantForAccessibility="no" />
+                                style="@style/Widget.OpenRunner.Rule.Accent"
+                                android:layout_marginTop="@dimen/or_space_sm" />
                         </LinearLayout>
 
                         <FrameLayout

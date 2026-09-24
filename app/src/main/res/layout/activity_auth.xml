@@ -34,11 +34,8 @@
         </LinearLayout>
 
         <View
-            android:layout_width="26dp"
-            android:layout_height="@dimen/or_rule_height_strong"
-            android:layout_marginTop="@dimen/or_space_md"
-            android:background="@color/or_primary"
-            android:importantForAccessibility="no" />
+            style="@style/Widget.OpenRunner.Rule.Accent"
+            android:layout_marginTop="@dimen/or_space_md" />
 
         <com.google.android.material.card.MaterialCardView
             style="@style/Widget.OpenRunner.Card.Soft"

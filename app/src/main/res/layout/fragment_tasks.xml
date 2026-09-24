@@ -27,12 +27,9 @@
     </LinearLayout>
 
     <View
-        android:layout_width="26dp"
-        android:layout_height="@dimen/or_rule_height_strong"
+        style="@style/Widget.OpenRunner.Rule.Accent"
         android:layout_marginStart="@dimen/or_page_pad"
-        android:layout_marginTop="@dimen/or_space_md"
-        android:background="@color/or_primary"
-        android:importantForAccessibility="no" />
+        android:layout_marginTop="@dimen/or_space_md" />
 
     <!--
         固定头部与可滚动列表的分界线。
