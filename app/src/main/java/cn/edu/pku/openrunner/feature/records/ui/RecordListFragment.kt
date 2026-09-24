@@ -1,9 +1,11 @@
 package cn.edu.pku.openrunner.feature.records.ui
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.PathInterpolator
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -29,6 +31,16 @@ import kotlin.math.roundToInt
 
 class RecordListFragment : Fragment() {
     private var photoTargetLocalId: String? = null
+
+    /** 进度环与百分比数字共用的缓动，只建一次。 */
+    private val goalInterpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
+
+    /** 目标进度动画。状态重复下发时要先打断上一条，否则数字会来回抢。 */
+    private var goalAnimator: ValueAnimator? = null
+
+    /** 数字当前显示的百分比，作为下一次动画的起点。 */
+    private var goalShownPercent = 0
+
     private val photoPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         val localId = photoTargetLocalId
         photoTargetLocalId = null
@@ -97,8 +109,7 @@ class RecordListFragment : Fragment() {
                         empty.visibility = if (!state.loading && state.records.isEmpty()) View.VISIBLE else View.GONE
                         val userStatus = state.userStatus
                         if (userStatus == null) {
-                            goalProgress.setProgressCompat(0, true)
-                            goalPercent.setText(R.string.record_goal_percent_unavailable)
+                            animateGoalProgress(goalProgress, goalPercent, 0, unavailable = true)
                             goalDistance.setText(
                                 if (state.loading) {
                                     R.string.record_goal_loading
@@ -116,12 +127,12 @@ class RecordListFragment : Fragment() {
                             } else {
                                 0
                             }
-                            goalProgress.setProgressCompat(percent, true)
-                            goalPercent.text = if (userStatus.target > 0) {
-                                getString(R.string.record_goal_percent, percent)
-                            } else {
-                                getString(R.string.record_goal_percent_unavailable)
-                            }
+                            animateGoalProgress(
+                                goalProgress,
+                                goalPercent,
+                                percent,
+                                unavailable = userStatus.target <= 0
+                            )
                             goalDistance.text = if (userStatus.target > 0) {
                                 getString(
                                     R.string.record_goal_distance,
@@ -169,5 +180,71 @@ class RecordListFragment : Fragment() {
             }
         }
         viewModel.refresh()
+    }
+
+    override fun onDestroyView() {
+        // 动画的每帧回调持有 View 的引用，视图销毁前必须断掉。
+        goalAnimator?.cancel()
+        goalAnimator = null
+        goalShownPercent = 0
+        super.onDestroyView()
+    }
+
+    /**
+     * 进度环与百分比数字一起走。
+     *
+     * 环原先用 setProgressCompat(percent, true) 让控件自己插值，数字却直接跳到终值，
+     * 同一张卡里两个元素各走各的，看着像数字先到、环后到。改成这里统一插值：
+     * 每帧把同一个结果同时喂给环（setProgressCompat(v, false)，不再让控件自己动）
+     * 与数字，两者必然同步，时长与缓动也由这里说了算。
+     *
+     * 数据还没到位时 target 传 0、unavailable 传 true：数字显示占位符、环退回 0，
+     * 不会出现一个孤零零的百分比配一个没有数据的环。
+     */
+    private fun animateGoalProgress(
+        ring: CircularProgressIndicator,
+        percentText: TextView,
+        target: Int,
+        unavailable: Boolean
+    ) {
+        goalAnimator?.cancel()
+        val from = goalShownPercent
+        if (from == target) {
+            applyGoalProgress(ring, percentText, target, unavailable)
+            return
+        }
+        goalAnimator = ValueAnimator.ofInt(from, target).apply {
+            duration = GOAL_ANIMATION_MILLIS
+            interpolator = goalInterpolator
+            addUpdateListener { animator ->
+                applyGoalProgress(
+                    ring,
+                    percentText,
+                    animator.animatedValue as Int,
+                    unavailable
+                )
+            }
+            start()
+        }
+    }
+
+    private fun applyGoalProgress(
+        ring: CircularProgressIndicator,
+        percentText: TextView,
+        percent: Int,
+        unavailable: Boolean
+    ) {
+        goalShownPercent = percent
+        ring.setProgressCompat(percent, false)
+        percentText.text = if (unavailable) {
+            getString(R.string.record_goal_percent_unavailable)
+        } else {
+            getString(R.string.record_goal_percent, percent)
+        }
+    }
+
+    private companion object {
+        /** 进度环与数字的动画时长，与 Material 进度指示器默认的 500ms 对齐。 */
+        private const val GOAL_ANIMATION_MILLIS = 500L
     }
 }

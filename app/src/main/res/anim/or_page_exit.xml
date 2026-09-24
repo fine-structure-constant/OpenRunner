@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    页面退出：fade through 里「出」的那一半。
+
+    只有 alpha，且刻意比进入短（90ms）—— 退出是让路，不该让人等它。
+    进入动画的 startOffset 正好也是 90ms，两段首尾相接、不重叠。
+
+    缓动用 linear_out_slow_in：收尾慢下来，读起来像「退场」而不是「被抽走」。
+    与进入的 fast_out_slow_in 配对，是 Material 里 fade through 的标准组合。
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/linear_out_slow_in">
+
+    <alpha
+        android:duration="90"
+        android:fromAlpha="1.0"
+        android:toAlpha="0.0" />
+</set>

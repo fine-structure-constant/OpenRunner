@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    页面进入：fade through 里「进」的那一半，配 MainActivity.showFragment()。
+
+    Material 的 fade through 语义是先出后进 —— 旧页面淡出，新页面再淡入，两段不重叠。
+    FragmentManager 默认让 enter / exit 同时开始，所以要在这里补一段 startOffset，
+    把进入推迟到退出动画结束（90ms）之后。少了这个偏移，两个 alpha 动画会叠在一起，
+    屏幕上同时出现两层半透明页面，退化成普通的 crossfade。
+
+    视图动画在 startOffset 期间会把 view 停在动画的初始帧（fillBefore 默认 true，
+    normalizedTime 被夹到 0），所以这 90ms 里新页面是 alpha=0，而不是
+    「先亮一下再消失」，不会闪白。
+
+    缩放取 0.94：fade through 靠这点缩放把「新内容长出来」表达清楚，再大就成了弹入，
+    与这套学院的语气不搭。整段只动 alpha 与 scale，不碰任何布局尺寸。
+-->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:interpolator/fast_out_slow_in"
+    android:startOffset="90">
+
+    <alpha
+        android:duration="210"
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0" />
+
+    <scale
+        android:duration="210"
+        android:fromXScale="0.94"
+        android:fromYScale="0.94"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toXScale="1.0"
+        android:toYScale="1.0" />
+</set>

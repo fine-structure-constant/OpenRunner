@@ -34,10 +34,21 @@
         android:background="@color/or_primary"
         android:importantForAccessibility="no" />
 
+    <!--
+        固定头部与可滚动列表的分界线。
+        下面的 RecyclerView 独立滚动，clipToPadding=false 让它能画进自己的 padding 里，
+        于是列表项贴着这条线上沿被裁掉；没有线的话内容像是「凭空出现」，边界读不出来。
+        用通栏细分隔线而非缩进，让它读作结构分界而不是标题的一部分。
+        与标题下那根 26dp 品牌色短横留出 or_space_lg 的间距 —— 短横是分区标记（属于标题），
+        这条是版面分界，两者贴太近会被读成一对装饰。
+    -->
+    <View
+        style="@style/Widget.OpenRunner.Rule"
+        android:layout_marginTop="@dimen/or_space_lg" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/or_space_lg"
         android:layout_weight="1">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -51,6 +62,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingStart="@dimen/or_page_pad"
+                android:paddingTop="@dimen/or_space_sm"
                 android:paddingEnd="@dimen/or_page_pad"
                 android:paddingBottom="@dimen/or_page_pad" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    选中态开关。
+
+    NavigationMenuItemView 只在菜单项「可勾选且已勾选」时才把 state_checked
+    合并进 drawable state（它重写了 onCreateDrawableState，并在 setChecked 里
+    调 refreshDrawableState），所以这里的 state_checked 恰好命中
+    checkableBehavior="single" 组里的当前项，与原先 itemShapeFillColor 的判定一致。
+
+    未选中项画透明而不是留空：菜单项的 state 变化要能触发一次重绘，
+    有显式的空 item 才保证「从选中切到未选中」时背景被真正清掉。
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/or_nav_item_checked"
+        android:state_checked="true" />
+    <item android:drawable="@android:color/transparent" />
+</selector>

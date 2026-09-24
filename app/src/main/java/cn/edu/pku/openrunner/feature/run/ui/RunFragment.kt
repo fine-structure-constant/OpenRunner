@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.PathInterpolator
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -56,6 +57,9 @@ class RunFragment : Fragment() {
     private var followLocation = true
     private var stopConfirmation: AlertDialog? = null
     private var pauseConfirmation: AlertDialog? = null
+
+    /** 控件显隐用的缓动，只建一次，别在每帧的状态回调里新建。 */
+    private val controlFadeInterpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -156,13 +160,10 @@ class RunFragment : Fragment() {
                             }
                         )
                         action.isEnabled = !state.isSavingRecord
-                        pauseResume.visibility = if (
+                        crossFade(
+                            pauseResume,
                             state.status == RunStatus.RUNNING || state.status == RunStatus.PAUSED
-                        ) {
-                            View.VISIBLE
-                        } else {
-                            View.GONE
-                        }
+                        )
                         pauseResume.setText(
                             if (state.status == RunStatus.PAUSED) {
                                 R.string.run_resume
@@ -171,7 +172,7 @@ class RunFragment : Fragment() {
                             }
                         )
                         pauseResume.isEnabled = !state.isSavingRecord
-                        delete.visibility = if (state.hasPendingRecord) View.VISIBLE else View.GONE
+                        crossFade(delete, state.hasPendingRecord)
                         delete.isEnabled = !state.isSavingRecord
                         distanceText.text = getString(R.string.run_metric_distance_value, state.distanceMeters)
                         durationText.text = RunMetrics.formatDuration(state.durationSeconds)
@@ -195,11 +196,7 @@ class RunFragment : Fragment() {
                                 state.recordError ?: getString(R.string.unknown_error)
                             )
                         }
-                        recordStatusText.visibility = if (recordStatusText.text.isEmpty()) {
-                            View.GONE
-                        } else {
-                            View.VISIBLE
-                        }
+                        crossFade(recordStatusText, recordStatusText.text.isNotEmpty())
                         // 该文本位于跑步页浮层上。浮层底色随亮暗主题切换
                         // （浅色为 #FFFDF8，深色为墨色 #221C16），
                         // 所以直接用随主题解析的状态色即可，两边都有足够对比度。
@@ -339,6 +336,50 @@ class RunFragment : Fragment() {
         }
     }
 
+    /**
+     * 控件的显隐交叉淡入。
+     *
+     * 直接切 visibility 会让按钮在同一位置「啪」地出现／消失；跑步页上暂停、
+     * 保存、丢弃三个按钮彼此牵连，硬切读起来像布局跳了一下。这里只动 alpha：
+     * 显示时先置 VISIBLE 再淡入，隐藏时淡完才置 GONE，中间不参与测量，
+     * 不会额外引起重排（GONE 本身带来的回流是本来就有的）。
+     *
+     * 用 view.animate() 而不是自建 Animator：它每个 View 一份，重复调用会打断
+     * 上一条，状态反复横跳时不会留下两条动画互相打架。
+     *
+     * 「应该是什么可见性」记在 view.tag 上。淡出被打断时，end action 仍可能
+     * 已经排上队并被执行，那时若不判断就会把一个正在淡入的控件又置成 GONE。
+     * tag 在布局与代码里都没被用过，借它存这个意图；tag 为空说明从未调用过本方法，
+     * 按「该显示」处理，别误置 GONE。
+     */
+    private fun crossFade(view: View, visible: Boolean) {
+        view.tag = visible
+        val target = if (visible) 1f else 0f
+        val showing = view.visibility == View.VISIBLE
+        if (showing && view.alpha == target) return
+        if (visible) {
+            if (!showing) {
+                view.alpha = 0f
+                view.visibility = View.VISIBLE
+            }
+            view.animate()
+                .alpha(1f)
+                .setDuration(CONTROL_FADE_MILLIS)
+                .setInterpolator(controlFadeInterpolator)
+                .start()
+        } else {
+            if (!showing) return
+            view.animate()
+                .alpha(0f)
+                .setDuration(CONTROL_FADE_MILLIS)
+                .setInterpolator(controlFadeInterpolator)
+                .withEndAction {
+                    if (view.tag as? Boolean != true) view.visibility = View.GONE
+                }
+                .start()
+        }
+    }
+
     private fun TrackPoint.toMapLatLng(): LatLng {
         return LatLng(latitude, longitude)
     }
@@ -388,5 +429,8 @@ class RunFragment : Fragment() {
 
     companion object {
         private val CAMPUS_CENTER = LatLng(39.99281, 116.31088)
+
+        /** 控件显隐的淡入淡出时长。够短，不会被读成「页面在加载」。 */
+        private const val CONTROL_FADE_MILLIS = 150L
     }
 }

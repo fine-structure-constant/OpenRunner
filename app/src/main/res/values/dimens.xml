@@ -31,4 +31,12 @@
     <!-- 进度环 -->
     <dimen name="or_ring_size">104dp</dimen>
     <dimen name="or_ring_thickness">8dp</dimen>
+
+    <!--
+        抽屉菜单项的选中高亮。or_nav_item_inset 是胶囊离菜单项边缘的内缩，
+        or_nav_item_fill_inset 是底色左缘的内缩；两者之差（3dp）就是
+        左缘那根竖装饰线的宽度。改宽度只改后者，不要在 drawable 里写死。
+    -->
+    <dimen name="or_nav_item_inset">10dp</dimen>
+    <dimen name="or_nav_item_fill_inset">13dp</dimen>
 </resources>

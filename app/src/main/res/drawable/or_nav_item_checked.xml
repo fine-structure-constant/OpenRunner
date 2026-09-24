@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    选中项：胶囊底色 + 左缘竖装饰线。
+
+    没有单独画那根线，而是拿两块圆角矩形叠出来。原因是 layer-list 的 <item>
+    想按固定宽度画一根 3dp 的线，得靠 android:width + android:gravity，
+    这两个属性是 API 23 才有的（本工程 minSdk 21，低版本上属性会被忽略，
+    整块胶囊会被线铺满，属于静默的坏结果）。换成叠法之后任何版本都成立，
+    也不必把抽屉的 304dp 宽度写进 drawable。
+
+    叠法：底层整块胶囊染成品牌色，上层底色再把左边缘多让出 3dp，
+    于是只剩左边那 3dp 品牌色露出来。两层圆角相同、上层整体内缩 3dp，
+    所以品牌色会顺着左上 / 左下圆角走成一道等宽的弧，拐角处不会露出方角。
+
+    内缩量走 dimen：or_nav_item_fill_inset 与 or_nav_item_inset 之差
+    就是这根线的宽度。
+
+    注意 layer-list 的 inset 只有物理 left/right，没有 start/end 版本，
+    而 Manifest 里 supportsRtl="true"。本工程中文单语、没有 RTL 资源，
+    界面方向实际不会解析成 RTL，所以按 LTR 写就够。若将来要支持 RTL，
+    需要再补一份 drawable-ldrtl/or_nav_item_checked.xml 把两侧内缩对调。
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 底层：品牌色胶囊。除了左缘 3dp，其余部分都会被上层盖住 -->
+    <item
+        android:left="@dimen/or_nav_item_inset"
+        android:right="@dimen/or_nav_item_inset">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/or_primary" />
+            <corners android:radius="@dimen/or_radius_card" />
+        </shape>
+    </item>
+
+    <!-- 上层：选中胶囊底色，左边缘让位给装饰线 -->
+    <item
+        android:left="@dimen/or_nav_item_fill_inset"
+        android:right="@dimen/or_nav_item_inset">
+        <shape android:shape="rectangle">
+            <!--
+                底色取自 or_nav_item_fill（一个 state_checked 驱动的颜色状态列表），
+                而不是直接写 or_primary_container：菜单项的两组颜色成对命名，
+                文字与图标在 or_nav_item_content 里，底色就在这里。
+                这一层只在选中时才会被画到，state 传下来必然命中 checked 那一档。
+            -->
+            <solid android:color="@color/or_nav_item_fill" />
+            <corners android:radius="@dimen/or_radius_card" />
+        </shape>
+    </item>
+</layer-list>

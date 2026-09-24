@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    抽屉菜单项的背景，挂在 NavigationView 的 app:itemBackground 上。
+
+    为什么要自己画：Material 的 itemShapeFillColor 一个菜单项只给一个形状，
+    而选中态需要「胶囊底色 + 左缘竖装饰线」两层。菜单项身上只有背景和前景
+    两个 drawable 槽位，前景被 NavigationView 自己拿去放水波纹了
+    （NavigationMenuPresenter 里 itemBackground 走 setBackground、
+    itemRippleColor 走 setForeground），所以两层只能一起塞进背景。
+
+    顶层必须是 ripple：一旦设了 app:itemBackground，NavigationView 就整段跳过
+    默认分支，而 itemRippleColor 恰好只在那个分支里被读取 —— 反编译确认过。
+    不加这一层，菜单项按压就没有任何反馈。
+    用 colorControlHighlight 而不是自己新开一个色名：它是主题属性，
+    深浅两套自动跟随，不必在 colors.xml / values-night 里各加一条。
+-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorControlHighlight">
+    <item android:drawable="@drawable/or_nav_item_state" />
+</ripple>

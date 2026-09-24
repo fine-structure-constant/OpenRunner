@@ -32,6 +32,12 @@
             android:layout_weight="1" />
     </LinearLayout>
 
+    <!--
+        选中项的高亮不用 Material 的 itemShapeFillColor / itemShapeAppearanceOverlay /
+        itemShapeInset*：那套只能给菜单项一个形状，而选中态要的是
+        「胶囊底色 + 左缘竖装饰线」两层。整块背景改由 itemBackground 提供，
+        见 drawable/or_nav_item_background.xml（含为什么必须自带 ripple）。
+    -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/main_navigation"
         android:layout_width="304dp"
@@ -40,12 +46,9 @@
         android:background="@color/or_surface_container"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/main_drawer_header"
+        app:itemBackground="@drawable/or_nav_item_background"
         app:itemHorizontalPadding="24dp"
         app:itemIconTint="@color/or_nav_item_content"
-        app:itemShapeAppearanceOverlay="@style/ShapeAppearance.OpenRunner.Card"
-        app:itemShapeFillColor="@color/or_nav_item_fill"
-        app:itemShapeInsetEnd="10dp"
-        app:itemShapeInsetStart="10dp"
         app:itemTextAppearance="@style/TextAppearance.OpenRunner.Body"
         app:itemTextColor="@color/or_nav_item_content"
         app:menu="@menu/main_drawer_menu" />

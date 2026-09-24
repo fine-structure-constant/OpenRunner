@@ -45,6 +45,17 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val amapPrivacyStore by lazy { AmapPrivacyStore(this) }
     private var privacyDialogVisible = false
     private var pendingVirtualPage = false
+
+    /**
+     * 是否已经显示过第一个页面。
+     *
+     * fade through 的前提是「有一个旧页面要让路」，冷启动时并没有 —— 第一屏
+     * 直接淡入会显得像加载慢了一拍，跑步页首帧上的 MapView 还要额外吃一次缩放动画。
+     * 所以只从第二次切换开始做转场。进程被回收后重建时 FragmentManager 自己会把
+     * 页面还原回来，那条路径也不走 showFragment，所以恢复后要把它标成「已经有页面了」，
+     * 否则重建之后第一次点菜单会没有转场。
+     */
+    private var firstPageShown = false
     private val authLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -58,6 +69,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // 重建（主题切换、进程被回收后恢复）时页面上已经有一个被还原的 Fragment，
+        // 此时再切页面应当照常做转场。
+        firstPageShown = savedInstanceState != null
         val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(
             R.id.main_toolbar
         )
@@ -207,7 +221,16 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun showFragment(fragment: androidx.fragment.app.Fragment) {
+        // 只从第二次切换开始做转场，理由见 firstPageShown 的注释。
+        val animate = firstPageShown
+        firstPageShown = true
         supportFragmentManager.commit {
+            if (animate) {
+                // fade through：进入动画自带 90ms 的 startOffset，正好等退出动画走完，
+                // 两段不重叠。参数见 res/anim/or_page_enter.xml 与 or_page_exit.xml。
+                setCustomAnimations(R.anim.or_page_enter, R.anim.or_page_exit)
+            }
+            setReorderingAllowed(true)
             replace(R.id.main_content, fragment)
         }
     }

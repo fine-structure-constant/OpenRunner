@@ -1,10 +1,13 @@
 package cn.edu.pku.openrunner.feature.records.ui
 
+import android.animation.ValueAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.PathInterpolator
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -47,6 +50,13 @@ class RecordAdapter(
         private val upload: View = itemView.findViewById(R.id.record_upload)
         private val photo: TextView = itemView.findViewById(R.id.record_photo)
         private val delete: View = itemView.findViewById(R.id.record_delete)
+
+        private val colorInterpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
+        private var colorAnimator: ValueAnimator? = null
+
+        /** 卡片此刻实际显示的颜色。下一次换状态时以它为插值起点。 */
+        private var containerShown: Int? = null
+        private var accentShown: Int? = null
 
         fun bind(
             item: RecordListItem,
@@ -111,8 +121,10 @@ class RecordAdapter(
                 RecordUploadState.UPLOADED_INVALID -> R.color.or_status_uploading_container to R.color.or_status_uploading
                 RecordUploadState.FAILED -> R.color.or_status_error_container to R.color.or_status_error
             }
-            card.setCardBackgroundColor(ContextCompat.getColor(context, containerColor))
-            card.strokeColor = ContextCompat.getColor(context, accentColor)
+            applyStateColors(
+                ContextCompat.getColor(context, containerColor),
+                ContextCompat.getColor(context, accentColor)
+            )
             card.strokeWidth = dp(if (item.hasLocalDetails) 2 else 1)
             card.isClickable = item.hasLocalDetails
             card.isFocusable = item.hasLocalDetails
@@ -121,7 +133,6 @@ class RecordAdapter(
             } else {
                 null
             })
-            status.setTextColor(ContextCompat.getColor(context, accentColor))
             detailsAvailable.visibility = if (item.hasLocalDetails) View.VISIBLE else View.GONE
 
             photoStatus.visibility = if (item.hasPhoto) View.VISIBLE else View.GONE
@@ -159,11 +170,58 @@ class RecordAdapter(
             delete.setOnClickListener { onDelete(item) }
         }
 
+        /**
+         * 上传状态换色时走一小段过渡。
+         *
+         * 底色、描边、状态文字三处一起插值，只动颜色不动任何尺寸，卡片不会因此重排。
+         * 上传成功那一瞬间从「琥珀」跳到「松绿」本来是硬切，扫一眼列表会觉得卡片
+         * 闪了一下；插值之后它读作「状态变了」而不是「换了一张卡」。
+         *
+         * 进来先取消上一条动画：RecyclerView 会把没跑完的动画带到复用出来的行上
+         * —— 一行正从「待上传」往「已上传」走，这行就被回收给了另一条记录，
+         * 残留动画会把新记录的底色继续往旧状态上带。这是复用型列表的经典串色。
+         *
+         * 首次绑定（还没有「当前颜色」可作起点）直接落值，不要从黑色渐入。
+         */
+        private fun applyStateColors(container: Int, accent: Int) {
+            colorAnimator?.cancel()
+            colorAnimator = null
+            val fromContainer = containerShown
+            val fromAccent = accentShown
+            containerShown = container
+            accentShown = accent
+            if (fromContainer == null || fromAccent == null ||
+                (fromContainer == container && fromAccent == accent)
+            ) {
+                card.setCardBackgroundColor(container)
+                card.strokeColor = accent
+                status.setTextColor(accent)
+                return
+            }
+            colorAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = COLOR_ANIMATION_MILLIS
+                interpolator = colorInterpolator
+                addUpdateListener { animator ->
+                    val fraction = animator.animatedValue as Float
+                    val mixedAccent = ColorUtils.blendARGB(fromAccent, accent, fraction)
+                    card.setCardBackgroundColor(
+                        ColorUtils.blendARGB(fromContainer, container, fraction)
+                    )
+                    card.strokeColor = mixedAccent
+                    status.setTextColor(mixedAccent)
+                }
+                start()
+            }
+        }
+
         private fun dp(value: Int): Int =
             (value * itemView.resources.displayMetrics.density).toInt()
     }
 
     companion object {
+        /** 上传状态换色的过渡时长。再长会让「已上传」读起来迟到。 */
+        private const val COLOR_ANIMATION_MILLIS = 200L
+
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<RecordListItem>() {
             override fun areItemsTheSame(oldItem: RecordListItem, newItem: RecordListItem): Boolean {
                 return oldItem.itemKey == newItem.itemKey
