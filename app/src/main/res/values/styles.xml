@@ -131,12 +131,23 @@
         ============================================================
         形状分档：印章 3 / 按钮 4 / 卡片 6 / 柔和卡 10 / 浮层 20
         ============================================================
-    -->
 
-    <style name="ShapeAppearance.OpenRunner.Seal" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/or_radius_seal</item>
-    </style>
+        数值只有一个来源：values/dimens.xml 的 or_radius_*。下面这些
+        ShapeAppearance 只是**Material 组件的取用口**（经 shapeAppearanceOverlay
+        挂上），不是数值本身。
+
+        为什么没有 ShapeAppearance.OpenRunner.Seal：
+        shapeAppearanceOverlay 只有 MaterialShapeDrawable 会去解属性，而印章是
+        TextView + 普通 <shape> drawable（or_seal.xml，GradientDrawable），
+        挂 overlay 完全静默 —— 不报错、不生效。印章的圆角只能走 drawable 里的
+        <corners android:radius="@dimen/or_radius_seal" />，所以那个 wrapper
+        谁也读不到，删掉了（曾存在过，是个会引人走错路的陷阱）。
+        同理没有 Pill 档：没有任何元素是药丸形。
+        这两条由 ShapeTokenTest 守住 —— 任何「无人取用」的形状 token 都会让构建失败。
+
+        TextInputLayout 是第三条路：它没有 shapeAppearanceOverlay，圆角走
+        boxCornerRadiusTopStart 等四个属性（见 Widget.OpenRunner.TextInput）。
+    -->
 
     <style name="ShapeAppearance.OpenRunner.Card" parent="">
         <item name="cornerFamily">rounded</item>
@@ -160,11 +171,6 @@
     <style name="ShapeAppearance.OpenRunner.Button" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">@dimen/or_radius_button</item>
-    </style>
-
-    <style name="ShapeAppearance.OpenRunner.Pill" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/or_radius_pill</item>
     </style>
 
     <!--
@@ -276,7 +282,7 @@
         短横装饰线：品牌色，作为分区标记。装饰线三件套里的「分区标记」那一件
         （另两件是 Widget.OpenRunner.Rule 细分隔线，与并列指标之间的竖分隔线）。
 
-        原先它在 12 个布局里各写一遍（26dp × or_rule_height_strong × @color/or_primary
+        原先同一份写法散在 7 个布局里、共 12 处（26dp × or_rule_height_strong × @color/or_primary
         × importantForAccessibility=no），而这个 token 谁也没用 —— 同一个东西有两份
         真相，改一处不会影响另一处。现在尺寸与颜色只在这里定义，布局里只留自己的
         外边距。
