@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    根节点**故意不设** android:background：本页用的是 Activity 的普通主题，而
+    Theme.OpenRunner 的 windowBackground 已经是 @color/or_surface，根节点再画一遍
+    就是纯多余的一层（lint 的 Overdraw 原先报的就是这里）。窗口背景随深浅模式各自
+    解析 or_surface 的变体，所以删掉它不会让底色变化。
+    注意 fragment_run / fragment_virtual_location 那两页不一样，它们必须留背景 —— 理由见那边。
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/or_surface"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar

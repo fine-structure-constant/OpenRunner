@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    根节点的背景**不是多余的**（lint 的 Overdraw 会报它，这里显式忽略）：
+    本页挂着 Theme.OpenRunner.Hud，深色模式下 ?attr/colorSurface 解析成 hud_surface
+    （#171310），而窗口背景来自 Activity 主题的 or_surface（#16130F）—— 两个值不同，
+    这层背景负责把整页压成墨色。删掉它会露出窗口那一档，页面底色会悄悄偏冷。
+    浅色模式下两者恰好相同（overlay 在 values-night 之外没有覆盖），所以只按浅色判断
+    会以为这层能删。fragment_virtual_location 同理。
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/colorSurface"
     android:orientation="vertical"
-    android:theme="@style/Theme.OpenRunner.Hud">
+    android:theme="@style/Theme.OpenRunner.Hud"
+    tools:ignore="Overdraw">
 
     <FrameLayout
         android:layout_width="match_parent"
