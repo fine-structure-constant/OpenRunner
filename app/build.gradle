@@ -65,3 +65,37 @@ dependencies {
 
     testImplementation "junit:junit:4.13.2"
 }
+
+// ---------------------------------------------------------------------------
+// Android Studio 的「Make」需要下面两个任务，而 AGP 9 不再创建它们。
+//
+// IDE 实际跑的是（Android Studio 日志 idea.log 里能看到这一行）：
+//     :app:assemble :app:unitTestClasses :app:androidTestClasses
+// 后两个是 IDE 按自己的 source set 名字（unitTest / androidTest）拼出来的
+// 「<名字>Classes」生命周期任务 —— 这是 Java 插件时代的约定。AGP 9 只提供
+// compileDebugUnitTestSources / compileDebugAndroidTestSources，于是 IDE 的构建
+// 还没开始就失败：
+//     Cannot locate tasks that match ':app:unitTestClasses' as task
+//     'unitTestClasses' not found in project ':app'
+//
+// 命令行构建不受影响（走 assembleDebug / testDebugUnitTest），所以这个问题只在 IDE 里出现。
+// 这里把两个生命周期任务补上，各自指向真正的编译任务。
+//
+// 放在 afterEvaluate 里、并且先 findByName 查一次：万一将来的 AGP 自己创建了同名任务，
+// 再注册一遍会让构建直接失败（同名任务冲突），所以要让它有机会先建。
+afterEvaluate {
+    if (tasks.findByName("unitTestClasses") == null) {
+        tasks.register("unitTestClasses") {
+            group = "build"
+            description = "编译单元测试源码（Android Studio 的 Make 会要这个任务）"
+            dependsOn("compileDebugUnitTestSources")
+        }
+    }
+    if (tasks.findByName("androidTestClasses") == null) {
+        tasks.register("androidTestClasses") {
+            group = "build"
+            description = "编译仪器测试源码（Android Studio 的 Make 会要这个任务）"
+            dependsOn("compileDebugAndroidTestSources")
+        }
+    }
+}

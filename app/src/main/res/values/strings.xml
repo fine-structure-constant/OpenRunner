@@ -5,7 +5,7 @@
         作用：让本构建与已安装的旧版 / 原 v2 / v2-pro 在桌面上可区分，
         而应用内工具栏仍显示干净的 app_name。
     -->
-    <string name="app_launcher_name">OpenRunner 新UI</string>
+    <string name="app_launcher_name">OpenRunner 宣纸风格dev中</string>
     <string name="nav_run">跑步</string>
     <string name="nav_virtual_location">虚拟定位</string>
     <string name="virtual_test_notice">应用内手动定位测试，应用内hook，慎用</string>
