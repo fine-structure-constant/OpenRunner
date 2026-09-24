@@ -3,10 +3,18 @@
     Android 8.0 及以上的自适应图标。遮罩形状由启动器决定（圆形 / 方圆 / 圆角方形…），
     所以这里只给两层：纯色底 + 居中的「跑」字前景。字落在 66dp 安全圆内，不会被裁。
 
+    monochrome 是 Android 13（API 33）起的「主题化图标」图层：用户在系统设置里打开
+    「主题化图标」后，系统用壁纸与主题算出的颜色给这一层**重新上色** —— 所以这里填的
+    #FFF8F4 不决定最终颜色，直接用前景 drawable 即可（官方文档的示例也是这样，前景与
+    monochrome 指向同一个 drawable）。**不另建 ic_launcher_monochrome.xml**：那会变成
+    同一个字形两份 pathData，将来改字形漏改一份不会报错，只会让主题化图标与普通图标
+    长得不一样。三层都要是 108dp 画布，外层 18dp 留给遮罩，这两点前景已经满足。
+
     这里不要放 mipmap-anydpi/ic_launcher.xml：anydpi 的优先级高于所有具体密度桶，
     留一个 anydpi 的位图包装会让 mipmap-*/ic_launcher.png 在 API 25 及以下永远选不中。
 -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/launcher_icon_background" />
     <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
 </adaptive-icon>

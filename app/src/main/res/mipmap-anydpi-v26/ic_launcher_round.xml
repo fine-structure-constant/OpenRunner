@@ -7,8 +7,13 @@
     而不是退回 mipmap-*/ic_launcher_round.png 那套位图（位图不会被套遮罩）。
 
     真正需要独立圆形位图的是 API 25 及以下，见 mipmap-*/ic_launcher_round.png。
+
+    monochrome 与 ic_launcher.xml 里那一层同理（Android 13+ 的主题化图标，系统会重新
+    上色，所以复用前景 drawable）。两处必须同时有：roundIcon 走的是这个文件，
+    漏了它会让部分启动器上的主题化图标回退成自动生成的样子。
 -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/launcher_icon_background" />
     <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
 </adaptive-icon>
