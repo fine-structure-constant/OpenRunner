@@ -32,7 +32,6 @@
 
     <!-- 印章 -->
     <dimen name="or_seal_size">22dp</dimen>
-    <dimen name="or_seal_size_lg">26dp</dimen>
 
     <!-- 进度环 -->
     <dimen name="or_ring_size">104dp</dimen>

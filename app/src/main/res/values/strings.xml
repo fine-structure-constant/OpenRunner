@@ -58,15 +58,10 @@
     <string name="amap_privacy_required">需要同意地图与定位隐私说明后才能使用跑步地图</string>
     <string name="drawer_open">打开导航菜单</string>
     <string name="drawer_close">关闭导航菜单</string>
-    <string name="session_missing">尚未登录。请先完成 IAAA 认证并保存会话。</string>
-    <string name="tasks_loading">正在读取任务…</string>
     <string name="tasks_empty">暂无任务</string>
     <string name="tasks_error">任务加载失败：%1$s</string>
     <string name="task_acquired">已获得</string>
     <string name="task_not_acquired">未获得</string>
-    <string name="task_detail_format">%1$s\n%2$s</string>
-    <string name="records_placeholder">记录placeholder，下一步接入 RecordRepository。</string>
-    <string name="run_placeholder">采集placeholder，下一步接入 LocationProvider。</string>
     <string name="login_title">IAAA 登录</string>
     <string name="login_username_hint">学号 / IAAA 用户名</string>
     <string name="login_password_hint">IAAA 密码</string>
@@ -98,7 +93,6 @@
     <string name="run_virtual_waiting">虚拟定位已开启</string>
     <string name="run_location_ready">定位就绪 · ±%1$d m</string>
     <string name="run_permission_required">需要定位权限才能采集轨迹</string>
-    <string name="run_idle">尚未开始跑步</string>
     <string name="run_running_background">正在跑步 · %1$d 步\n后台与息屏记录已开启</string>
     <string name="run_running_foreground_only">正在跑步 · %1$d 步\n后台保护启动失败，请保持应用在前台</string>
     <string name="run_running_virtual">正在跑步 · %1$d 步\n请在“虚拟定位”菜单中手动确认测试点</string>
@@ -123,8 +117,6 @@
     <string name="run_notification_text">定位与计步后台运行，点击返回跑步页面</string>
     <string name="unknown_error">未知错误</string>
     <string name="records_empty">暂无跑步记录</string>
-    <string name="record_distance">%1$d 米</string>
-    <string name="record_duration">%1$d 秒 · %2$d 步</string>
     <string name="record_distance_value">%1$.2f</string>
     <string name="record_duration_minutes_seconds">%1$d分%2$02d秒</string>
     <string name="record_steps">%1$d 步</string>
