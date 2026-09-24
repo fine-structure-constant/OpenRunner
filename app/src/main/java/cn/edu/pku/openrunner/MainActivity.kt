@@ -122,24 +122,49 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         attachNavIndicator(navigation)
         navigation
             .setNavigationItemSelectedListener { item ->
-                when (item.itemId) {
+                val handled = when (item.itemId) {
                     R.id.nav_run -> openRunPage()
                     R.id.nav_virtual_location -> openVirtualLocationPage()
-                    R.id.nav_records -> showFragment(RecordListFragment())
-                    R.id.nav_tasks -> showFragment(TaskListFragment())
-                    R.id.nav_weather -> showFragment(WeatherFragment())
+                    R.id.nav_records -> {
+                        showFragment(RecordListFragment())
+                        true
+                    }
+                    R.id.nav_tasks -> {
+                        showFragment(TaskListFragment())
+                        true
+                    }
+                    R.id.nav_weather -> {
+                        showFragment(WeatherFragment())
+                        true
+                    }
                     R.id.nav_login -> if (hasSession()) {
                         showFragment(AccountFragment())
+                        true
                     } else {
+                        // 返回 false：登录页还没打开，抽屉不该把选中标记落在「登录」上。
+                        // NavigationView 只在监听器返回 true 时才记选中项
+                        // （反编译它的点击监听器确认：if (item.isCheckable() && result)），
+                        // 所以这里的 false 正好让它什么都不动 —— 标记留在当前页面上。
+                        // 登录成功后由 authLauncher 显式选中「账户」。
                         authLauncher.launch(Intent(this, AuthActivity::class.java))
+                        false
                     }
-                    R.id.theme_system -> changeTheme(AppThemeMode.SYSTEM)
-                    R.id.theme_light -> changeTheme(AppThemeMode.LIGHT)
-                    R.id.theme_dark -> changeTheme(AppThemeMode.DARK)
+                    R.id.theme_system -> {
+                        changeTheme(AppThemeMode.SYSTEM)
+                        true
+                    }
+                    R.id.theme_light -> {
+                        changeTheme(AppThemeMode.LIGHT)
+                        true
+                    }
+                    R.id.theme_dark -> {
+                        changeTheme(AppThemeMode.DARK)
+                        true
+                    }
                     else -> return@setNavigationItemSelectedListener false
                 }
                 drawer.closeDrawers()
-                true
+                handled
             }
 
         if (savedInstanceState == null) {
@@ -166,9 +191,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         val menu = findViewById<NavigationView>(R.id.main_navigation).menu
         val item = menu.findItem(R.id.nav_login)
         item.title = getString(if (hasSession()) R.string.account_title else R.string.nav_login)
-        menu.findItem(R.id.theme_system).isChecked = themeStore.mode == AppThemeMode.SYSTEM
-        menu.findItem(R.id.theme_light).isChecked = themeStore.mode == AppThemeMode.LIGHT
-        menu.findItem(R.id.theme_dark).isChecked = themeStore.mode == AppThemeMode.DARK
+        // 当前主题写在「外观」的标题里，而不是让子菜单的选项去占抽屉的选中槽。
+        // 抽屉只有一个选中槽（NavigationMenuPresenter 的 adapter 内部记一个
+        // checkedItem，换一项就把上一项取消），主题项一旦可选中，点一下就会把页面的
+        // 标记顶掉；而切主题会重建 Activity，恢复的是被顶掉之后的状态。所以主题项在
+        // menu/main_drawer_menu.xml 里被设成不可选中，状态改由标题携带 —— 顺带
+        // 不必展开子菜单就能看见。
+        menu.findItem(R.id.nav_appearance).title = getString(
+            R.string.nav_appearance_mode,
+            getString(
+                when (themeStore.mode) {
+                    AppThemeMode.SYSTEM -> R.string.theme_system
+                    AppThemeMode.LIGHT -> R.string.theme_light
+                    AppThemeMode.DARK -> R.string.theme_dark
+                }
+            )
+        )
     }
 
     private fun renderDrawerSummary(state: DrawerSummaryState) {
@@ -272,25 +310,34 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         themeStore.setMode(mode)
     }
 
-    private fun openRunPage() {
+    /**
+     * 打开跑步页。
+     *
+     * @return 是否真的切过去了。隐私弹窗拦下来时返回 false —— 页面没换，抽屉的选中
+     *   标记也就不该跟着动（菜单监听器把这个值原样返回给 NavigationView）。
+     */
+    private fun openRunPage(): Boolean {
         pendingVirtualPage = false
         if (!amapPrivacyStore.isAgreed) {
             showAmapPrivacyDialog()
-            return
+            return false
         }
         findViewById<NavigationView>(R.id.main_navigation).setCheckedItem(R.id.nav_run)
         showFragment(RunFragment(), transition = false)
+        return true
     }
 
-    private fun openVirtualLocationPage() {
+    /** 打开虚拟定位页。返回值含义同 [openRunPage]。 */
+    private fun openVirtualLocationPage(): Boolean {
         pendingVirtualPage = true
         if (!amapPrivacyStore.isAgreed) {
             showAmapPrivacyDialog()
-            return
+            return false
         }
         findViewById<NavigationView>(R.id.main_navigation)
             .setCheckedItem(R.id.nav_virtual_location)
         showFragment(VirtualLocationFragment(), transition = false)
+        return true
     }
 
     private fun showAmapPrivacyDialog() {

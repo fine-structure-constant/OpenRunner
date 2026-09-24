@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    抽屉菜单。
+
+    可选中的只有「页面」：跑步 / 虚拟定位 / 记录 / 任务 / 天气这一组，加上账户。
+    账户是独立的一条 item（不在组里），所以得自己写 android:checkable="true" ——
+    不写它，NavigationView.setCheckedItem(R.id.nav_login) 是**静默的空操作**
+    （反编译 NavigationMenuPresenter$NavigationMenuAdapter.setCheckedItem 确认：
+    非 checkable 直接 return），于是进了账户页，抽屉里的选中标记仍留在上一个页面。
+
+    主题子菜单（跟随系统 / 浅色 / 深色）刻意**不可选中**，所以组是
+    checkableBehavior="none"。理由：NavigationView 全局只有一个选中槽 ——
+    adapter 内部记着一个 checkedItem，换一项就把上一项 setChecked(false)（同一处
+    反编译确认）。子菜单选项一旦可选中，点一下主题就会把页面的标记顶掉，而切主题
+    会重建 Activity，重建后恢复的是被顶掉之后的状态，页面就再也没有标记了。
+    （选中项本身是持久化的：createInstanceState 写 android:menu:checked，
+    restoreInstanceState 读回来，所以只要槽里始终是页面项，重建不会丢。）
+
+    当前主题改由「外观」这一项的标题携带（见 MainActivity.refreshNavigation），
+    一眼可见，也不必展开子菜单。
+-->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
@@ -24,6 +44,7 @@
     </group>
     <item
         android:id="@+id/nav_login"
+        android:checkable="true"
         android:icon="@drawable/ic_or_account"
         android:title="@string/nav_login" />
     <item
@@ -33,18 +54,15 @@
         <menu>
             <group
                 android:id="@+id/theme_group"
-                android:checkableBehavior="single">
+                android:checkableBehavior="none">
                 <item
                     android:id="@+id/theme_system"
-                    android:checkable="true"
                     android:title="@string/theme_system" />
                 <item
                     android:id="@+id/theme_light"
-                    android:checkable="true"
                     android:title="@string/theme_light" />
                 <item
                     android:id="@+id/theme_dark"
-                    android:checkable="true"
                     android:title="@string/theme_dark" />
             </group>
         </menu>

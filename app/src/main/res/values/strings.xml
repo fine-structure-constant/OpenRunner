@@ -32,6 +32,12 @@
     <string name="nav_weather">天气</string>
     <string name="nav_login">登录</string>
     <string name="nav_appearance">外观</string>
+    <!--
+        当前主题挂在「外观」这一项的标题上（如「外观 · 深色模式」），而不是靠子菜单
+        选项的选中态 —— 原因见 menu/main_drawer_menu.xml。改 nav_appearance 时
+        这里要一起改。
+    -->
+    <string name="nav_appearance_mode">外观 · %1$s</string>
     <string name="theme_system">跟随系统</string>
     <string name="theme_light">浅色模式</string>
     <string name="theme_dark">深色模式</string>
