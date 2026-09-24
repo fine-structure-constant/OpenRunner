@@ -40,6 +40,10 @@ import androidx.appcompat.widget.AppCompatTextView
  * 注意延时期间必须先把初始状态落下去（见 [playStamp] 开头），否则印章会先以
  * 正常样子显示 90ms，再猛地跳成 1.5×，比不做动画还难看。
  *
+ * **每枚只盖一次**（见 [stamped]）：抽屉头部那枚会随列表项被回收复用，不设守卫
+ * 就会在拉开抽屉后的某个随机时刻重播。页面上的印章不受影响 —— 导航走 `replace()`，
+ * 每次进入页面都是新视图、新实例，照旧每进一次盖一次。
+ *
  * **动画被跳过时不能留下坏状态**
  *
  * 系统关掉动画（无障碍里的「移除动画」）时 ValueAnimator 的 duration 与
@@ -55,10 +59,27 @@ class SealView @JvmOverloads constructor(
 
     private var stampAnimator: ValueAnimator? = null
 
+    /**
+     * 这一枚是否已经盖过章。
+     *
+     * 只认「实例」而不是「每次 attach」，是因为抽屉头部那枚印章会随列表项一起被
+     * 回收再复用：Material 把头部放进 NavigationMenuPresenter 里一个**共享的**
+     * headerLayout，由它充当那个列表项的 ViewHolder（反编译
+     * NavigationMenuPresenter$NavigationMenuAdapter 确认）。菜单一旦滚动到头部
+     * 被回收、再经 onCreateViewHolder 复用同一个容器，头部里的印章就会 detach
+     * 又 attach 一次 —— 不设守卫的话，用户会在拉开抽屉后某个随机时刻看到它
+     * 突然盖一下。
+     *
+     * 页面上的印章不受影响：导航走 replace()，每次进入页面都是新视图、新实例，
+     * 所以照旧每进一次盖一次。
+     */
+    private var stamped = false
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         // 布局预览器里也会 attach，那里不该跑动画。
-        if (isInEditMode) return
+        if (isInEditMode || stamped) return
+        stamped = true
         playStamp()
     }
 
