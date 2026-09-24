@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    「不云备份、不换机迁移」的显式规则（Android 12 / API 31 起）。
+
+    为什么需要这个文件：`android:allowBackup="false"` 自 API 31 起被标记为弃用
+    （manifest 里仍然保留，因为 API 30 及以下只有它管用），而新版系统改由
+    `android:dataExtractionRules` 决定。另外这两段规则**各自独立，缺了哪一段那一种
+    传输就是完全开启的**（不是「没配就不传」），所以两个段落都得写。
+
+    为什么要全部排除：本应用在 SharedPreferences 里存着 PKU 的 access token
+    （见 core/session/SessionStore.kt），运行记录与照片也都在应用私有目录下。
+    凭据不该跟着云备份或换机迁移走 —— 迁移过去的 token 在另一台设备上未必有效，
+    却实实在在是一份泄露面；恢复后重新登录是更干净的路径。
+
+    domain 的九个取值都对应应用私有目录下的某个子目录，`root` 是它们共同的根，
+    所以只排除 root 其实已经覆盖全部。这里把其余几个也显式写出来，是为了让这份规则
+    自己说清楚在保护什么，而不是依赖「root 是递归的」这条隐含语义。
+
+    path="." 指该 domain 目录本身。AOSP（FullBackup.extractCanonicalFile）把 `.`
+    与省略 path 都规范化成 domain 目录本身，两种写法等价；这里写出来是因为官方文档
+    把 path 记为必填，免得后来人以为漏了属性又「补」一个。
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="." />
+        <exclude domain="file" path="." />
+        <exclude domain="database" path="." />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="external" path="." />
+    </device-transfer>
+</data-extraction-rules>

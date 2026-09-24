@@ -13,14 +13,28 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!--
+        备份与换机迁移：三样都要，各管一段。
+          allowBackup="false"        —— API 30 及以下的**总开关**（那时只有它管用）
+          dataExtractionRules        —— API 31 起的规则（分云备份与换机迁移两段）
+          fullBackupContent          —— API 23–30 的旧格式规则；dataExtractionRules 在那些
+                                        系统上会被忽略，只写它等于让老设备走默认值（全都备份）
+        三个文件/属性描述的是同一件事，规则内容与理由见 res/xml/data_extraction_rules.xml
+        （本应用在 SharedPreferences 里存着 access token）。
+        tools:targetApi="s" 是告诉 lint「dataExtractionRules 就是给 S 及以上的，
+        别报 UnusedAttribute」—— 老系统忽略它正是我们要的行为。
+    -->
     <application
         android:name=".OpenRunnerApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_launcher_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OpenRunner">
+        android:theme="@style/Theme.OpenRunner"
+        tools:targetApi="s">
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="${AMAP_API_KEY}" />
