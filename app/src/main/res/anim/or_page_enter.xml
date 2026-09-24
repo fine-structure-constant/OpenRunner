@@ -7,9 +7,13 @@
     把进入推迟到退出动画结束（90ms）之后。少了这个偏移，两个 alpha 动画会叠在一起，
     屏幕上同时出现两层半透明页面，退化成普通的 crossfade。
 
-    视图动画在 startOffset 期间会把 view 停在动画的初始帧（fillBefore 默认 true，
-    normalizedTime 被夹到 0），所以这 90ms 里新页面是 alpha=0，而不是
-    「先亮一下再消失」，不会闪白。
+    视图动画在 startOffset 期间会把 view 停在动画的初始帧，所以这 90ms 里新页面是
+    alpha=0，而不是「先亮一下再消失」，不会闪白。机制记准一点：真正把 normalizedTime
+    夹到 0 的是 Animation 的 fillEnabled 默认为 false（`if (!mFillEnabled)
+    normalizedTime = clamp(0,1)`），而 fillBefore 默认 true 只在 fillEnabled 被显式
+    打开时才轮到它起作用 —— 查 AOSP Animation.java 确认（mFillBefore=true /
+    mFillAfter=false / mFillEnabled=false）。**所以别给这个动画加
+    fillEnabled="true" + fillBefore="false"**，那正好会退化成闪白。
 
     缩放取 0.94：fade through 靠这点缩放把「新内容长出来」表达清楚，再大就成了弹入，
     与这套学院的语气不搭。整段只动 alpha 与 scale，不碰任何布局尺寸。

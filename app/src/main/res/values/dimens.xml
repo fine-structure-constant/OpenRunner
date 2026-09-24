@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- 间距节奏。学院派依赖克制的留白差异，不再所有页面统一 16dp。 -->
     <dimen name="or_space_xs">4dp</dimen>
     <dimen name="or_space_sm">8dp</dimen>
@@ -62,7 +62,12 @@
     -->
     <dimen name="or_nav_item_inset">10dp</dimen>
     <dimen name="or_nav_indicator_width">3dp</dimen>
-    <dimen name="or_nav_indicator_gap">5dp</dimen>
+    <!--
+        这条会被 lint 的 UnusedResources 报出来，是**假阳性**：它的消费者是
+        NavGeometryTest（在 src/test，lint 不计入引用），用来校验上面的等式。
+        这里显式忽略，好让 lint 里剩下的未使用项都是真问题。
+    -->
+    <dimen name="or_nav_indicator_gap" tools:ignore="UnusedResources">5dp</dimen>
     <!--
         竖装饰线的高度。比胶囊矮一截，读作「标记」而不是「胶囊被切掉一条边」。
     -->
