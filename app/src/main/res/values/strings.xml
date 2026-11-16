@@ -193,8 +193,8 @@
     <string name="record_goal_percent">%1$d%%</string>
     <string name="record_goal_percent_unavailable">—</string>
     <string name="record_goal_distance">%1$.1f / %2$.1f km</string>
-    <string name="record_goal_no_target">已跑 %1$.1f km · 暂无里程目标</string>
-    <string name="record_goal_detail">奖励 %1$.1f km · 有效记录 %2$d 次 · %3$s</string>
+    <string name="record_goal_no_target">总里程 %1$.1f km · 暂无目标</string>
+    <string name="record_goal_detail">跑步 %1$.1f km + 奖励 %2$.1f km\n有效记录 %3$d 次 · %4$s</string>
     <string name="record_goal_unavailable">目标数据暂不可用</string>
     <string name="account_title">我的账户</string>
     <string name="account_login_hint">未检测到有效登录状态。</string>

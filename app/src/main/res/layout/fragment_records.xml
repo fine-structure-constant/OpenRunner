@@ -50,28 +50,29 @@
             android:padding="@dimen/or_card_pad">
 
             <FrameLayout
-                android:layout_width="104dp"
-                android:layout_height="104dp">
+                android:layout_width="@dimen/or_ring_size"
+                android:layout_height="@dimen/or_ring_size">
 
-                <com.google.android.material.progressindicator.CircularProgressIndicator
+                <cn.edu.pku.openrunner.feature.records.ui.RunGoalRingView
                     android:id="@+id/records_goal_progress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:indeterminate="false"
-                    android:max="100"
-                    app:indicatorColor="@color/or_primary"
-                    app:indicatorSize="@dimen/or_ring_size"
-                    app:trackColor="@color/or_surface_container_high"
-                    app:trackThickness="@dimen/or_ring_thickness" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no" />
 
-                <TextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/records_goal_percent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/or_space_md"
+                    android:layout_marginEnd="@dimen/or_space_md"
+                    android:gravity="center"
+                    android:maxLines="1"
                     android:text="@string/record_goal_percent_unavailable"
-                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric" />
+                    android:textAppearance="@style/TextAppearance.OpenRunner.Metric"
+                    app:autoSizeMaxTextSize="26sp"
+                    app:autoSizeMinTextSize="10sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform" />
             </FrameLayout>
 
             <LinearLayout

@@ -20,6 +20,8 @@
 
     <color name="map_route">#F0A9A6</color>
 
+    <color name="or_goal_overflow">#8FD8CF</color>
+
     <color name="or_status_pending">#E8B070</color>
     <color name="or_status_pending_container">#3B2E17</color>
     <color name="or_status_uploading">#93C4E8</color>
