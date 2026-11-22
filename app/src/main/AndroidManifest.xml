@@ -43,6 +43,10 @@
             android:exported="false"
             android:foregroundServiceType="location"
             tools:node="merge" />
+        <service
+            android:name=".feature.hike.data.HikeRecordingService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

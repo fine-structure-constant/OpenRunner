@@ -22,6 +22,9 @@ import cn.edu.pku.openrunner.core.session.SessionStore
 import cn.edu.pku.openrunner.feature.account.ui.AccountFragment
 import cn.edu.pku.openrunner.feature.account.ui.DrawerSummaryState
 import cn.edu.pku.openrunner.feature.account.ui.DrawerSummaryViewModel
+import cn.edu.pku.openrunner.feature.hike.data.HikeRecordingService
+import cn.edu.pku.openrunner.feature.hike.ui.CompassFragment
+import cn.edu.pku.openrunner.feature.hike.ui.HikeFragment
 import cn.edu.pku.openrunner.feature.records.ui.RecordListFragment
 import cn.edu.pku.openrunner.feature.run.ui.RunFragment
 import cn.edu.pku.openrunner.feature.run.ui.VirtualLocationFragment
@@ -124,6 +127,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .setNavigationItemSelectedListener { item ->
                 val handled = when (item.itemId) {
                     R.id.nav_run -> openRunPage()
+                    R.id.nav_hike -> {
+                        openHikePage()
+                        true
+                    }
+                    R.id.nav_compass -> {
+                        showFragment(CompassFragment())
+                        true
+                    }
                     R.id.nav_virtual_location -> openVirtualLocationPage()
                     R.id.nav_records -> {
                         showFragment(RecordListFragment())
@@ -168,7 +179,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
 
         if (savedInstanceState == null) {
-            if (amapPrivacyStore.isAgreed) {
+            if (intent.action == HikeRecordingService.ACTION_OPEN) {
+                openHikePage()
+            } else if (amapPrivacyStore.isAgreed) {
                 openRunPage()
             } else {
                 findViewById<NavigationView>(R.id.main_navigation)
@@ -178,6 +191,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
         }
         refreshNavigation()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.action == HikeRecordingService.ACTION_OPEN) {
+            drawer.closeDrawers()
+            openHikePage()
+        }
+    }
+
+    private fun openHikePage() {
+        findViewById<NavigationView>(R.id.main_navigation).setCheckedItem(R.id.nav_hike)
+        if (supportFragmentManager.findFragmentById(R.id.main_content) !is HikeFragment) {
+            showFragment(HikeFragment(), transition = false)
+        }
     }
 
     override fun onResume() {

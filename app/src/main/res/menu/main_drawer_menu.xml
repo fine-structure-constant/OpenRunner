@@ -26,6 +26,14 @@
             android:icon="@drawable/ic_or_run"
             android:title="@string/nav_run" />
         <item
+            android:id="@+id/nav_hike"
+            android:icon="@drawable/ic_or_hike"
+            android:title="@string/nav_hike" />
+        <item
+            android:id="@+id/nav_compass"
+            android:icon="@drawable/ic_or_compass"
+            android:title="@string/nav_compass" />
+        <item
             android:id="@+id/nav_virtual_location"
             android:icon="@drawable/ic_or_virtual_location"
             android:title="@string/nav_virtual_location" />
