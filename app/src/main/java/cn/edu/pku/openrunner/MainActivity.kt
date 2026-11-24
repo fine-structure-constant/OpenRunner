@@ -25,6 +25,7 @@ import cn.edu.pku.openrunner.feature.account.ui.DrawerSummaryViewModel
 import cn.edu.pku.openrunner.feature.hike.data.HikeRecordingService
 import cn.edu.pku.openrunner.feature.hike.ui.CompassFragment
 import cn.edu.pku.openrunner.feature.hike.ui.HikeFragment
+import cn.edu.pku.openrunner.feature.records.domain.RunGoalProgress
 import cn.edu.pku.openrunner.feature.records.ui.RecordListFragment
 import cn.edu.pku.openrunner.feature.run.ui.RunFragment
 import cn.edu.pku.openrunner.feature.run.ui.VirtualLocationFragment
@@ -251,7 +252,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         header.findViewById<TextView>(R.id.drawer_mileage).text = when {
             state.userId == null -> getString(R.string.drawer_login_hint)
             status != null -> getString(
-                R.string.drawer_mileage, status.current / 1000.0, status.target / 1000.0
+                R.string.drawer_mileage,
+                RunGoalProgress(status).distanceMeters / 1000.0,
+                status.target / 1000.0
             )
             state.loading -> getString(R.string.drawer_mileage_loading)
             else -> getString(R.string.drawer_mileage_error)
