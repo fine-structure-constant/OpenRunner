@@ -2,14 +2,19 @@ package cn.edu.pku.openrunner
 
 import android.content.Intent
 import android.app.Activity
+import android.content.ContentResolver
+import android.net.Uri
+import android.os.BadParcelableException
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.IntentCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.lifecycle.Lifecycle
@@ -25,6 +30,7 @@ import cn.edu.pku.openrunner.feature.account.ui.DrawerSummaryViewModel
 import cn.edu.pku.openrunner.feature.hike.data.HikeRecordingService
 import cn.edu.pku.openrunner.feature.hike.ui.CompassFragment
 import cn.edu.pku.openrunner.feature.hike.ui.HikeFragment
+import cn.edu.pku.openrunner.feature.hike.ui.HikeViewModel
 import cn.edu.pku.openrunner.feature.records.domain.RunGoalProgress
 import cn.edu.pku.openrunner.feature.records.ui.RecordListFragment
 import cn.edu.pku.openrunner.feature.run.ui.RunFragment
@@ -47,9 +53,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val drawerSummary: DrawerSummaryViewModel by viewModels {
         DrawerSummaryViewModel.Factory(SessionStore(applicationContext))
     }
+    private val hikeModel: HikeViewModel by viewModels()
     private val themeStore by lazy { AppThemeStore(this) }
     private val amapPrivacyStore by lazy { AmapPrivacyStore(this) }
-    private var privacyDialogVisible = false
+    private var amapPrivacyDialog: AlertDialog? = null
     private var pendingVirtualPage = false
 
     /**
@@ -179,10 +186,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 handled
             }
 
-        if (savedInstanceState == null) {
-            if (intent.action == HikeRecordingService.ACTION_OPEN) {
-                openHikePage()
-            } else if (amapPrivacyStore.isAgreed) {
+        if (savedInstanceState == null && !handleHikeIntent(intent)) {
+            if (amapPrivacyStore.isAgreed) {
                 openRunPage()
             } else {
                 findViewById<NavigationView>(R.id.main_navigation)
@@ -197,13 +202,37 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.action == HikeRecordingService.ACTION_OPEN) {
-            drawer.closeDrawers()
-            openHikePage()
+        handleHikeIntent(intent)
+    }
+
+    private fun handleHikeIntent(intent: Intent): Boolean {
+        when (intent.action) {
+            HikeRecordingService.ACTION_OPEN -> Unit
+            Intent.ACTION_VIEW, Intent.ACTION_SEND -> {
+                val uri = if (intent.action == Intent.ACTION_VIEW) intent.data else sharedRouteUri(intent)
+                if (uri?.scheme == ContentResolver.SCHEME_CONTENT) {
+                    hikeModel.importRoute(uri)
+                } else {
+                    Toast.makeText(this, R.string.hike_import_error, Toast.LENGTH_LONG).show()
+                }
+            }
+            else -> return false
+        }
+        drawer.closeDrawers()
+        openHikePage()
+        return true
+    }
+
+    private fun sharedRouteUri(intent: Intent): Uri? {
+        return try {
+            IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+        } catch (_: BadParcelableException) {
+            null
         }
     }
 
     private fun openHikePage() {
+        amapPrivacyDialog?.dismiss()
         findViewById<NavigationView>(R.id.main_navigation).setCheckedItem(R.id.nav_hike)
         if (supportFragmentManager.findFragmentById(R.id.main_content) !is HikeFragment) {
             showFragment(HikeFragment(), transition = false)
@@ -373,23 +402,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun showAmapPrivacyDialog() {
-        if (privacyDialogVisible || isFinishing) return
-        privacyDialogVisible = true
-        MaterialAlertDialogBuilder(this)
+        if (amapPrivacyDialog != null || isFinishing) return
+        amapPrivacyDialog = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.amap_privacy_title)
             .setMessage(R.string.amap_privacy_message)
             .setCancelable(false)
             .setPositiveButton(R.string.amap_privacy_accept) { _, _ ->
-                privacyDialogVisible = false
                 AmapPrivacyController.recordDecision(this, agreed = true)
                 if (pendingVirtualPage) openVirtualLocationPage() else openRunPage()
             }
             .setNegativeButton(R.string.amap_privacy_decline) { _, _ ->
-                privacyDialogVisible = false
                 AmapPrivacyController.recordDecision(this, agreed = false)
                 Toast.makeText(this, R.string.amap_privacy_required, Toast.LENGTH_LONG).show()
             }
-            .setOnDismissListener { privacyDialogVisible = false }
+            .setOnDismissListener { amapPrivacyDialog = null }
             .show()
     }
 

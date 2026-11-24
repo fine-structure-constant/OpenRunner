@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 data class HikePage(
@@ -33,6 +35,7 @@ data class HikePage(
 class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
     private val maps = OfflineHikeMaps(app)
     private val references = ReferenceRouteStore(app)
+    private val referenceLock = Mutex()
     private val state = MutableStateFlow(HikePage())
     val page = state.asStateFlow()
     var camera: HikeCamera? = null
@@ -46,41 +49,48 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             val savedMaps = withContext(Dispatchers.IO) { maps.packages() }
-            val route = withContext(Dispatchers.IO) { runCatching { references.read() }.getOrNull() }
-            state.update { it.copy(maps = savedMaps, route = it.route ?: route) }
+            referenceLock.withLock {
+                val route = withContext(Dispatchers.IO) { runCatching { references.read() }.getOrNull() }
+                state.update { it.copy(maps = savedMaps, route = it.route ?: route) }
+            }
         }
     }
 
     fun importRoute(uri: Uri) {
-        if (state.value.importing) return
-        state.update { it.copy(importing = true, message = null) }
         viewModelScope.launch {
-            try {
-                val route = withContext(Dispatchers.IO) {
-                    val resolver = app.contentResolver
-                    val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
-                        if (it.moveToFirst()) it.getString(0) else null
-                    } ?: app.getString(R.string.hike_kml_reference)
-                    val result = resolver.openInputStream(uri)?.use { KmlReader.read(it, name) }
-                        ?: throw IOException("Could not open KML")
-                    references.save(result)
-                    result
+            referenceLock.withLock {
+                state.update { it.copy(importing = true, message = null) }
+                try {
+                    val route = withContext(Dispatchers.IO) {
+                        val resolver = app.contentResolver
+                        val name = runCatching {
+                            resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+                                if (it.moveToFirst()) it.getString(0) else null
+                            }
+                        }.getOrNull() ?: app.getString(R.string.hike_kml_reference)
+                        val result = resolver.openInputStream(uri)?.use { KmlReader.read(it, name) }
+                            ?: throw IOException("Could not open KML")
+                        references.save(result)
+                        result
+                    }
+                    state.update { it.copy(route = route, fit = MapArea.around(route.points(), 0)) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    state.update { it.copy(message = R.string.hike_import_error) }
+                } finally {
+                    state.update { it.copy(importing = false) }
                 }
-                state.update { it.copy(route = route, fit = MapArea.around(route.points(), 0)) }
-            } catch (error: CancellationException) {
-                throw error
-            } catch (_: Exception) {
-                state.update { it.copy(message = R.string.hike_import_error) }
-            } finally {
-                state.update { it.copy(importing = false) }
             }
         }
     }
 
     fun clearRoute() {
         viewModelScope.launch {
-            val removed = withContext(Dispatchers.IO) { runCatching { references.clear() }.isSuccess }
-            state.update { if (removed) it.copy(route = null) else it.copy(message = R.string.hike_import_error) }
+            referenceLock.withLock {
+                val removed = withContext(Dispatchers.IO) { runCatching { references.clear() }.isSuccess }
+                state.update { if (removed) it.copy(route = null) else it.copy(message = R.string.hike_import_error) }
+            }
         }
     }
 
