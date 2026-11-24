@@ -17,6 +17,15 @@
             android:text="@string/nav_compass"
             android:textAppearance="@style/TextAppearance.OpenRunner.PageTitle" />
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/compass_true_north"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:saveEnabled="false"
+            android:text="@string/compass_true_north"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
+
         <cn.edu.pku.openrunner.feature.hike.ui.CompassDial
             android:id="@+id/compass_dial"
             android:layout_width="match_parent"

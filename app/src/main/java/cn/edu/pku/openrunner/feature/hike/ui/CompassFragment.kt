@@ -1,21 +1,32 @@
 package cn.edu.pku.openrunner.feature.hike.ui
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.hardware.GeomagneticField
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 import android.util.AttributeSet
 import android.view.Surface
 import android.view.View
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import cn.edu.pku.openrunner.R
+import cn.edu.pku.openrunner.feature.hike.data.HikeLocation
+import cn.edu.pku.openrunner.feature.hike.data.RecordedFix
+import cn.edu.pku.openrunner.feature.hike.domain.trueNorthHeading
+import com.google.android.material.switchmaterial.SwitchMaterial
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -28,9 +39,22 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
     private var gravity: FloatArray? = null
     private var field: FloatArray? = null
     private var heading: Float? = null
+    private var sensorStatus: Int? = R.string.compass_waiting
+    private var trueNorthRequested = false
+    private var gpsEnabled = false
+    private var gps: HikeLocation? = null
+    private var declination: Float? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private val expireCorrection = Runnable {
+        declination = null
+        render()
+    }
     private val matrix = FloatArray(9)
     private val screenMatrix = FloatArray(9)
     private val orientation = FloatArray(3)
+    private val locationPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+        if (isResumed) updateGps()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         manager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -38,6 +62,17 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
         accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         rotation = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
             ?: manager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR)
+        trueNorthRequested = savedInstanceState?.getBoolean(TRUE_NORTH_REQUESTED) ?: false
+        view.findViewById<SwitchMaterial>(R.id.compass_true_north).apply {
+            isChecked = trueNorthRequested
+            setOnCheckedChangeListener { _, checked ->
+                trueNorthRequested = checked
+                if (checked && !preciseLocationAllowed()) {
+                    locationPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                }
+                updateGps()
+            }
+        }
     }
 
     override fun onResume() {
@@ -56,19 +91,72 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
                 manager.registerListener(this, accel, SensorManager.SENSOR_DELAY_UI)
         } else false
         if (!sensorSupported) manager.unregisterListener(this)
-        render(null, if (sensorSupported) R.string.compass_waiting else R.string.compass_unavailable)
+        sensorStatus = if (sensorSupported) R.string.compass_waiting else R.string.compass_unavailable
+        view?.findViewById<SwitchMaterial>(R.id.compass_true_north)?.isEnabled = sensorSupported
+        updateGps()
     }
 
     override fun onPause() {
         manager.unregisterListener(this)
+        stopGps()
         super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(TRUE_NORTH_REQUESTED, trueNorthRequested)
+    }
+
+    private fun preciseLocationAllowed(): Boolean = ContextCompat.checkSelfPermission(
+        requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+
+    private fun updateGps() {
+        if (!trueNorthRequested || !sensorSupported || !preciseLocationAllowed()) {
+            stopGps()
+        } else if (gps == null) {
+            val tracker = HikeLocation(requireContext(), ::onGpsFix) { enabled ->
+                gpsEnabled = enabled
+                if (!enabled) clearCorrection()
+                render()
+            }
+            gps = tracker.takeIf { it.start(5_000L, Looper.getMainLooper()) }
+        }
+        render()
+    }
+
+    private fun onGpsFix(fix: RecordedFix) {
+        if (!trueNorthRequested || !gpsEnabled || fix.horizontalAccuracy > 100f) return
+        val remaining = FIX_VALIDITY_MS - (SystemClock.elapsedRealtime() - fix.monotonicMs)
+        if (remaining <= 0) return
+        val correction = GeomagneticField(
+            fix.point.latitude.toFloat(), fix.point.longitude.toFloat(),
+            fix.point.altitude?.toFloat() ?: 0f, fix.time
+        ).declination
+        if (!correction.isFinite()) return
+        declination = correction
+        handler.removeCallbacks(expireCorrection)
+        handler.postDelayed(expireCorrection, remaining)
+        render()
+    }
+
+    private fun stopGps() {
+        gps?.stop()
+        gps = null
+        gpsEnabled = false
+        clearCorrection()
+    }
+
+    private fun clearCorrection() {
+        handler.removeCallbacks(expireCorrection)
+        declination = null
     }
 
     override fun onSensorChanged(event: SensorEvent) {
         when (event.sensor.type) {
             Sensor.TYPE_ROTATION_VECTOR, Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR -> {
                 if (event.accuracy <= SensorManager.SENSOR_STATUS_ACCURACY_LOW) {
-                    render(null, R.string.compass_calibrate)
+                    showSensorStatus(R.string.compass_calibrate)
                     return
                 }
                 SensorManager.getRotationMatrixFromVector(matrix, event.values)
@@ -78,14 +166,14 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
                 else {
                     field = event.values.copyOf(3).takeIf { event.accuracy > SensorManager.SENSOR_STATUS_ACCURACY_LOW }
                     if (field == null) {
-                        render(null, R.string.compass_calibrate)
+                        showSensorStatus(R.string.compass_calibrate)
                         return
                     }
                 }
                 val g = gravity ?: return
                 val f = field ?: return
                 if (!SensorManager.getRotationMatrix(matrix, null, g, f)) {
-                    render(null, R.string.compass_calibrate)
+                    showSensorStatus(R.string.compass_calibrate)
                     return
                 }
             }
@@ -108,7 +196,7 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
         SensorManager.getOrientation(screenMatrix, orientation)
         val pitch = Math.toDegrees(orientation[1].toDouble())
         if (abs(pitch) > 65) {
-            render(null, R.string.compass_flat)
+            showSensorStatus(R.string.compass_flat)
             return
         }
         val raw = Math.toDegrees(orientation[0].toDouble()).toFloat()
@@ -116,13 +204,22 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
         val previous = heading ?: raw
         val difference = (raw - previous + 540f) % 360f - 180f
         heading = (previous + difference * 0.22f + 360f) % 360f
-        render(heading, R.string.compass_magnetic)
+        showSensorStatus(null)
     }
 
     override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) = Unit
 
-    private fun render(value: Float?, status: Int) {
+    private fun showSensorStatus(status: Int?) {
+        sensorStatus = status
+        render()
+    }
+
+    private fun render() {
         val root = view ?: return
+        val correction = declination
+        val value = heading?.takeIf { sensorStatus == null }?.let { magneticHeading ->
+            if (correction == null) magneticHeading else trueNorthHeading(magneticHeading, correction)
+        }
         root.findViewById<CompassDial>(R.id.compass_dial).heading = value
         root.findViewById<TextView>(R.id.compass_heading).text = if (value == null) {
             getString(R.string.compass_no_heading)
@@ -130,7 +227,19 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
             val directions = resources.getStringArray(R.array.compass_directions)
             getString(R.string.compass_heading, directions[((value + 22.5f) / 45f).toInt() % 8], value.roundToInt() % 360)
         }
+        val status = sensorStatus ?: when {
+            correction != null -> R.string.compass_true_north_active
+            !trueNorthRequested -> R.string.compass_magnetic
+            !preciseLocationAllowed() -> R.string.compass_true_north_permission
+            !gpsEnabled -> R.string.compass_true_north_gps_off
+            else -> R.string.compass_true_north_waiting
+        }
         root.findViewById<TextView>(R.id.compass_status).setText(status)
+    }
+
+    private companion object {
+        const val TRUE_NORTH_REQUESTED = "true_north_requested"
+        const val FIX_VALIDITY_MS = 20_000L
     }
 }
 

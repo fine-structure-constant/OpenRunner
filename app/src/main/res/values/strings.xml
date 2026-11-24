@@ -222,6 +222,11 @@
     <string name="compass_no_heading">—°</string>
     <string name="compass_heading">%1$s · %2$d°</string>
     <string name="compass_magnetic">磁北方位 · 无需联网</string>
+    <string name="compass_true_north">正北校正</string>
+    <string name="compass_true_north_active">正北方位 · 已按卫星定位校正</string>
+    <string name="compass_true_north_permission">磁北方位 · 正北校正需要精确位置权限</string>
+    <string name="compass_true_north_gps_off">磁北方位 · 请开启系统定位以使用正北</string>
+    <string name="compass_true_north_waiting">磁北方位 · 等待有效卫星定位</string>
     <string name="compass_waiting">正在读取方向传感器</string>
     <string name="compass_unavailable">此设备无法读取磁北方位</string>
     <string name="compass_calibrate">方向精度低。远离磁性物体，将手机在空中缓慢画 8 字</string>
