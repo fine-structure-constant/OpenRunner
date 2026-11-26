@@ -209,8 +209,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         when (intent.action) {
             HikeRecordingService.ACTION_OPEN -> Unit
             Intent.ACTION_VIEW, Intent.ACTION_SEND -> {
-                val uri = if (intent.action == Intent.ACTION_VIEW) intent.data else sharedRouteUri(intent)
-                if (uri?.scheme == ContentResolver.SCHEME_CONTENT) {
+                val uri = incomingRouteUri(intent)
+                if (uri != null) {
                     hikeModel.importRoute(uri)
                 } else {
                     Toast.makeText(this, R.string.hike_import_error, Toast.LENGTH_LONG).show()
@@ -223,12 +223,22 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         return true
     }
 
-    private fun sharedRouteUri(intent: Intent): Uri? {
-        return try {
+    private fun incomingRouteUri(intent: Intent): Uri? {
+        val data = intent.data?.takeIf { it.scheme == ContentResolver.SCHEME_CONTENT }
+        if (intent.action == Intent.ACTION_VIEW && data != null) return data
+        val stream = try {
             IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
         } catch (_: BadParcelableException) {
             null
         }
+        if (stream?.scheme == ContentResolver.SCHEME_CONTENT) return stream
+
+        val clip = intent.clipData
+        if (clip != null && clip.itemCount == 1) {
+            val uri = clip.getItemAt(0).uri
+            if (uri?.scheme == ContentResolver.SCHEME_CONTENT) return uri
+        }
+        return data
     }
 
     private fun openHikePage() {
