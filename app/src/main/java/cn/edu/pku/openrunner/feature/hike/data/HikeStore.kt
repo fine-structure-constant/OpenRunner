@@ -4,13 +4,9 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.AtomicFile
 import cn.edu.pku.openrunner.feature.hike.domain.GeoPoint
-import cn.edu.pku.openrunner.feature.hike.domain.HikeRoute
 import cn.edu.pku.openrunner.feature.hike.domain.HikeSample
 import cn.edu.pku.openrunner.feature.hike.domain.distanceMeters
-import com.google.gson.Gson
-import java.io.File
 
 data class SavedHike(val id: Long, val started: Long, val finished: Long?)
 data class RecordedFix(
@@ -92,29 +88,5 @@ class HikeStore(context: Context) : SQLiteOpenHelper(context, "hike.db", null, 1
             if (a.section == b.section) distanceMeters(a.point, b.point) else 0.0
         }.sum()
         return HikeLog(hike, samples, distance, samples.sumOf { it.segmentAscent ?: 0.0 })
-    }
-}
-
-class ReferenceRouteStore(context: Context) {
-    private val gson = Gson()
-    private val file = AtomicFile(File(context.filesDir, "hike-reference.json"))
-
-    fun clear() = file.delete()
-
-    fun read(): HikeRoute? {
-        if (!file.baseFile.exists()) return null
-        return file.openRead().bufferedReader().use { gson.fromJson(it, HikeRoute::class.java) }
-    }
-
-    @Synchronized
-    fun save(route: HikeRoute) {
-        val output = file.startWrite()
-        try {
-            output.write(gson.toJson(route).toByteArray(Charsets.UTF_8))
-            file.finishWrite(output)
-        } catch (error: Exception) {
-            file.failWrite(output)
-            throw error
-        }
     }
 }

@@ -52,7 +52,7 @@
     <string name="or_seal_virtual">测</string>
 
     <string name="amap_privacy_title">地图与定位隐私说明</string>
-    <string name="amap_privacy_message">跑步地图和持续定位由高德开放平台 SDK 提供。\n\n高德隐私政策：https://lbs.amap.com/pages/privacy/</string>
+    <string name="amap_privacy_message">跑步地图、跑步持续定位和徒步在线底图由高德开放平台 SDK 提供。\n\n高德隐私政策：https://lbs.amap.com/pages/privacy/</string>
     <string name="amap_privacy_accept">同意隐私政策</string>
     <string name="amap_privacy_decline">暂不同意</string>
     <string name="amap_privacy_required">需要同意地图与定位隐私说明后才能使用跑步地图</string>
@@ -243,6 +243,20 @@
     <string name="hike_import">导入 KML</string>
     <string name="hike_cache">缓存地图</string>
     <string name="hike_offline_maps">本地地图</string>
+    <string name="hike_basemap_amap">高德地图</string>
+    <string name="hike_basemap_contours">等高线</string>
+    <string name="hike_switch_basemap">切换到底图：%1$s</string>
+    <string name="hike_amap_unavailable">高德地图暂不可用</string>
+    <string name="hike_files">文件</string>
+    <string name="hike_files_empty">还没有导入的 KML 或缓存的地图</string>
+    <string name="hike_file_route">KML · %1$s\n%2$s · %3$s</string>
+    <string name="hike_file_map">本地地图 · %1$s</string>
+    <string name="hike_file_active">%1$s（显示中）</string>
+    <string name="hike_file_show">显示</string>
+    <string name="hike_file_hide">隐藏</string>
+    <string name="hike_file_delete">删除</string>
+    <string name="hike_file_delete_confirm">删除「%1$s」？</string>
+    <string name="hike_delete_error">无法删除该文件</string>
     <string name="hike_cancel_download">取消缓存</string>
     <string name="hike_waiting">正在搜索卫星信号</string>
     <string name="hike_recording_waiting">记录中 · 正在搜索卫星信号</string>

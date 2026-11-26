@@ -54,6 +54,15 @@ class OfflineHikeMaps(context: Context) {
         return HikeMapData(info, features, info.terrain.map { Terrarium.draw(it, elevations) })
     }
 
+    fun delete(info: HikeMapPackage) {
+        val key = UUID.fromString(info.key).toString()
+        val directory = File(root, key)
+        if (!directory.exists()) return
+        val discarded = File(root, ".delete-${UUID.randomUUID()}")
+        if (!directory.renameTo(discarded)) throw IOException("Unable to delete offline map")
+        discarded.deleteRecursively()
+    }
+
     suspend fun download(area: MapArea, label: String, progress: (Int, Int) -> Unit): HikeMapPackage =
         withContext(Dispatchers.IO) {
             val tiles = (14 downTo 12).firstNotNullOfOrNull { zoom ->

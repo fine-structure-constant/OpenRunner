@@ -81,7 +81,6 @@ class HikeMapView @JvmOverloads constructor(
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
             zoomBy(1.0, e.x, e.y)
-            onCameraChanged?.invoke()
             return true
         }
 
@@ -114,7 +113,7 @@ class HikeMapView @JvmOverloads constructor(
 
     private val pinch = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            zoomBy(log2(detector.scaleFactor.toDouble()), detector.focusX, detector.focusY)
+            zoomBy(log2(detector.scaleFactor.toDouble()), detector.focusX, detector.focusY, notify = false)
             return true
         }
     })
@@ -154,12 +153,12 @@ class HikeMapView @JvmOverloads constructor(
         setCamera(HikeCamera(area.x, area.y, log2(pixels / (256 * density))))
     }
 
-    fun zoomBy(amount: Double, x: Float = width / 2f, y: Float = height / 2f) {
+    fun zoomBy(amount: Double, x: Float = width / 2f, y: Float = height / 2f, notify: Boolean = true) {
         if (!amount.isFinite()) return
         val zoom = (camera.zoom + amount).coerceIn(2.0, 19.0)
         val deltaScale = (1 - 2.0.pow(camera.zoom - zoom)) / scale
         setCamera(HikeCamera(camera.x + (x - width / 2f) * deltaScale, camera.y + (y - height / 2f) * deltaScale, zoom),
-            notify = false)
+            notify = notify)
     }
 
     private fun x(value: Double): Float = ((nearestWorldX(value, camera.x) - camera.x) * scale + width / 2).toFloat()
@@ -191,18 +190,18 @@ class HikeMapView @JvmOverloads constructor(
             if (left > width || top > height || left + tileSize < 0 || top + tileSize < 0) continue
             tileRect.set(left, top, left + tileSize, top + tileSize)
             paint.color = Color.WHITE
-            canvas.drawBitmap(tile.shade, null, tileRect, paint)
+            canvas.drawBitmap(tile.relief, null, tileRect, paint)
             val ratio = tileSize / 256
             canvas.save()
             canvas.translate(left, top)
             canvas.scale(ratio, ratio)
             paint.style = Paint.Style.STROKE
             if (camera.zoom >= 13) {
-                paint.color = Color.rgb(191, 164, 122)
+                paint.color = 0x886c573d.toInt()
                 paint.strokeWidth = 0.55f * density / ratio
                 canvas.drawPath(tile.minor, paint)
             }
-            paint.color = Color.rgb(156, 125, 83)
+            paint.color = 0xba624a34.toInt()
             paint.strokeWidth = 0.9f * density / ratio
             canvas.drawPath(tile.major, paint)
             canvas.restore()
@@ -377,18 +376,6 @@ class HikeMapView @JvmOverloads constructor(
 
     private fun metersPerWorldUnit(y: Double): Double = 40_075_017 * cos(Math.toRadians(latitudeAt(y)))
 
-    private fun segmentColor(a: HikeSample, b: HikeSample): Int {
-        val from = a.point.altitude ?: return UNKNOWN
-        val to = b.point.altitude ?: return UNKNOWN
-        if (max(a.verticalAccuracy ?: 0f, b.verticalAccuracy ?: 0f) > 25f) return UNKNOWN
-        val threshold = max(2.5, max(a.verticalAccuracy ?: 0f, b.verticalAccuracy ?: 0f) * 0.35)
-        return when {
-            to - from > threshold -> UPHILL
-            from - to > threshold -> DOWNHILL
-            else -> LEVEL
-        }
-    }
-
     private data class WorldPoint(val x: Double, val y: Double) {
         constructor(point: GeoPoint) : this(worldX(point.longitude), worldY(point.latitude))
     }
@@ -407,6 +394,20 @@ class HikeMapView @JvmOverloads constructor(
         const val LEVEL = 0xff286144.toInt()
         const val UNKNOWN = 0xff625e58.toInt()
         const val REFERENCE = 0xff6a3d8c.toInt()
+
+        fun segmentColor(a: HikeSample, b: HikeSample): Int {
+            val from = a.point.altitude ?: return UNKNOWN
+            val to = b.point.altitude ?: return UNKNOWN
+            val accuracy = max(a.verticalAccuracy ?: 0f, b.verticalAccuracy ?: 0f)
+            if (accuracy > 25f) return UNKNOWN
+            val threshold = max(2.5, accuracy * 0.35)
+            return when {
+                to - from > threshold -> UPHILL
+                from - to > threshold -> DOWNHILL
+                else -> LEVEL
+            }
+        }
+
         private const val WATER = 0xff397b9a.toInt()
         private const val PEAK = 0xff5d3824.toInt()
         private val DRAW_ORDER = listOf(MapFeatureType.WATER, MapFeatureType.WATERWAY, MapFeatureType.PATH,

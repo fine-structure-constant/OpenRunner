@@ -1,6 +1,7 @@
 package cn.edu.pku.openrunner.feature.hike.ui
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.lifecycle.AndroidViewModel
@@ -22,6 +23,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 data class HikePage(
+    val basemap: HikeBasemap = HikeBasemap.AMAP,
+    val routes: HikeRouteIndex = HikeRouteIndex(),
     val route: HikeRoute? = null,
     val maps: List<HikeMapPackage> = emptyList(),
     val map: HikeMapData? = null,
@@ -32,16 +35,21 @@ data class HikePage(
     val fit: MapArea? = null
 )
 
+enum class HikeBasemap { AMAP, CONTOURS }
+
 class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
     private val maps = OfflineHikeMaps(app)
-    private val references = ReferenceRouteStore(app)
+    private val references = ReferenceRouteStore(app.filesDir)
     private val referenceLock = Mutex()
-    private val state = MutableStateFlow(HikePage())
+    private val preferences = app.getSharedPreferences("hike-map-settings", Context.MODE_PRIVATE)
+    private val state = MutableStateFlow(HikePage(basemap =
+        if (preferences.getBoolean("contours", false)) HikeBasemap.CONTOURS else HikeBasemap.AMAP))
     val page = state.asStateFlow()
     var camera: HikeCamera? = null
-    private var currentMapKey: String? = null
     private var requestedKey: String? = null
+    private var fitMapOnLoad = false
     private val unreadableMaps = mutableSetOf<String>()
+    private val deletingMaps = mutableSetOf<String>()
     private var mapLoad: Job? = null
     private var hikeLoad: Job? = null
     private var cache: Job? = null
@@ -49,11 +57,23 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
     init {
         viewModelScope.launch {
             val savedMaps = withContext(Dispatchers.IO) { maps.packages() }
+            state.update { it.copy(maps = (it.maps + savedMaps).distinctBy(HikeMapPackage::key)) }
             referenceLock.withLock {
-                val route = withContext(Dispatchers.IO) { runCatching { references.read() }.getOrNull() }
-                state.update { it.copy(maps = savedMaps, route = it.route ?: route) }
+                try {
+                    val (index, route) = withContext(Dispatchers.IO) { references.snapshot() }
+                    state.update { it.copy(routes = index, route = route) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    state.update { it.copy(message = R.string.hike_import_error) }
+                }
             }
         }
+    }
+
+    fun setBasemap(basemap: HikeBasemap) {
+        state.update { it.copy(basemap = basemap) }
+        preferences.edit().putBoolean("contours", basemap == HikeBasemap.CONTOURS).apply()
     }
 
     fun importRoute(uri: Uri) {
@@ -61,7 +81,7 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
             referenceLock.withLock {
                 state.update { it.copy(importing = true, message = null) }
                 try {
-                    val route = withContext(Dispatchers.IO) {
+                    val (index, route) = withContext(Dispatchers.IO) {
                         val resolver = app.contentResolver
                         val name = runCatching {
                             resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
@@ -70,10 +90,9 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
                         }.getOrNull() ?: app.getString(R.string.hike_kml_reference)
                         val result = resolver.openInputStream(uri)?.use { KmlReader.read(it, name) }
                             ?: throw IOException("Could not open KML")
-                        references.save(result)
-                        result
+                        references.add(result, name) to result
                     }
-                    state.update { it.copy(route = route, fit = MapArea.around(route.points(), 0)) }
+                    state.update { it.copy(routes = index, route = route, fit = MapArea.around(route.points(), 0)) }
                 } catch (error: CancellationException) {
                     throw error
                 } catch (_: Exception) {
@@ -85,11 +104,35 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun clearRoute() {
+    fun selectRoute(id: String?) {
         viewModelScope.launch {
             referenceLock.withLock {
-                val removed = withContext(Dispatchers.IO) { runCatching { references.clear() }.isSuccess }
-                state.update { if (removed) it.copy(route = null) else it.copy(message = R.string.hike_import_error) }
+                try {
+                    val (index, route) = withContext(Dispatchers.IO) { references.select(id) }
+                    state.update { it.copy(routes = index, route = route, fit = route?.let { MapArea.around(it.points(), 0) }) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    state.update { it.copy(message = R.string.hike_import_error) }
+                }
+            }
+        }
+    }
+
+    fun deleteRoute(id: String) {
+        viewModelScope.launch {
+            referenceLock.withLock {
+                try {
+                    val index = withContext(Dispatchers.IO) { references.delete(id) }
+                    state.update { page -> page.copy(
+                        routes = index,
+                        route = page.route.takeIf { page.routes.activeId == index.activeId }
+                    ) }
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    state.update { it.copy(message = R.string.hike_delete_error) }
+                }
             }
         }
     }
@@ -97,25 +140,35 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
     fun chooseMap(camera: HikeCamera) {
         val available = state.value.maps
         val current = state.value.map?.info
+        if (requestedKey != null && fitMapOnLoad) return
         if (current?.area?.contains(camera.x, camera.y) == true) return
-        available.firstOrNull { it.key !in unreadableMaps && it.area.contains(camera.x, camera.y) }
+        available.firstOrNull { it.key !in unreadableMaps && it.key !in deletingMaps && it.area.contains(camera.x, camera.y) }
             ?.let { loadMap(it, fit = false) }
     }
 
+    fun openOfflineMap(info: HikeMapPackage) {
+        setBasemap(HikeBasemap.CONTOURS)
+        loadMap(info, fit = true)
+    }
+
     fun loadMap(info: HikeMapPackage, fit: Boolean) {
-        if (info.key == currentMapKey && state.value.map != null) {
+        if (info.key in deletingMaps || state.value.maps.none { it.key == info.key }) return
+        if (info.key == state.value.map?.info?.key) {
             if (fit) state.update { it.copy(fit = info.area) }
             return
         }
-        if (info.key == requestedKey && !fit) return
+        if (info.key == requestedKey) {
+            fitMapOnLoad = fitMapOnLoad || fit
+            return
+        }
         mapLoad?.cancel()
         requestedKey = info.key
+        fitMapOnLoad = fit
         mapLoad = viewModelScope.launch {
             try {
                 val data = withContext(Dispatchers.IO) { maps.load(info) }
                 unreadableMaps.remove(info.key)
-                currentMapKey = info.key
-                state.update { it.copy(map = data, fit = if (fit) info.area else it.fit) }
+                state.update { it.copy(map = data, fit = if (fitMapOnLoad) info.area else it.fit) }
             } catch (error: CancellationException) {
                 throw error
             } catch (_: Exception) {
@@ -123,6 +176,28 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
                 state.update { it.copy(message = R.string.hike_map_read_error) }
             } finally {
                 if (requestedKey == info.key) requestedKey = null
+            }
+        }
+    }
+
+    fun deleteMap(info: HikeMapPackage) {
+        if (!deletingMaps.add(info.key)) return
+        if (requestedKey == info.key) mapLoad?.cancel()
+        viewModelScope.launch {
+            try {
+                withContext(Dispatchers.IO) { maps.delete(info) }
+                state.update { page -> page.copy(
+                    maps = page.maps.filterNot { it.key == info.key },
+                    map = page.map?.takeUnless { it.info.key == info.key },
+                    fit = page.fit.takeUnless { it === info.area }
+                ) }
+                unreadableMaps.remove(info.key)
+            } catch (error: CancellationException) {
+                throw error
+            } catch (_: Exception) {
+                state.update { it.copy(message = R.string.hike_delete_error) }
+            } finally {
+                deletingMaps.remove(info.key)
             }
         }
     }
@@ -136,7 +211,7 @@ class HikeViewModel(private val app: Application) : AndroidViewModel(app) {
                     state.update { it.copy(progress = complete to total) }
                 }
                 state.update { it.copy(maps = listOf(info) + it.maps, message = R.string.hike_map_saved) }
-                loadMap(info, fit = true)
+                if (state.value.basemap == HikeBasemap.CONTOURS) loadMap(info, fit = true)
             } catch (error: CancellationException) {
                 throw error
             } catch (_: HikeMapAreaTooLarge) {
