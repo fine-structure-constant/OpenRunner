@@ -245,7 +245,7 @@
         <item name="iconTint">?attr/colorError</item>
     </style>
 
-    <style name="MaterialAlertDialog.OpenRunner.Run" parent="MaterialAlertDialog.Material3">
+    <style name="MaterialAlertDialog.OpenRunner.Dialog" parent="MaterialAlertDialog.Material3">
         <item name="backgroundTint">?attr/colorSurfaceVariant</item>
         <item name="shapeAppearance">@style/ShapeAppearance.OpenRunner.Dialog</item>
     </style>
@@ -273,6 +273,10 @@
     <style name="Widget.OpenRunner.Button.Text.Dialog">
         <item name="android:minHeight">48dp</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.OpenRunner.PopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/or_popup_surface</item>
     </style>
 
     <style name="Widget.OpenRunner.Button.MapControl" parent="Widget.OpenRunner.Button.Outlined">

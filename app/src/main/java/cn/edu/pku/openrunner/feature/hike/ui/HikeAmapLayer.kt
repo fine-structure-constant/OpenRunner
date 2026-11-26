@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import cn.edu.pku.openrunner.feature.hike.data.RecordedFix
+import cn.edu.pku.openrunner.ui.MapLocationMarker
 import cn.edu.pku.openrunner.feature.hike.domain.GeoPoint
 import cn.edu.pku.openrunner.feature.hike.domain.HikeRoute
 import cn.edu.pku.openrunner.feature.hike.domain.HikeSample
@@ -26,8 +27,6 @@ import com.amap.api.maps.model.CameraPosition
 import com.amap.api.maps.model.Circle
 import com.amap.api.maps.model.CircleOptions
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
-import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.MultiPointItem
 import com.amap.api.maps.model.MultiPointOverlay
 import com.amap.api.maps.model.MultiPointOverlayOptions
@@ -66,15 +65,15 @@ internal class HikeAmapLayer(
     private var displayedTrack: List<HikeSample> = emptyList()
     private var trackPoints = emptyList<LatLng>()
     private var fix: RecordedFix? = null
-    private var marker: Marker? = null
+    private val locationMarker: MapLocationMarker
     private var accuracy: Circle? = null
     private val routeIcon by lazy { dotIcon(HikeMapView.REFERENCE, 11f) }
-    private val fixIcon by lazy { dotIcon(0xff285fb0.toInt(), 15f) }
 
     init {
         try {
             view.onCreate(null)
             map = requireNotNull(view.map)
+            locationMarker = MapLocationMarker(container.context, map)
             map.mapType = if (container.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
                 Configuration.UI_MODE_NIGHT_YES) AMap.MAP_TYPE_NIGHT else AMap.MAP_TYPE_NORMAL
             map.uiSettings.apply {
@@ -231,24 +230,24 @@ internal class HikeAmapLayer(
         if (fix == value) return
         fix = value
         if (value == null) {
-            marker?.remove()
+            locationMarker.clear()
             accuracy?.remove()
-            marker = null
             accuracy = null
             return
         }
         val position = toMapPoint(converter, value.point)
         val radius = value.horizontalAccuracy.toDouble()
-        if (marker == null) {
-            marker = map.addMarker(MarkerOptions().position(position).icon(fixIcon).anchor(0.5f, 0.5f))
+        locationMarker.moveTo(position)
+        if (accuracy == null) {
             accuracy = map.addCircle(CircleOptions().center(position).radius(radius)
                 .strokeWidth(0f).fillColor(0x303b72c6).zIndex(0f))
         } else {
-            marker?.position = position
             accuracy?.center = position
             accuracy?.radius = radius
         }
     }
+
+    fun showHeading(heading: Int?) = locationMarker.updateHeading(heading)
 
     private fun nearestSegment(point: LatLng): HikeSample? {
         val projection = map.projection

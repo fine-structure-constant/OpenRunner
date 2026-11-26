@@ -61,11 +61,12 @@
     -->
     <style name="Theme.OpenRunner.Hud" parent="Theme.OpenRunner" />
 
-    <style name="ThemeOverlay.OpenRunner.RunDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
-        <item name="alertDialogStyle">@style/MaterialAlertDialog.OpenRunner.Run</item>
+    <style name="ThemeOverlay.OpenRunner.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/MaterialAlertDialog.OpenRunner.Dialog</item>
         <item name="materialAlertDialogTitleTextStyle">@style/MaterialAlertDialog.OpenRunner.Title</item>
         <item name="materialAlertDialogBodyTextStyle">@style/MaterialAlertDialog.OpenRunner.Body</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.OpenRunner.Button.Dialog</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.OpenRunner.Button.Text.Dialog</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.OpenRunner.Button.Text.Dialog</item>
     </style>
 </resources>

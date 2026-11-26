@@ -1,6 +1,7 @@
 package cn.edu.pku.openrunner.feature.hike.ui
 
 import android.view.LayoutInflater
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -13,7 +14,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import cn.edu.pku.openrunner.R
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import cn.edu.pku.openrunner.ui.openRunnerDialog
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.tabs.TabLayout
 import java.text.DateFormat
@@ -127,7 +128,7 @@ internal class HikeFilesPanel(
 
     private fun showOptions(anchor: View, entry: FileEntry) {
         popup?.dismiss()
-        popup = PopupMenu(context, anchor).apply {
+        popup = PopupMenu(context, anchor, Gravity.END, 0, R.style.Widget_OpenRunner_PopupMenu).apply {
             if (entry.section == Section.ROUTES && entry.active) {
                 menu.add(R.string.hike_file_hide).setOnMenuItemClickListener {
                     if (model.page.value.routes.activeId == entry.key) model.selectRoute(null)
@@ -145,7 +146,7 @@ internal class HikeFilesPanel(
 
     private fun confirmDelete(entry: FileEntry) {
         deleteDialog?.dismiss()
-        deleteDialog = MaterialAlertDialogBuilder(context)
+        deleteDialog = context.openRunnerDialog()
             .setTitle(context.getString(R.string.hike_file_delete_confirm, entry.title))
             .setNegativeButton(R.string.hike_cancel, null)
             .setPositiveButton(R.string.hike_file_delete) { _, _ ->

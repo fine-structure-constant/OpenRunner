@@ -1,10 +1,15 @@
 package cn.edu.pku.openrunner.feature.weather.data
 
+import cn.edu.pku.openrunner.core.orientation.wrapHeading
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withTimeoutOrNull
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import kotlin.math.roundToInt
 
 data class WeatherSnapshot(
-    val city: String,
     val temperature: String,
     val feelsLike: String,
     val humidity: String,
@@ -25,52 +30,80 @@ data class WeatherForecast(
     val nightWind: String
 )
 
-class WeatherRepository(
-    private val api: NmcWeatherApi = WeatherClient.api
-) {
-    suspend fun load(): WeatherSnapshot {
-        val response = api.getWeather(STATION_ID)
-        val real = response.data?.real ?: error(response.msg ?: "天气服务返回为空")
-        val current = real.weather
-        val wind = real.wind
-        return WeatherSnapshot(
-            city = real.station?.city ?: "北京",
-            temperature = number(current?.temperature),
-            feelsLike = number(current?.feelst),
-            humidity = number(current?.humidity),
-            condition = current?.info ?: "未知",
-            wind = wind?.direct ?: "—",
-            windSpeed = number(wind?.speed),
-            aqi = response.data.air?.let { "${it.text ?: "未知"}（${it.aqi}）" } ?: "未知",
-            forecasts = response.data.predict?.detail.orEmpty().map { forecast ->
-                WeatherForecast(
-                    date = forecast.date ?: "—",
-                    day = forecast.day?.weather?.info ?: "未知",
-                    dayTemperature = forecast.day?.weather?.temperature ?: "—",
-                    dayWind = forecast.day?.wind?.direct ?: "—",
-                    night = forecast.night?.weather?.info ?: "未知",
-                    nightTemperature = forecast.night?.weather?.temperature ?: "—",
-                    nightWind = forecast.night?.wind?.direct ?: "—"
-                )
+internal class WeatherRepository(private val api: OpenMeteoApi = WeatherClient.api) {
+    suspend fun load(latitude: Double, longitude: Double): WeatherSnapshot = coroutineScope {
+        // The weather service only needs a grid cell, so do not send the full device coordinates.
+        val lat = (latitude * 100).roundToInt() / 100.0
+        val lon = (longitude * 100).roundToInt() / 100.0
+        val air = async {
+            withTimeoutOrNull(4_000L) {
+                try {
+                    api.airQuality(lat, lon).current?.us_aqi
+                } catch (error: CancellationException) {
+                    throw error
+                } catch (_: Exception) {
+                    null
+                }
             }
+        }
+        val response = api.forecast(lat, lon)
+        val current = requireNotNull(response.current)
+        val hours = response.hourly
+        val timeToHour = hours?.time.orEmpty().withIndex().associate { (index, time) -> time to index }
+        val daily = response.daily
+        val forecast = daily?.time.orEmpty().mapIndexed { index, date ->
+            val dayHour = timeToHour["${date}T12:00"]
+            val nightHour = timeToHour["${date}T21:00"]
+            WeatherForecast(
+                date,
+                weatherDescription(dayHour?.let { hours?.weather_code?.getOrNull(it) }),
+                number(daily?.temperature_2m_max?.getOrNull(index)),
+                windDescription(dayHour?.let { hours?.wind_direction_10m?.getOrNull(it) }),
+                weatherDescription(nightHour?.let { hours?.weather_code?.getOrNull(it) }),
+                number(daily?.temperature_2m_min?.getOrNull(index)),
+                windDescription(nightHour?.let { hours?.wind_direction_10m?.getOrNull(it) })
+            )
+        }
+        WeatherSnapshot(
+            temperature = number(current.temperature_2m),
+            feelsLike = number(current.apparent_temperature),
+            humidity = number(current.relative_humidity_2m),
+            condition = weatherDescription(current.weather_code),
+            wind = windDescription(current.wind_direction_10m),
+            windSpeed = number(current.wind_speed_10m),
+            aqi = air.await()?.toString() ?: "—",
+            forecasts = forecast
         )
     }
 
     private fun number(value: Double?): String {
-        if (value == null || value == 9999.0) return "—"
+        if (value == null || !value.isFinite()) return "—"
         return if (value % 1.0 == 0.0) value.toInt().toString() else "%.1f".format(value)
-    }
-
-    companion object {
-        private const val STATION_ID = "fElIR"
     }
 }
 
+internal fun weatherDescription(code: Int?): String = when (code) {
+    0 -> "晴"
+    1, 2 -> "多云"
+    3 -> "阴"
+    45, 48 -> "雾"
+    51, 53, 55 -> "毛毛雨"
+    56, 57, 66, 67 -> "冻雨"
+    61, 63, 65, 80, 81, 82 -> "雨"
+    71, 73, 75, 77, 85, 86 -> "雪"
+    95, 96, 99 -> "雷雨"
+    else -> "未知"
+}
+
+private val windDirections = listOf("北风", "东北风", "东风", "东南风", "南风", "西南风", "西风", "西北风")
+
+internal fun windDescription(degrees: Int?): String =
+    degrees?.let { windDirections[(wrapHeading(it.toFloat()) / 45f).roundToInt() % windDirections.size] } ?: "—"
+
 private object WeatherClient {
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("https://nmc.cn/")
+    val api: OpenMeteoApi = Retrofit.Builder()
+        .baseUrl("https://api.open-meteo.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-
-    val api: NmcWeatherApi = retrofit.create(NmcWeatherApi::class.java)
+        .create(OpenMeteoApi::class.java)
 }

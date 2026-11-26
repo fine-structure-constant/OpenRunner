@@ -226,11 +226,12 @@ v2-pro 的 `RunRecordDto` 按该协议建模，避免将日期强制转换为 Lo
     GET https://restapi.amap.com/v3/geocode/regeo
     参数：output=json、extensions=base、location=经度,纬度、key、radius=1000
 
-天气已迁移到 `feature/weather/data/WeatherRepository`，使用独立的 NMC Retrofit 客户端；跑步地图和连续定位使用高德 3D 地图/定位合包，定位结果直接采用 GCJ-02。
+天气由 `feature/weather/data/WeatherRepository` 通过 Open-Meteo 查询。系统定位的经纬度保留两位小数后用于获取实况、预报和空气质量。跑步地图和连续定位使用高德 3D 地图/定位合包，定位结果采用 GCJ-02。
 
-天气：
+    GET https://api.open-meteo.com/v1/forecast
+    GET https://air-quality-api.open-meteo.com/v1/air-quality
 
-    GET https://nmc.cn/rest/weather?stationid=fElIR
+[Open-Meteo 天气接口](https://open-meteo.com/en/docs) · [空气质量接口](https://open-meteo.com/en/docs/air-quality-api)
 
 高德地图：
 

@@ -37,21 +37,33 @@
             style="@style/Widget.OpenRunner.Rule.Accent"
             android:layout_marginTop="@dimen/or_space_md" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/weather_refresh"
+            style="@style/Widget.OpenRunner.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/or_space_lg"
+            android:minHeight="48dp"
+            android:text="@string/weather_refresh" />
+
         <TextView
             android:id="@+id/weather_loading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/or_space_lg"
             android:text="@string/weather_loading"
-            android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted" />
+            android:accessibilityLiveRegion="polite"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/weather_error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/or_space_lg"
+            android:accessibilityLiveRegion="polite"
             android:textAppearance="@style/TextAppearance.OpenRunner.Body"
-            android:textColor="@color/or_accent"
+            android:textColor="@color/or_status_error"
             android:visibility="gone" />
 
         <LinearLayout
@@ -131,13 +143,14 @@
                 android:layout_marginTop="@dimen/or_space_sm"
                 android:orientation="vertical" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/weather_refresh"
-                style="@style/Widget.OpenRunner.Button.Outlined"
+            <TextView
+                android:id="@+id/weather_source"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/or_space_xl"
-                android:text="@string/weather_refresh" />
+                android:layout_marginTop="@dimen/or_space_lg"
+                android:text="@string/weather_source"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                android:textColorLink="?attr/colorPrimary" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

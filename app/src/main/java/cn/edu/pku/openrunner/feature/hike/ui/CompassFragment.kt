@@ -6,11 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
-import android.hardware.GeomagneticField
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -23,21 +18,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import cn.edu.pku.openrunner.R
+import cn.edu.pku.openrunner.core.orientation.CompassStatus
+import cn.edu.pku.openrunner.core.orientation.DeviceCompass
+import cn.edu.pku.openrunner.core.orientation.declinationAt
+import cn.edu.pku.openrunner.core.orientation.trueNorthHeading
 import cn.edu.pku.openrunner.feature.hike.data.HikeLocation
 import cn.edu.pku.openrunner.feature.hike.data.RecordedFix
-import cn.edu.pku.openrunner.feature.hike.domain.trueNorthHeading
 import com.google.android.material.switchmaterial.SwitchMaterial
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
-class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener {
-    private lateinit var manager: SensorManager
-    private var rotation: Sensor? = null
+class CompassFragment : Fragment(R.layout.fragment_compass) {
+    private lateinit var compass: DeviceCompass
     private var sensorSupported = false
-    private var magnetic: Sensor? = null
-    private var accelerometer: Sensor? = null
-    private var gravity: FloatArray? = null
-    private var field: FloatArray? = null
     private var heading: Float? = null
     private var sensorStatus: Int? = R.string.compass_waiting
     private var trueNorthRequested = false
@@ -49,19 +41,22 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
         declination = null
         render()
     }
-    private val matrix = FloatArray(9)
-    private val screenMatrix = FloatArray(9)
-    private val orientation = FloatArray(3)
     private val locationPermission = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         if (isResumed) updateGps()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        manager = requireContext().getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        magnetic = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-        accelerometer = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        rotation = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-            ?: manager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR)
+        compass = DeviceCompass(requireContext(), { this.view?.display?.rotation ?: Surface.ROTATION_0 }) { value, status ->
+            heading = value
+            sensorStatus = when (status) {
+                CompassStatus.WAITING -> R.string.compass_waiting
+                CompassStatus.UNAVAILABLE -> R.string.compass_unavailable
+                CompassStatus.CALIBRATE -> R.string.compass_calibrate
+                CompassStatus.TILTED -> R.string.compass_flat
+                null -> null
+            }
+            render()
+        }
         trueNorthRequested = savedInstanceState?.getBoolean(TRUE_NORTH_REQUESTED) ?: false
         view.findViewById<SwitchMaterial>(R.id.compass_true_north).apply {
             isChecked = trueNorthRequested
@@ -77,27 +72,13 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
 
     override fun onResume() {
         super.onResume()
-        heading = null
-        field = null
-        gravity = null
-        val primary = rotation
-        val mag = magnetic
-        val accel = accelerometer
-        sensorSupported = if (primary != null &&
-            manager.registerListener(this, primary, SensorManager.SENSOR_DELAY_UI)) {
-            true
-        } else if (mag != null && accel != null) {
-            manager.registerListener(this, mag, SensorManager.SENSOR_DELAY_UI) &&
-                manager.registerListener(this, accel, SensorManager.SENSOR_DELAY_UI)
-        } else false
-        if (!sensorSupported) manager.unregisterListener(this)
-        sensorStatus = if (sensorSupported) R.string.compass_waiting else R.string.compass_unavailable
+        sensorSupported = compass.start()
         view?.findViewById<SwitchMaterial>(R.id.compass_true_north)?.isEnabled = sensorSupported
         updateGps()
     }
 
     override fun onPause() {
-        manager.unregisterListener(this)
+        compass.stop()
         stopGps()
         super.onPause()
     }
@@ -129,11 +110,9 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
         if (!trueNorthRequested || !gpsEnabled || fix.horizontalAccuracy > 100f) return
         val remaining = FIX_VALIDITY_MS - (SystemClock.elapsedRealtime() - fix.monotonicMs)
         if (remaining <= 0) return
-        val correction = GeomagneticField(
-            fix.point.latitude.toFloat(), fix.point.longitude.toFloat(),
-            fix.point.altitude?.toFloat() ?: 0f, fix.time
-        ).declination
-        if (!correction.isFinite()) return
+        val correction = declinationAt(
+            fix.point.latitude, fix.point.longitude, fix.point.altitude ?: 0.0, fix.time
+        ) ?: return
         declination = correction
         handler.removeCallbacks(expireCorrection)
         handler.postDelayed(expireCorrection, remaining)
@@ -150,68 +129,6 @@ class CompassFragment : Fragment(R.layout.fragment_compass), SensorEventListener
     private fun clearCorrection() {
         handler.removeCallbacks(expireCorrection)
         declination = null
-    }
-
-    override fun onSensorChanged(event: SensorEvent) {
-        when (event.sensor.type) {
-            Sensor.TYPE_ROTATION_VECTOR, Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR -> {
-                if (event.accuracy <= SensorManager.SENSOR_STATUS_ACCURACY_LOW) {
-                    showSensorStatus(R.string.compass_calibrate)
-                    return
-                }
-                SensorManager.getRotationMatrixFromVector(matrix, event.values)
-            }
-            Sensor.TYPE_ACCELEROMETER, Sensor.TYPE_MAGNETIC_FIELD -> {
-                if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) gravity = event.values.copyOf(3)
-                else {
-                    field = event.values.copyOf(3).takeIf { event.accuracy > SensorManager.SENSOR_STATUS_ACCURACY_LOW }
-                    if (field == null) {
-                        showSensorStatus(R.string.compass_calibrate)
-                        return
-                    }
-                }
-                val g = gravity ?: return
-                val f = field ?: return
-                if (!SensorManager.getRotationMatrix(matrix, null, g, f)) {
-                    showSensorStatus(R.string.compass_calibrate)
-                    return
-                }
-            }
-            else -> return
-        }
-        val screenRotation = view?.display?.rotation ?: Surface.ROTATION_0
-        val x = when (screenRotation) {
-            Surface.ROTATION_90 -> SensorManager.AXIS_Y
-            Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_X
-            Surface.ROTATION_270 -> SensorManager.AXIS_MINUS_Y
-            else -> SensorManager.AXIS_X
-        }
-        val y = when (screenRotation) {
-            Surface.ROTATION_90 -> SensorManager.AXIS_MINUS_X
-            Surface.ROTATION_180 -> SensorManager.AXIS_MINUS_Y
-            Surface.ROTATION_270 -> SensorManager.AXIS_X
-            else -> SensorManager.AXIS_Y
-        }
-        SensorManager.remapCoordinateSystem(matrix, x, y, screenMatrix)
-        SensorManager.getOrientation(screenMatrix, orientation)
-        val pitch = Math.toDegrees(orientation[1].toDouble())
-        if (abs(pitch) > 65) {
-            showSensorStatus(R.string.compass_flat)
-            return
-        }
-        val raw = Math.toDegrees(orientation[0].toDouble()).toFloat()
-        if (!raw.isFinite()) return
-        val previous = heading ?: raw
-        val difference = (raw - previous + 540f) % 360f - 180f
-        heading = (previous + difference * 0.22f + 360f) % 360f
-        showSensorStatus(null)
-    }
-
-    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) = Unit
-
-    private fun showSensorStatus(status: Int?) {
-        sensorStatus = status
-        render()
     }
 
     private fun render() {

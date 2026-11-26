@@ -44,7 +44,7 @@ import cn.edu.pku.openrunner.core.AppThemeMode
 import cn.edu.pku.openrunner.core.AppThemeStore
 import cn.edu.pku.openrunner.ui.NavItemIndicatorDecoration
 import cn.edu.pku.openrunner.ui.applyContentSafeArea
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import cn.edu.pku.openrunner.ui.openRunnerDialog
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -415,7 +415,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun showAmapPrivacyDialog() {
         if (amapPrivacyDialog != null || isFinishing) return
-        amapPrivacyDialog = MaterialAlertDialogBuilder(this)
+        amapPrivacyDialog = openRunnerDialog()
             .setTitle(R.string.amap_privacy_title)
             .setMessage(R.string.amap_privacy_message)
             .setCancelable(false)

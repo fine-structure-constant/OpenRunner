@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.PathInterpolator
@@ -21,22 +22,23 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import cn.edu.pku.openrunner.R
+import cn.edu.pku.openrunner.core.orientation.DeviceCompass
+import cn.edu.pku.openrunner.core.orientation.declinationAt
+import cn.edu.pku.openrunner.core.orientation.mapHeading
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
 import cn.edu.pku.openrunner.feature.run.domain.TrackPoint
+import cn.edu.pku.openrunner.ui.MapLocationMarker
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
-import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.Circle
 import com.amap.api.maps.model.CircleOptions
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.Marker
-import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.Polyline
 import com.amap.api.maps.model.PolylineOptions
 import kotlinx.coroutines.launch
 import android.widget.Toast
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import cn.edu.pku.openrunner.ui.openRunnerDialog
 
 class RunFragment : Fragment() {
     private val locationPermissionLauncher = registerForActivityResult(
@@ -52,7 +54,11 @@ class RunFragment : Fragment() {
     private var mapView: MapView? = null
     private var aMap: AMap? = null
     private var routePolyline: Polyline? = null
-    private var currentMarker: Marker? = null
+    private var currentMarker: MapLocationMarker? = null
+    private lateinit var compass: DeviceCompass
+    private var magneticHeading: Float? = null
+    private var headingPoint: TrackPoint? = null
+    private var declination: Float? = null
     private var accuracyCircle: Circle? = null
     private var followLocation = true
     private var stopConfirmation: AlertDialog? = null
@@ -78,6 +84,12 @@ class RunFragment : Fragment() {
             uiSettings.isScaleControlsEnabled = true
             moveCamera(CameraUpdateFactory.newLatLngZoom(CAMPUS_CENTER, 15.5f))
             setOnMapTouchListener { followLocation = false }
+        }
+        currentMarker = aMap?.let { MapLocationMarker(view.context, it) }
+        compass = DeviceCompass(requireContext(), { this.view?.display?.rotation ?: Surface.ROTATION_0 },
+            allowUpright = true) { heading, _ ->
+            magneticHeading = heading
+            updateLocationHeading()
         }
 
         val statusText = view.findViewById<TextView>(R.id.run_status)
@@ -215,8 +227,15 @@ class RunFragment : Fragment() {
                                 }
                             )
                         )
-                        state.currentPoint?.let {
-                            renderCurrentLocation(it, state.accuracyMeters, false)
+                        val point = state.currentPoint
+                        if (point != null) {
+                            renderCurrentLocation(point, state.accuracyMeters, false)
+                        } else {
+                            currentMarker?.clear()
+                            accuracyCircle?.remove()
+                            accuracyCircle = null
+                            headingPoint = null
+                            declination = null
                         }
                         renderTrack(state.points, state.usedVirtualLocation)
                     }
@@ -247,7 +266,7 @@ class RunFragment : Fragment() {
             viewModel.uiState.value.status !in setOf(RunStatus.RUNNING, RunStatus.PAUSED)
         ) return
         val isPaused = viewModel.uiState.value.status == RunStatus.PAUSED
-        stopConfirmation = MaterialAlertDialogBuilder(requireView().context, R.style.ThemeOverlay_OpenRunner_RunDialog)
+        stopConfirmation = requireView().context.openRunnerDialog()
             .setTitle(R.string.run_stop_confirm_title)
             .setMessage(R.string.run_stop_confirm_message)
             .setPositiveButton(R.string.run_stop_confirm_yes) { _, _ -> viewModel.stop() }
@@ -263,7 +282,7 @@ class RunFragment : Fragment() {
         if (pauseConfirmation != null || stopConfirmation != null ||
             viewModel.uiState.value.status != RunStatus.RUNNING
         ) return
-        pauseConfirmation = MaterialAlertDialogBuilder(requireView().context, R.style.ThemeOverlay_OpenRunner_RunDialog)
+        pauseConfirmation = requireView().context.openRunnerDialog()
             .setTitle(R.string.run_pause_confirm_title)
             .setMessage(R.string.run_pause_confirm_message)
             .setPositiveButton(R.string.run_pause_confirm_yes) { _, _ -> viewModel.pause() }
@@ -291,17 +310,13 @@ class RunFragment : Fragment() {
     ) {
         val map = aMap ?: return
         val position = point.toMapLatLng()
-        val marker = currentMarker
-        if (marker == null) {
-            currentMarker = map.addMarker(
-                MarkerOptions()
-                    .position(position)
-                    .anchor(0.5f, 0.5f)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_location_point))
-            )
-        } else {
-            marker.position = position
+        val realPoint = point.takeUnless { viewModel.uiState.value.virtualLocationEnabled }
+        if (headingPoint != realPoint) {
+            headingPoint = realPoint
+            declination = realPoint?.let { declinationAt(it.latitude, it.longitude) }
         }
+        updateLocationHeading()
+        currentMarker?.moveTo(position)
         accuracyCircle?.remove()
         accuracyCircle = accuracyMeters?.takeIf { it > 0 }?.let { accuracy ->
             val routeColor = ContextCompat.getColor(requireContext(), R.color.map_route)
@@ -317,6 +332,12 @@ class RunFragment : Fragment() {
         if (forceCenter || followLocation) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17.5f))
         }
+    }
+
+    private fun updateLocationHeading() {
+        val heading = mapHeading(magneticHeading, declination)
+            .takeUnless { viewModel.uiState.value.virtualLocationEnabled }
+        currentMarker?.updateHeading(heading)
     }
 
     private fun renderTrack(points: List<TrackPoint>, virtual: Boolean) {
@@ -402,9 +423,13 @@ class RunFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         mapView?.onResume()
+        compass.start()
     }
 
     override fun onPause() {
+        compass.stop()
+        magneticHeading = null
+        updateLocationHeading()
         mapView?.onPause()
         super.onPause()
     }
@@ -416,10 +441,12 @@ class RunFragment : Fragment() {
         pauseConfirmation = null
         viewModel.stopLocatingIfIdle()
         routePolyline?.remove()
-        currentMarker?.remove()
+        currentMarker?.clear()
         accuracyCircle?.remove()
         routePolyline = null
         currentMarker = null
+        headingPoint = null
+        declination = null
         accuracyCircle = null
         mapView?.onDestroy()
         mapView = null

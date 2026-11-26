@@ -14,6 +14,7 @@ import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
+import android.view.Surface
 import android.view.View
 import android.view.ViewStub
 import android.widget.Button
@@ -34,6 +35,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.core.AmapPrivacyController
 import cn.edu.pku.openrunner.core.AmapPrivacyStore
+import cn.edu.pku.openrunner.core.orientation.DeviceCompass
+import cn.edu.pku.openrunner.core.orientation.declinationAt
+import cn.edu.pku.openrunner.core.orientation.mapHeading
 import cn.edu.pku.openrunner.feature.hike.data.HikeLocation
 import cn.edu.pku.openrunner.feature.hike.data.HikeRecording
 import cn.edu.pku.openrunner.feature.hike.data.HikeRecordingService
@@ -41,7 +45,7 @@ import cn.edu.pku.openrunner.feature.hike.data.RecordedFix
 import cn.edu.pku.openrunner.feature.hike.domain.GeoPoint
 import cn.edu.pku.openrunner.feature.hike.domain.HikeSample
 import cn.edu.pku.openrunner.feature.hike.domain.MapArea
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import cn.edu.pku.openrunner.ui.openRunnerDialog
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,6 +56,10 @@ import kotlin.math.roundToInt
 class HikeFragment : Fragment(R.layout.fragment_hike) {
     private val model: HikeViewModel by activityViewModels()
     private lateinit var map: HikeMapView
+    private lateinit var compass: DeviceCompass
+    private var magneticHeading: Float? = null
+    private var headingFix: RecordedFix? = null
+    private var declination: Float? = null
     private val amapPrivacy by lazy { AmapPrivacyStore(requireContext()) }
     private var amapLayer: HikeAmapLayer? = null
     private var amapUnavailable = false
@@ -103,6 +111,11 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         recording = HikeRecordingService.recording.value
         view.findViewById<View>(R.id.hike_map_frame).clipToOutline = true
         map = view.findViewById(R.id.hike_map)
+        compass = DeviceCompass(requireContext(), { this.view?.display?.rotation ?: Surface.ROTATION_0 },
+            allowUpright = true) { heading, _ ->
+            magneticHeading = heading
+            renderHeading()
+        }
         (model.camera ?: savedCamera)?.let { map.setCamera(it, notify = false) }
         map.onCameraChanged = {
             model.camera = map.camera
@@ -174,9 +187,11 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     override fun onResume() {
         super.onResume()
         amapLayer?.resume()
+        if (!filesBack.isEnabled) compass.start()
     }
 
     override fun onPause() {
+        stopCompass()
         amapLayer?.pause()
         super.onPause()
     }
@@ -188,6 +203,8 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         amapLayer?.destroy()
         amapLayer = null
         amapUnavailable = false
+        headingFix = null
+        declination = null
         map.onCameraChanged = null
         map.onSegmentSelected = null
         super.onDestroyView()
@@ -291,7 +308,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     }
 
     private fun confirmStop() {
-        MaterialAlertDialogBuilder(requireContext())
+        requireView().context.openRunnerDialog()
             .setTitle(R.string.hike_stop_confirm)
             .setNegativeButton(R.string.hike_cancel, null)
             .setPositiveButton(R.string.hike_stop) { _, _ ->
@@ -320,6 +337,11 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         val view = view ?: return
         val fix = currentFix()
         val enabled = if (recording.active) recording.gpsEnabled else previewGps
+        if (headingFix != fix) {
+            headingFix = fix
+            declination = fix?.let { declinationAt(it.point.latitude, it.point.longitude, it.point.altitude ?: 0.0, it.time) }
+        }
+        renderHeading()
         if (map.fix != fix) map.fix = fix
         amapLayer?.showFix(fix)
         if (fix != null && (!map.hasCamera || recenterOnFix)) {
@@ -341,6 +363,18 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             isVisible = fix != null
             if (fix != null) text = getString(R.string.hike_gps_coordinates, fix.point.latitude, fix.point.longitude)
         }
+    }
+
+    private fun renderHeading() {
+        val heading = mapHeading(magneticHeading, declination)
+        map.locationHeading = heading
+        amapLayer?.showHeading(heading)
+    }
+
+    private fun stopCompass() {
+        compass.stop()
+        magneticHeading = null
+        renderHeading()
     }
 
     private fun renderRecording() {
@@ -459,7 +493,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         val maps = HikeBasemap.entries
         val choices = arrayOf(getString(R.string.hike_basemap_amap), getString(R.string.hike_basemap_contours))
         val current = if (amapLayer == null) HikeBasemap.CONTOURS else HikeBasemap.AMAP
-        MaterialAlertDialogBuilder(requireContext())
+        requireView().context.openRunnerDialog()
             .setTitle(R.string.hike_basemap_title)
             .setSingleChoiceItems(choices, current.ordinal) { dialog, selected ->
                 dialog.dismiss()
@@ -478,7 +512,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             model.setBasemap(HikeBasemap.AMAP)
             renderPage(model.page.value)
         } else {
-            MaterialAlertDialogBuilder(requireContext())
+            requireView().context.openRunnerDialog()
                 .setTitle(R.string.amap_privacy_title)
                 .setMessage(R.string.amap_privacy_message)
                 .setNegativeButton(R.string.amap_privacy_decline, null)
@@ -498,7 +532,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
 
     private fun showSegment(sample: HikeSample) {
         val time = DateFormat.getTimeInstance(DateFormat.MEDIUM).format(Date(sample.timestamp))
-        MaterialAlertDialogBuilder(requireContext())
+        requireView().context.openRunnerDialog()
             .setTitle(R.string.hike_segment_title)
             .setMessage(getString(R.string.hike_segment_details, time, meters(sample.point.altitude), meters(sample.segmentAscent)))
             .setPositiveButton(R.string.hike_close, null)
@@ -510,7 +544,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         val location = currentFix()?.takeIf { it.horizontalAccuracy <= 100 }?.point
         when {
             route == null && location == null -> toast(R.string.hike_cache_location_needed)
-            route != null && location != null -> MaterialAlertDialogBuilder(requireContext())
+            route != null && location != null -> requireView().context.openRunnerDialog()
                 .setTitle(R.string.hike_cache)
                 .setItems(arrayOf(getString(R.string.hike_cache_route), getString(R.string.hike_cache_here))) { _, index ->
                     if (index == 0) chooseDistance(route.name, route::points)
@@ -523,7 +557,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
 
     private fun chooseDistance(name: String, points: () -> Sequence<GeoPoint>) {
         val options = listOf(2, 5, 10)
-        MaterialAlertDialogBuilder(requireContext())
+        requireView().context.openRunnerDialog()
             .setTitle(R.string.hike_cache_radius)
             .setItems(options.map { getString(R.string.hike_cache_distance, it) }.toTypedArray()) { _, index ->
                 val radius = options[index]
@@ -545,6 +579,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             }
         ).also { filesPanel = it }
         root.findViewById<View>(R.id.hike_dashboard).visibility = View.INVISIBLE
+        stopCompass()
         filesBack.isEnabled = true
         panel.show(maps)
         renderMapStatus()
@@ -555,6 +590,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         filesPanel?.hide()
         val root = requireView()
         root.findViewById<View>(R.id.hike_dashboard).visibility = View.VISIBLE
+        if (isResumed) compass.start()
         root.findViewById<View>(R.id.hike_files).requestFocus()
     }
 
@@ -570,7 +606,7 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             }
             val format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
             val names = hikes.map { format.format(Date(it.started)) }.toTypedArray()
-            MaterialAlertDialogBuilder(requireContext())
+            requireView().context.openRunnerDialog()
                 .setTitle(R.string.hike_history)
                 .setItems(names) { _, index ->
                     val hike = hikes[index]
@@ -581,7 +617,8 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     }
 
     private fun showAttribution() {
-        MaterialAlertDialogBuilder(requireContext())
+        requireView().context.openRunnerDialog()
+            .setTitle(R.string.hike_map_sources)
             .setMessage(R.string.hike_attribution)
             .setNeutralButton(R.string.hike_close, null)
             .setPositiveButton(R.string.hike_attribution_osm) { _, _ -> openLink("https://www.openstreetmap.org/copyright") }

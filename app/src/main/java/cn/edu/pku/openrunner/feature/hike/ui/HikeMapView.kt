@@ -16,6 +16,7 @@ import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.feature.hike.data.HikeMapData
 import cn.edu.pku.openrunner.feature.hike.data.RecordedFix
 import cn.edu.pku.openrunner.feature.hike.domain.*
+import cn.edu.pku.openrunner.ui.LocationGlyph
 import kotlin.math.*
 
 data class HikeCamera(val x: Double, val y: Double, val zoom: Double)
@@ -25,6 +26,7 @@ class HikeMapView @JvmOverloads constructor(
     attributes: AttributeSet? = null
 ) : View(context, attributes) {
     private val density = resources.displayMetrics.density
+    private val locationGlyph = LocationGlyph(context)
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG).apply {
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
@@ -68,6 +70,12 @@ class HikeMapView @JvmOverloads constructor(
         set(value) {
             field = value
             invalidate()
+        }
+    var locationHeading: Int? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            postInvalidateOnAnimation()
         }
 
     private val gestures = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -320,7 +328,7 @@ class HikeMapView @JvmOverloads constructor(
         paint.style = Paint.Style.FILL
         paint.color = 0x303b72c6
         canvas.drawCircle(px, py, radius, paint)
-        dot(canvas, px, py, 6f, 0xff285fb0.toInt())
+        locationGlyph.draw(canvas, px, py, locationHeading)
     }
 
     private fun drawScale(canvas: Canvas) {
