@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/hike_file_open"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/or_space_sm"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:minHeight="64dp"
+            android:orientation="vertical"
+            android:paddingVertical="@dimen/or_space_md">
+
+            <TextView
+                android:id="@+id/hike_file_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+
+            <TextView
+                android:id="@+id/hike_file_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/or_space_xs"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                android:textColor="?attr/colorOnSurface" />
+
+            <TextView
+                android:id="@+id/hike_file_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/or_space_xs"
+                android:text="@string/hike_file_active"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                android:textColor="?attr/colorPrimary"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/hike_file_more"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/hike_file_manage"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_or_more"
+            app:tint="?attr/colorOnSurface" />
+    </LinearLayout>
+
+    <View style="@style/Widget.OpenRunner.Rule" />
+</LinearLayout>

@@ -11,6 +11,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
+import androidx.core.view.doOnNextLayout
 import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.feature.hike.data.HikeMapData
 import cn.edu.pku.openrunner.feature.hike.data.RecordedFix
@@ -144,7 +145,7 @@ class HikeMapView @JvmOverloads constructor(
 
     fun fit(area: MapArea) {
         if (width == 0 || height == 0) {
-            post { if (isAttachedToWindow) fit(area) }
+            doOnNextLayout { if (width > 0 && height > 0) fit(area) }
             return
         }
         val horizontal = max((area.east - area.west) / 360, 0.000015)

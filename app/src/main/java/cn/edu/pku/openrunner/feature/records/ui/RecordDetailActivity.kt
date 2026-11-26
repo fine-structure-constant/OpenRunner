@@ -18,6 +18,7 @@ import cn.edu.pku.openrunner.feature.run.data.LocalRunRecord
 import cn.edu.pku.openrunner.feature.run.data.LocalRunRecordStore
 import cn.edu.pku.openrunner.feature.run.domain.RunChartData
 import cn.edu.pku.openrunner.feature.run.domain.RunMetrics
+import cn.edu.pku.openrunner.ui.applyContentSafeArea
 import com.google.android.material.appbar.MaterialToolbar
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
@@ -40,6 +41,7 @@ class RecordDetailActivity : AppCompatActivity(R.layout.activity_record_detail) 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyContentSafeArea()
         savedMapState = savedInstanceState?.getBundle(KEY_MAP_STATE)
         findViewById<MaterialToolbar>(R.id.record_detail_toolbar)
             .setNavigationOnClickListener { finish() }

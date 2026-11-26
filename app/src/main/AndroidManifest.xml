@@ -85,7 +85,8 @@
         </activity>
         <activity
             android:name=".feature.auth.ui.AuthActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".feature.records.ui.RecordDetailActivity"
             android:hardwareAccelerated="true"

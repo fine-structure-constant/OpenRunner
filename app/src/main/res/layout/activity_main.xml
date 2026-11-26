@@ -53,7 +53,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/or_surface_container"
-        android:fitsSystemWindows="true"
         app:headerLayout="@layout/main_drawer_header"
         app:itemBackground="@drawable/or_nav_item_background"
         app:itemHorizontalPadding="@dimen/or_drawer_pad"

@@ -6,6 +6,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import cn.edu.pku.openrunner.ui.applyContentSafeArea
 import androidx.lifecycle.lifecycleScope
 import cn.edu.pku.openrunner.R
 import cn.edu.pku.openrunner.core.session.SessionStore
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 class AuthActivity : AppCompatActivity(R.layout.activity_auth) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyContentSafeArea()
         val usernameInput = findViewById<TextInputEditText>(R.id.auth_username)
         val passwordInput = findViewById<TextInputEditText>(R.id.auth_password)
         val codeInput = findViewById<TextInputEditText>(R.id.auth_code)

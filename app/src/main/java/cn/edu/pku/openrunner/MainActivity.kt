@@ -43,6 +43,7 @@ import cn.edu.pku.openrunner.core.AmapPrivacyStore
 import cn.edu.pku.openrunner.core.AppThemeMode
 import cn.edu.pku.openrunner.core.AppThemeStore
 import cn.edu.pku.openrunner.ui.NavItemIndicatorDecoration
+import cn.edu.pku.openrunner.ui.applyContentSafeArea
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -83,6 +84,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        applyContentSafeArea()
         // 重建（主题切换、进程被回收后恢复）时页面上已经有一个被还原的 Fragment，
         // 此时再切页面应当照常做转场。
         firstPageShown = savedInstanceState != null

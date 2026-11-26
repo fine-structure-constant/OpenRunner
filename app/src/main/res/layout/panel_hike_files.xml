@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/or_surface"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/or_page_pad">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingVertical="@dimen/or_space_sm">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/hike_files_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="@dimen/or_space_sm"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/hike_files_back"
+            android:scaleType="center"
+            app:srcCompat="@drawable/ic_or_back"
+            app:tint="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/hike_files_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/hike_files"
+            android:textAppearance="@style/TextAppearance.OpenRunner.PageTitle" />
+    </LinearLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/hike_files_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="?attr/colorPrimary"
+        app:tabTextColor="?attr/colorOnSurface" />
+
+    <View style="@style/Widget.OpenRunner.Rule" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/hike_files_action"
+        style="@style/Widget.OpenRunner.Button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/or_space_md"
+        android:layout_marginBottom="@dimen/or_space_sm"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minHeight="48dp"
+        android:text="@string/hike_import" />
+
+    <TextView
+        android:id="@+id/hike_files_progress_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/or_space_xs"
+        android:textAppearance="@style/TextAppearance.OpenRunner.Body"
+        android:visibility="gone" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/hike_files_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/or_space_sm"
+        android:visibility="gone"
+        app:indicatorColor="?attr/colorPrimary"
+        app:trackColor="@color/or_surface_container_high" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/hike_files_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/or_space_lg"
+            android:scrollbars="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <TextView
+            android:id="@+id/hike_files_empty_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/or_space_lg"
+            android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
+    </FrameLayout>
+</LinearLayout>

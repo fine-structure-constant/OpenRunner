@@ -3,6 +3,8 @@ package cn.edu.pku.openrunner.feature.hike.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,13 +15,16 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.view.View
+import android.view.ViewStub
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.ProgressBar
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -37,6 +42,7 @@ import cn.edu.pku.openrunner.feature.hike.domain.GeoPoint
 import cn.edu.pku.openrunner.feature.hike.domain.HikeSample
 import cn.edu.pku.openrunner.feature.hike.domain.MapArea
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DateFormat
@@ -56,6 +62,10 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     private var pendingAction: LocationAction? = null
     private var starting = false
     private var recenterOnFix = false
+    private var filesPanel: HikeFilesPanel? = null
+    private val filesBack = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() = closeFiles()
+    }
 
     private val kmlPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) model.importRoute(uri)
@@ -88,7 +98,10 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         super.onViewCreated(view, savedInstanceState)
         pendingAction = savedInstanceState?.getString(ACTION_KEY)?.let(LocationAction::valueOf)
         val savedCamera = savedInstanceState?.getDoubleArray(CAMERA_KEY)?.let { HikeCamera(it[0], it[1], it[2]) }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, filesBack)
+        configureDashboard(view)
         recording = HikeRecordingService.recording.value
+        view.findViewById<View>(R.id.hike_map_frame).clipToOutline = true
         map = view.findViewById(R.id.hike_map)
         (model.camera ?: savedCamera)?.let { map.setCamera(it, notify = false) }
         map.onCameraChanged = {
@@ -104,21 +117,22 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         view.findViewById<View>(R.id.hike_recenter).setOnClickListener {
             withLocationPermission(LocationAction.CENTER, ::recenter)
         }
-        view.findViewById<View>(R.id.hike_basemap).setOnClickListener { switchBasemap() }
-        view.findViewById<View>(R.id.hike_import).setOnClickListener { kmlPicker.launch(arrayOf("*/*")) }
+        view.findViewById<View>(R.id.hike_basemap).setOnClickListener { chooseBasemap() }
         view.findViewById<View>(R.id.hike_route_label).setOnClickListener {
             model.page.value.route?.let { route -> MapArea.around(route.points(), 0)?.let(map::fit) }
         }
-        view.findViewById<View>(R.id.hike_cache).setOnClickListener {
-            if (model.page.value.progress != null) model.cancelDownload() else chooseCacheTarget()
+        view.findViewById<View>(R.id.hike_files).setOnClickListener {
+            openFiles(filesPanel?.showingMaps ?: (model.page.value.progress != null))
         }
-        view.findViewById<View>(R.id.hike_files).setOnClickListener { showFiles() }
         view.findViewById<View>(R.id.hike_record).setOnClickListener {
             if (recording.active) confirmStop() else withLocationPermission(LocationAction.RECORD, ::requestRecording)
         }
         view.findViewById<View>(R.id.hike_history).setOnClickListener { showHistory() }
         view.findViewById<View>(R.id.hike_attribution).setOnClickListener { showAttribution() }
         if (!recording.active && model.page.value.hike == null) model.loadHike()
+        if (savedInstanceState?.containsKey(FILES_MAPS_KEY) == true) {
+            openFiles(savedInstanceState.getBoolean(FILES_MAPS_KEY))
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -168,6 +182,9 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     }
 
     override fun onDestroyView() {
+        filesPanel?.hide()
+        filesPanel = null
+        filesBack.isEnabled = false
         amapLayer?.destroy()
         amapLayer = null
         amapUnavailable = false
@@ -179,10 +196,33 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         pendingAction?.let { outState.putString(ACTION_KEY, it.name) }
+        if (filesBack.isEnabled) outState.putBoolean(FILES_MAPS_KEY, filesPanel?.showingMaps == true)
         if (::map.isInitialized && map.hasCamera) {
             val camera = map.camera
             outState.putDoubleArray(CAMERA_KEY, doubleArrayOf(camera.x, camera.y, camera.zoom))
         }
+    }
+
+    private fun configureDashboard(view: View) {
+        val config = resources.configuration
+        val minWidth = if (config.orientation == Configuration.ORIENTATION_LANDSCAPE) 480 else 600
+        if (config.screenWidthDp < minWidth) return
+
+        val dashboard = view.findViewById<LinearLayout>(R.id.hike_dashboard)
+        dashboard.orientation = LinearLayout.HORIZONTAL
+        view.findViewById<View>(R.id.hike_map_column).layoutParams =
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
+        val maxPanelWidth = resources.getDimensionPixelSize(R.dimen.hike_side_panel_width)
+        val panelWidth = minOf(maxPanelWidth, (config.screenWidthDp * resources.displayMetrics.density * 0.42f).roundToInt())
+        view.findViewById<View>(R.id.hike_recording_panel).layoutParams =
+            LinearLayout.LayoutParams(
+                panelWidth,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            ).apply {
+                marginStart = resources.getDimensionPixelSize(R.dimen.or_space_sm)
+            }
+        view.findViewById<View>(R.id.hike_track_details).layoutParams =
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
     }
 
     private fun syncPreview() {
@@ -315,14 +355,13 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             setText(if (active) R.string.hike_stop else R.string.hike_start)
         }
         view.findViewById<View>(R.id.hike_history).isEnabled = !active
-        view.findViewById<TextView>(R.id.hike_stats).text = if (samples.isEmpty()) {
-            getString(R.string.hike_track_empty)
-        } else {
-            val distance = if (active) recording.distance else log?.distance ?: 0.0
-            val ascent = if (active) recording.ascent else log?.ascent ?: 0.0
-            val measuredAscent = ascent.takeIf { samples.any { it.segmentAscent != null } }
-            getString(R.string.hike_track_stats, distance / 1_000, meters(measuredAscent))
-        }
+        val distance = if (active) recording.distance else log?.distance ?: 0.0
+        val ascent = if (active) recording.ascent else log?.ascent ?: 0.0
+        view.findViewById<TextView>(R.id.hike_distance).text = if (samples.isEmpty()) {
+            getString(R.string.hike_value_missing)
+        } else getString(R.string.hike_distance_km, distance / 1_000)
+        view.findViewById<TextView>(R.id.hike_ascent).text =
+            meters(ascent.takeIf { samples.any { it.segmentAscent != null } })
         val legend = view.findViewById<TextView>(R.id.hike_legend)
         legend.isVisible = samples.size > 1
         if (legend.isVisible) legend.text = legendText
@@ -352,24 +391,14 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         view.findViewById<TextView>(R.id.hike_route_label).apply {
             isVisible = page.route != null
             text = page.route?.let { getString(R.string.hike_reference_label, it.name) }
+            contentDescription = page.route?.let { getString(R.string.hike_reference_fit, it.name) }
         }
         view.findViewById<View>(R.id.hike_attribution).isVisible = offlineMap != null
-        view.findViewById<View>(R.id.hike_import).isEnabled = !page.importing
-        view.findViewById<Button>(R.id.hike_cache).setText(
-            if (page.progress == null) R.string.hike_cache else R.string.hike_cancel_download
-        )
-        view.findViewById<ProgressBar>(R.id.hike_progress).apply {
-            isVisible = page.progress != null
-            page.progress?.let { (complete, total) ->
-                max = total
-                progress = complete
-            }
-        }
         renderRecording()
         renderGps()
         renderMapStatus()
         page.message?.let {
-            toast(it)
+            Snackbar.make(view, it, Snackbar.LENGTH_LONG).show()
             model.consumeMessage(it)
         }
     }
@@ -378,14 +407,18 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
         val status = view?.findViewById<TextView>(R.id.hike_map_status) ?: return
         val page = model.page.value
         val progress = page.progress
-        val area = page.map?.info?.area
-        status.text = when {
-            progress != null -> getString(R.string.hike_cache_progress, progress.first, progress.second)
-            amapLayer != null -> getString(R.string.hike_basemap_amap)
-            area?.contains(map.camera.x, map.camera.y) == true -> getString(R.string.hike_map_available)
-            amapUnavailable -> getString(R.string.hike_amap_unavailable)
-            else -> getString(R.string.hike_map_missing)
+        val visibleMap = page.map?.info?.takeIf {
+            amapLayer == null && it.area.contains(map.camera.x, map.camera.y)
         }
+        val message = when {
+            progress != null -> getString(R.string.hike_cache_progress, progress.first, progress.second)
+            amapUnavailable -> getString(R.string.hike_amap_unavailable)
+            amapLayer == null && visibleMap == null -> getString(R.string.hike_map_missing)
+            else -> null
+        }
+        status.isVisible = message != null
+        status.text = message
+        if (filesBack.isEnabled) filesPanel?.render(page, visibleMap?.key)
     }
 
     private fun renderBasemap(mode: HikeBasemap) {
@@ -414,19 +447,33 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             amapLayer = null
             if (mode == HikeBasemap.CONTOURS) amapUnavailable = false
         }
-        val next = if (amapLayer == null) R.string.hike_basemap_amap else R.string.hike_basemap_contours
+        val current = if (amapLayer == null) R.string.hike_basemap_contours else R.string.hike_basemap_amap
         // Keep the offline view measured so the shared viewport can still fit a route.
         map.visibility = if (amapLayer == null) View.VISIBLE else View.INVISIBLE
         root.findViewById<Button>(R.id.hike_basemap).apply {
-            setText(next)
-            contentDescription = getString(R.string.hike_switch_basemap, getString(next))
+            text = getString(R.string.hike_basemap_current, getString(current))
         }
     }
 
-    private fun switchBasemap() {
-        if (amapLayer != null) {
-            model.setBasemap(HikeBasemap.CONTOURS)
-        } else if (amapPrivacy.isAgreed) {
+    private fun chooseBasemap() {
+        val maps = HikeBasemap.entries
+        val choices = arrayOf(getString(R.string.hike_basemap_amap), getString(R.string.hike_basemap_contours))
+        val current = if (amapLayer == null) HikeBasemap.CONTOURS else HikeBasemap.AMAP
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.hike_basemap_title)
+            .setSingleChoiceItems(choices, current.ordinal) { dialog, selected ->
+                dialog.dismiss()
+                when (maps[selected]) {
+                    HikeBasemap.AMAP -> if (current != HikeBasemap.AMAP) enableAmap()
+                    HikeBasemap.CONTOURS -> model.setBasemap(HikeBasemap.CONTOURS)
+                }
+            }
+            .setNegativeButton(R.string.hike_cancel, null)
+            .show()
+    }
+
+    private fun enableAmap() {
+        if (amapPrivacy.isAgreed) {
             amapUnavailable = false
             model.setBasemap(HikeBasemap.AMAP)
             renderPage(model.page.value)
@@ -486,54 +533,29 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
             }.show()
     }
 
-    private fun showFiles() {
-        val page = model.page.value
-        val format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        val files = buildList<Pair<String, () -> Unit>> {
-            for (route in page.routes.entries) {
-                val active = route.id == page.routes.activeId && page.route != null
-                val title = if (active) getString(R.string.hike_file_active, route.title) else route.title
-                val label = getString(R.string.hike_file_route, title, route.fileName, format.format(Date(route.importedAt)))
-                add(label to {
-                    showFileActions(route.title, hide = active, { model.selectRoute(if (active) null else route.id) }) {
-                        model.deleteRoute(route.id)
-                    }
-                })
+    private fun openFiles(maps: Boolean) {
+        val root = requireView()
+        val panel = filesPanel ?: HikeFilesPanel(
+            root.findViewById<ViewStub>(R.id.hike_files_stub).inflate(),
+            model,
+            close = ::closeFiles,
+            importRoute = { kmlPicker.launch(arrayOf("*/*")) },
+            cacheMap = {
+                if (model.page.value.progress != null) model.cancelDownload() else chooseCacheTarget()
             }
-            for (item in page.maps) {
-                val label = getString(R.string.hike_file_map, item.label).let {
-                    if (page.basemap == HikeBasemap.CONTOURS && page.map?.info?.key == item.key) {
-                        getString(R.string.hike_file_active, it)
-                    } else it
-                }
-                add(label to {
-                    showFileActions(item.label, hide = false, { model.openOfflineMap(item) }) { model.deleteMap(item) }
-                })
-            }
-        }
-        MaterialAlertDialogBuilder(requireContext()).apply {
-            setTitle(R.string.hike_files)
-            if (files.isEmpty()) setMessage(R.string.hike_files_empty)
-            else setItems(files.map { it.first }.toTypedArray()) { _, index -> files[index].second() }
-            setNeutralButton(R.string.hike_import) { _, _ -> kmlPicker.launch(arrayOf("*/*")) }
-            setNegativeButton(R.string.hike_close, null)
-        }.show()
+        ).also { filesPanel = it }
+        root.findViewById<View>(R.id.hike_dashboard).visibility = View.INVISIBLE
+        filesBack.isEnabled = true
+        panel.show(maps)
+        renderMapStatus()
     }
 
-    private fun showFileActions(title: String, hide: Boolean, display: () -> Unit, delete: () -> Unit) {
-        val actions = arrayOf(getString(if (hide) R.string.hike_file_hide else R.string.hike_file_show),
-            getString(R.string.hike_file_delete))
-        MaterialAlertDialogBuilder(requireContext()).setTitle(title)
-            .setItems(actions) { _, selected ->
-                if (selected == 0) display()
-                else MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.hike_file_delete_confirm, title))
-                    .setNegativeButton(R.string.hike_cancel, null)
-                    .setPositiveButton(R.string.hike_file_delete) { _, _ -> delete() }
-                    .show()
-            }
-            .setNegativeButton(R.string.hike_close, null)
-            .show()
+    private fun closeFiles() {
+        filesBack.isEnabled = false
+        filesPanel?.hide()
+        val root = requireView()
+        root.findViewById<View>(R.id.hike_dashboard).visibility = View.VISIBLE
+        root.findViewById<View>(R.id.hike_files).requestFocus()
     }
 
     private fun showHistory() {
@@ -580,11 +602,14 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
                 R.string.hike_direction_level to HikeMapView.LEVEL,
                 R.string.hike_direction_unknown to HikeMapView.UNKNOWN
             )
+            val dark = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
+                Configuration.UI_MODE_NIGHT_YES
             for ((label, color) in items) {
                 if (length > 0) append("    ")
                 val start = length
                 append(getString(label))
-                setSpan(ForegroundColorSpan(color), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                val textColor = if (dark) ColorUtils.blendARGB(color, Color.WHITE, 0.48f) else color
+                setSpan(ForegroundColorSpan(textColor), start, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
     }
@@ -601,5 +626,6 @@ class HikeFragment : Fragment(R.layout.fragment_hike) {
     companion object {
         private const val ACTION_KEY = "hike_permission_action"
         private const val CAMERA_KEY = "hike_camera"
+        private const val FILES_MAPS_KEY = "hike_files_showing_maps"
     }
 }

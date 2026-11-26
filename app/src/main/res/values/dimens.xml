@@ -11,6 +11,7 @@
     <dimen name="or_page_pad">20dp</dimen>
     <dimen name="or_card_pad">18dp</dimen>
     <dimen name="or_card_gap">12dp</dimen>
+    <dimen name="hike_side_panel_width">280dp</dimen>
 
     <!--
         圆角分档：印章 3 / 按钮 4 / 卡片 6 / 柔和卡 10 / 浮层 20。

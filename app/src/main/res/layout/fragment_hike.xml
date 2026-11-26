@@ -1,222 +1,291 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/or_surface"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/hike_map_container"
+    <LinearLayout
+        android:id="@+id/hike_dashboard"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <cn.edu.pku.openrunner.feature.hike.ui.HikeMapView
-            android:id="@+id/hike_map"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:contentDescription="@string/hike_map_description" />
-
-        <TextView
-            android:id="@+id/hike_map_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:layout_margin="10dp"
-            android:background="@color/or_surface_container"
-            android:paddingHorizontal="9dp"
-            android:paddingVertical="7dp"
-            android:text="@string/hike_map_missing"
-            android:textColor="@color/or_on_surface"
-            android:textSize="12sp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hike_basemap"
-            style="@style/Widget.OpenRunner.Button.Outlined"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_gravity="top|end"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="4dp"
-            android:text="@string/hike_basemap_contours"
-            app:backgroundTint="@color/or_surface_container" />
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        android:padding="@dimen/or_space_md">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
-            android:layout_margin="8dp"
-            android:background="@color/or_surface_container"
+            android:id="@+id/hike_map_column"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/hike_zoom_in"
-                style="@style/Widget.OpenRunner.Button.Text"
-                android:layout_width="52dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/hike_zoom_in"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="0dp"
-                android:text="@string/hike_zoom_plus"
-                android:textSize="20sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/hike_zoom_out"
-                style="@style/Widget.OpenRunner.Button.Text"
-                android:layout_width="52dp"
-                android:layout_height="48dp"
-                android:contentDescription="@string/hike_zoom_out"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="0dp"
-                android:text="@string/hike_zoom_minus"
-                android:textSize="20sp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/hike_recenter"
-                style="@style/Widget.OpenRunner.Button.Text"
-                android:layout_width="52dp"
-                android:layout_height="48dp"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
-                android:minWidth="0dp"
-                android:paddingHorizontal="0dp"
-                android:text="@string/hike_recenter" />
-        </LinearLayout>
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/hike_attribution"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/or_page_pad"
-        android:paddingVertical="5dp"
-        android:text="@string/hike_sources"
-        android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted"
-        android:textSize="11sp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/hike_legend"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/or_page_pad"
-        android:paddingBottom="3dp"
-        android:textAppearance="@style/TextAppearance.OpenRunner.Body"
-        android:textSize="12sp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/hike_route_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:paddingHorizontal="@dimen/or_page_pad"
-        android:textAppearance="@style/TextAppearance.OpenRunner.Body"
-        android:textSize="13sp"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="7dp">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hike_import"
-            style="@style/Widget.OpenRunner.Button.Text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:minWidth="0dp"
-            android:paddingHorizontal="3dp"
-            android:text="@string/hike_import" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hike_cache"
-            style="@style/Widget.OpenRunner.Button.Text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:minWidth="0dp"
-            android:paddingHorizontal="3dp"
-            android:text="@string/hike_cache" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/hike_files"
-            style="@style/Widget.OpenRunner.Button.Text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:minWidth="0dp"
-            android:paddingHorizontal="3dp"
-            android:text="@string/hike_files" />
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/hike_progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/or_surface_container"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/or_page_pad"
-        android:paddingTop="8dp">
-
-        <TextView
-            android:id="@+id/hike_gps_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/hike_coordinates"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.OpenRunner.Body.Muted"
-            android:textIsSelectable="true"
-            android:textSize="12sp"
-            android:visibility="gone" />
-
-        <TextView
-            android:id="@+id/hike_stats"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:text="@string/hike_track_empty"
-            android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/hike_record"
-                style="@style/Widget.OpenRunner.Button"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
+                android:layout_marginBottom="@dimen/or_space_sm"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/hike_basemap"
+                    style="@style/Widget.OpenRunner.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/or_space_sm"
+                    android:layout_weight="1"
+                    android:insetBottom="0dp"
+                    android:insetTop="0dp"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="@dimen/or_space_sm"
+                    android:text="@string/hike_basemap_title" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/hike_files"
+                    style="@style/Widget.OpenRunner.Button.Outlined"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:insetBottom="0dp"
+                    android:insetTop="0dp"
+                    android:minHeight="48dp"
+                    android:paddingHorizontal="@dimen/or_space_sm"
+                    android:text="@string/hike_files" />
+            </LinearLayout>
+
+            <!-- Both weighted containers have a zero size along their weighted axis. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hike_map_frame"
+                style="@style/Widget.OpenRunner.Card"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:text="@string/hike_start" />
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.OpenRunner.Card.Soft"
+                tools:ignore="NestedWeights">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/hike_history"
-                style="@style/Widget.OpenRunner.Button.Outlined"
-                android:layout_width="wrap_content"
+                <FrameLayout
+                    android:id="@+id/hike_map_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <cn.edu.pku.openrunner.feature.hike.ui.HikeMapView
+                        android:id="@+id/hike_map"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@string/hike_map_description" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="@dimen/or_space_sm"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/hike_zoom_out"
+                            style="@style/Widget.OpenRunner.Button.MapControl"
+                            android:layout_marginEnd="@dimen/or_space_sm"
+                            android:contentDescription="@string/hike_zoom_out"
+                            app:icon="@drawable/ic_or_zoom_out" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/hike_zoom_in"
+                            style="@style/Widget.OpenRunner.Button.MapControl"
+                            android:layout_marginEnd="@dimen/or_space_sm"
+                            android:contentDescription="@string/hike_zoom_in"
+                            app:icon="@drawable/ic_or_zoom_in" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/hike_recenter"
+                            style="@style/Widget.OpenRunner.Button.MapControl"
+                            android:contentDescription="@string/hike_recenter"
+                            app:icon="@drawable/ic_or_recenter" />
+                    </LinearLayout>
+
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/hike_map_status"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/hike_history" />
+                android:layout_marginTop="@dimen/or_space_xs"
+                android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                android:textColor="?attr/colorOnSurface"
+                android:visibility="gone" />
         </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/hike_recording_panel"
+            style="@style/Widget.OpenRunner.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/or_space_sm"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.OpenRunner.Card.Soft">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/or_space_md">
+
+                <cn.edu.pku.openrunner.feature.hike.ui.HikeDetailsScrollView
+                    android:id="@+id/hike_track_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/hike_route_label"
+                            style="@style/Widget.OpenRunner.Button.Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/or_space_xs"
+                            android:ellipsize="end"
+                            android:gravity="start|center_vertical"
+                            android:insetBottom="0dp"
+                            android:insetTop="0dp"
+                            android:maxLines="2"
+                            android:minHeight="48dp"
+                            android:paddingHorizontal="0dp"
+                            android:visibility="gone"
+                            app:icon="@drawable/ic_or_recenter"
+                            app:iconGravity="end" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:labelFor="@id/hike_distance"
+                                    android:text="@string/hike_distance"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
+
+                                <TextView
+                                    android:id="@+id/hike_distance"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:fontFeatureSettings="tnum"
+                                    android:text="@string/hike_value_missing"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/or_space_sm"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:labelFor="@id/hike_ascent"
+                                    android:text="@string/hike_ascent"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.Caption" />
+
+                                <TextView
+                                    android:id="@+id/hike_ascent"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:fontFeatureSettings="tnum"
+                                    android:text="@string/hike_value_missing"
+                                    android:textAppearance="@style/TextAppearance.OpenRunner.SectionTitle" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/hike_gps_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/or_space_sm"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Body" />
+
+                        <TextView
+                            android:id="@+id/hike_coordinates"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textIsSelectable="true"
+                            android:visibility="gone" />
+
+                        <TextView
+                            android:id="@+id/hike_legend"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/or_space_xs"
+                            android:textAppearance="@style/TextAppearance.OpenRunner.Caption"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/hike_attribution"
+                            style="@style/Widget.OpenRunner.Button.Text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="48dp"
+                            android:paddingHorizontal="0dp"
+                            android:text="@string/hike_sources"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </cn.edu.pku.openrunner.feature.hike.ui.HikeDetailsScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/or_space_sm"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/hike_record"
+                        style="@style/Widget.OpenRunner.Button"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/or_space_sm"
+                        android:layout_weight="1"
+                        android:insetBottom="0dp"
+                        android:insetTop="0dp"
+                        android:minHeight="48dp"
+                        android:paddingHorizontal="@dimen/or_space_sm"
+                        android:text="@string/hike_start" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/hike_history"
+                        style="@style/Widget.OpenRunner.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:insetBottom="0dp"
+                        android:insetTop="0dp"
+                        android:minHeight="48dp"
+                        android:paddingHorizontal="@dimen/or_space_sm"
+                        android:text="@string/hike_history" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
-</LinearLayout>
+
+    <ViewStub
+        android:id="@+id/hike_files_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/panel_hike_files" />
+</FrameLayout>

@@ -245,6 +245,51 @@
         <item name="iconTint">?attr/colorError</item>
     </style>
 
+    <style name="MaterialAlertDialog.OpenRunner.Run" parent="MaterialAlertDialog.Material3">
+        <item name="backgroundTint">?attr/colorSurfaceVariant</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.OpenRunner.Dialog</item>
+    </style>
+
+    <style name="ShapeAppearance.OpenRunner.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/or_radius_sheet</item>
+    </style>
+
+    <style name="MaterialAlertDialog.OpenRunner.Title" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:textAppearance">@style/TextAppearance.OpenRunner.PageTitle</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="MaterialAlertDialog.OpenRunner.Body" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:textAppearance">@style/TextAppearance.OpenRunner.Body</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.Dialog">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:layout_marginStart">@dimen/or_space_sm</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.Text.Dialog">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.OpenRunner.Button.MapControl" parent="Widget.OpenRunner.Button.Outlined">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Card</item>
+    </style>
+
     <!-- 小尺寸浮层按钮（跑步页"定位"） -->
     <style name="Widget.OpenRunner.Button.Chip" parent="Widget.Material3.Button.OutlinedButton">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.OpenRunner.Card</item>

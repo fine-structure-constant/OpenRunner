@@ -247,7 +247,7 @@ class RunFragment : Fragment() {
             viewModel.uiState.value.status !in setOf(RunStatus.RUNNING, RunStatus.PAUSED)
         ) return
         val isPaused = viewModel.uiState.value.status == RunStatus.PAUSED
-        stopConfirmation = MaterialAlertDialogBuilder(requireContext())
+        stopConfirmation = MaterialAlertDialogBuilder(requireView().context, R.style.ThemeOverlay_OpenRunner_RunDialog)
             .setTitle(R.string.run_stop_confirm_title)
             .setMessage(R.string.run_stop_confirm_message)
             .setPositiveButton(R.string.run_stop_confirm_yes) { _, _ -> viewModel.stop() }
@@ -263,7 +263,7 @@ class RunFragment : Fragment() {
         if (pauseConfirmation != null || stopConfirmation != null ||
             viewModel.uiState.value.status != RunStatus.RUNNING
         ) return
-        pauseConfirmation = MaterialAlertDialogBuilder(requireContext())
+        pauseConfirmation = MaterialAlertDialogBuilder(requireView().context, R.style.ThemeOverlay_OpenRunner_RunDialog)
             .setTitle(R.string.run_pause_confirm_title)
             .setMessage(R.string.run_pause_confirm_message)
             .setPositiveButton(R.string.run_pause_confirm_yes) { _, _ -> viewModel.pause() }
